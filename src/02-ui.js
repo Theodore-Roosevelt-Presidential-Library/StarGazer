@@ -69,6 +69,8 @@
     '--fg:' + BRAND.graySky + ';--fg2:' + BRAND.sand + ';--acc:' + BRAND.orange + ';--panel:rgba(9,42,77,.92);--line:rgba(153,173,197,.25);--bg:#040d1b}',
     '.root.red{--fg:#c0392b;--fg2:#d9534f;--acc:#ff6b5b;--panel:rgba(30,4,4,.94);--line:rgba(192,57,43,.35);--bg:#090000;background:#090000;color:#c0392b}',
     'canvas{position:absolute;inset:0;width:100%;height:100%;display:block}',
+    'video.cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;background:#000}',
+    '.root.cam video.cam{display:block}.root.cam{background:#000}',
     '.dim{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}',
     '.top{position:absolute;left:0;right:0;top:0;padding:max(10px,env(safe-area-inset-top)) 12px 8px;display:flex;align-items:flex-start;gap:10px;pointer-events:none}',
     '.top>*{pointer-events:auto}',
@@ -158,7 +160,7 @@
       '<div class="step"><b>3. Tap</b>Tap any star, planet, or figure to learn its name and its story.</div></div>' +
       '<div class="status"><span class="dot' + (cap.ok ? '' : ' off') + '"></span><span>' + esc(cap.why) + '</span></div>' +
       '<div class="row"><button class="btn" type="button">' + (cap.ok ? 'Start stargazing' : 'Explore the sky') + '</button>' +
-      '<span class="hint">' + (cap.ok ? 'Opens full screen. Best with your screen brightness low.' : 'Drag to look around. Scroll or pinch to zoom.') + '</span></div>' +
+      '<span class="hint">' + (cap.ok ? 'Opens full screen and asks for your location so the sky matches where you stand. Best with your screen brightness low.' : 'Drag to look around. Scroll or pinch to zoom. Asks for your location; defaults to Medora.') + '</span></div>' +
       '<div class="foot"><span>Theodore Roosevelt Presidential Library &middot; Medora, North Dakota</span><span>Sky for ' + esc((loc || DEFAULT_LOC).name) + ' &middot; <a href="https://stargazer.labs.trlibrary.com" target="_blank" rel="noopener">stargazer.labs.trlibrary.com</a></span></div>' +
       '</div>';
     root.appendChild(card);

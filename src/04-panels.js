@@ -55,8 +55,8 @@
     self.toast('Finding your location…', 6000);
     navigator.geolocation.getCurrentPosition(function (pos) {
       self.loc = { lat: pos.coords.latitude, lon: pos.coords.longitude, name: 'Your location (' + pos.coords.latitude.toFixed(2) + ', ' + pos.coords.longitude.toFixed(2) + ')' };
-      self.locFixed = false; self.persist(); self.computeBodies(true); self.dirty = true; self.toast('Sky set for your location'); if (self.sheetName === 'settings') self.showSheet('settings');
-    }, function () { self.toast('Location was not shared. Showing the sky over Medora.'); }, { timeout: 8000, maximumAge: 600000 });
+      self.locFixed = false; var pp = loadPrefs(); delete pp.geoDenied; savePrefs(pp); self.persist(); self.computeBodies(true); self.dirty = true; self.toast('Sky set for your location'); if (self.sheetName === 'settings') self.showSheet('settings');
+    }, function () { self.toast('Location was not shared. Showing the sky over ' + self.loc.name + '. On iPhone: Settings → Privacy → Location Services → Safari.', 5000); }, { timeout: 10000, maximumAge: 600000 });
   };
 
   // ---- object info ----------------------------------------------------------------------------
@@ -321,9 +321,10 @@
     h += '<label class="sw">Red light mode (protects night vision)<input type="checkbox" id="sg-red"' + (this.red ? ' checked' : '') + '></label>';
     h += '<div class="meta" style="margin-top:8px">Extra dimming</div><input type="range" id="sg-dim" min="0" max="75" value="' + Math.round(this.dim * 100) + '">';
     h += '<div class="k">Show</div>';
-    for (var i = 0; i < LAYERS.length; i++) h += '<label class="sw">' + LAYERS[i][1] + '<input type="checkbox" data-layer="' + LAYERS[i][0] + '"' + (this.layers[LAYERS[i][0]] ? ' checked' : '') + '></label>';
+    for (var i = 0; i < LAYERS.length; i++) { if (LAYERS[i][0] === 'camera') continue; h += '<label class="sw">' + LAYERS[i][1] + '<input type="checkbox" data-layer="' + LAYERS[i][0] + '"' + (this.layers[LAYERS[i][0]] ? ' checked' : '') + '></label>'; }
+    h += '<div class="meta" style="margin-top:8px">See-through uses the rear camera behind the chart; turn it on with the chip above the buttons. It stays off between sessions.</div>';
     h += '<div class="k">Motion</div><div class="meta">' + (this.mode === 'sensor' ? 'Motion sensor active. If the sky looks turned, drag sideways to line it up with a landmark such as the Moon or the North Star.' : 'Drag to look around. Pinch or scroll to zoom. Double-tap to zoom in and out.') + (this.calib ? ' Compass offset ' + Math.round(this.calib) + '°.' : '') + '</div>' +
       (this.mode === 'sensor' ? '<div class="row"><button class="btn2" data-act="recal">Clear compass offset</button></div>' : '');
-    h += '<div class="k">About</div><p class="meta">StarGazer ' + VERSION + ' · Theodore Roosevelt Presidential Library, Medora, North Dakota. Stars and constellation lines from d3-celestial (Olaf Frohn) after the Hipparcos catalog; planets from JPL Keplerian elements; Moon from a standard series solution; aurora from NOAA SWPC. Indigenous star knowledge from published sources credited on each story; tribal partners are invited to correct or expand it. Positions are accurate to within a fraction of a degree; a phone compass is usually the larger source of error.</p>';
+    h += '<div class="k">About</div><p class="meta">StarGazer ' + VERSION + ' · Theodore Roosevelt Presidential Library, Medora, North Dakota. Stars and constellation lines from d3-celestial (Olaf Frohn) after the Hipparcos catalog; constellation figures by Johan Meuris for Stellarium (Free Art License); planets from JPL Keplerian elements; Moon from a standard series solution; aurora from NOAA SWPC. Indigenous star knowledge from published sources credited on each story; tribal partners are invited to correct or expand it. Positions are accurate to within a fraction of a degree; a phone compass is usually the larger source of error.</p>';
     return h;
   };

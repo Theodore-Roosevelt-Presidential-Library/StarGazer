@@ -9,8 +9,8 @@
     cal: '<svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 9l-4 4 1 5.5-5-2.7L7 18.5 8 13 4 9l5.5-.5z"/></svg>'
   };
   var LAYERS = [
-    ['lines', 'Constellations'], ['names', 'Star names'], ['planets', 'Planets'], ['mw', 'Milky Way'],
-    ['native', 'Native sky'], ['meteors', 'Meteors'], ['dso', 'Deep sky'], ['grid', 'Horizon marks']
+    ['camera', 'See-through'], ['art', 'Figures'], ['lines', 'Constellations'], ['names', 'Star names'], ['planets', 'Planets'],
+    ['mw', 'Milky Way'], ['native', 'Native sky'], ['meteors', 'Meteors'], ['dso', 'Deep sky'], ['grid', 'Horizon marks']
   ];
 
   function SkyApp(o) {
@@ -19,8 +19,9 @@
     this.loc = this.opts.loc || prefs.loc || DEFAULT_LOC;
     this.locFixed = !!this.opts.loc;
     this.sensorWanted = !!this.opts.sensor;
-    this.layers = { lines: true, names: true, planets: true, mw: true, native: true, meteors: true, dso: false, grid: true };
-    if (prefs.layers) for (var k in prefs.layers) if (k in this.layers) this.layers[k] = !!prefs.layers[k];
+    this.layers = { art: true, lines: true, names: true, planets: true, mw: true, native: true, meteors: true, dso: false, grid: true, camera: false };
+    if (prefs.layers) for (var k in prefs.layers) if (k in this.layers && k !== 'camera') this.layers[k] = !!prefs.layers[k];
+    this.artImg = {};
     this.red = !!prefs.red;
     this.dim = typeof prefs.dim === 'number' ? prefs.dim : 0.15;
     this.calib = typeof prefs.calib === 'number' ? prefs.calib : 0;
@@ -64,6 +65,7 @@
       self.requestWakeLock();
       self.running = true; self.loop();
       self.updateChips();
+      self.autoLocate();
       if (self.opts.autoOpen) self.showSheet(self.opts.autoOpen);
     }).catch(function (err) {
       if (window.console) console.error('StarGazer', err);
@@ -78,7 +80,7 @@
     var st = document.createElement('style'); st.textContent = SKY_CSS; root.appendChild(st);
     var el = document.createElement('div'); el.className = 'root' + (this.red ? ' red' : '');
     el.innerHTML =
-      '<canvas></canvas><div class="dim"></div>' +
+      '<video class="cam" autoplay muted playsinline></video><canvas></canvas><div class="dim"></div>' +
       '<div class="top"><button class="ib x" aria-label="Close">' + ICONS.close + '</button>' +
       '<div class="ro"><div class="c">&nbsp;</div><div class="s">Point the phone at the sky</div></div>' +
       '<button class="ib rb" aria-label="Red light mode" title="Red light mode">' + ICONS.red + '</button></div>' +
@@ -90,6 +92,7 @@
     root.appendChild(el);
     this.host = host; this.root = root; this.el = el;
     this.canvas = el.querySelector('canvas'); this.ctx = this.canvas.getContext('2d');
+    this.video = el.querySelector('video.cam');
     this.dimEl = el.querySelector('.dim'); this.dimEl.style.opacity = this.dim;
     this.roC = el.querySelector('.ro .c'); this.roS = el.querySelector('.ro .s');
     this.toastEl = el.querySelector('.toast');
@@ -109,7 +112,9 @@
     this.chipsEl.innerHTML = h;
     this.chipsEl.addEventListener('click', function (e) {
       var b = e.target.closest ? e.target.closest('.chip') : null; if (!b) return;
-      var l = b.getAttribute('data-l'); self.layers[l] = !self.layers[l]; self.updateChips(); self.persist(); self.dirty = true;
+      var l = b.getAttribute('data-l');
+      if (l === 'camera') { self.toggleCamera(); return; }
+      self.layers[l] = !self.layers[l]; self.updateChips(); self.persist(); self.dirty = true;
     });
     if (this.red) el.querySelector('.rb').classList.add('on');
     this.resize();
@@ -124,6 +129,59 @@
     this.onVis = function () { if (document.visibilityState === 'visible') { self.requestWakeLock(); self.dirty = true; } };
     document.addEventListener('visibilitychange', this.onVis);
     this.prevOverflow = document.documentElement.style.overflow; document.documentElement.style.overflow = 'hidden';
+  };
+  // ---- see-through camera --------------------------------------------------------------------
+  SkyApp.prototype.toggleCamera = function () {
+    var self = this;
+    if (this.layers.camera) { this.stopCamera(); return; }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { this.toast('This browser cannot open the camera.'); return; }
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false }).then(function (stream) {
+      self.camStream = stream; self.video.srcObject = stream; self.el.classList.add('cam');
+      self.layers.camera = true; self.updateChips(); self.dirty = true;
+      self.fovBeforeCam = self.fov; self.setFov(62);
+      self.toast('See-through on. Pinch until the stars sit on the real ones; the phone camera and the chart are not a perfect match.', 4500);
+    }).catch(function () { self.toast('Camera access was not allowed.'); });
+  };
+  SkyApp.prototype.stopCamera = function () {
+    if (this.camStream) { try { this.camStream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) { } this.camStream = null; }
+    if (this.video) this.video.srcObject = null;
+    if (this.el) this.el.classList.remove('cam');
+    if (this.layers.camera) { this.layers.camera = false; if (this.fovBeforeCam) this.setFov(this.fovBeforeCam); this.updateChips(); this.dirty = true; }
+  };
+  // ---- constellation figures (Stellarium western sky culture, Johan Meuris, Free Art License) --
+  SkyApp.prototype.artImage = function (k) {
+    var self = this, a = this.data.art[k], rec = this.artImg[k];
+    if (rec) return rec;
+    rec = this.artImg[k] = { img: null, red: null, ok: false };
+    var img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = function () { rec.img = img; rec.ok = true; self.dirty = true; };
+    img.onerror = function () { rec.ok = false; };
+    img.src = BASE + 'art/' + a[0];
+    return rec;
+  };
+  SkyApp.prototype.artTinted = function (rec) {  // red-mode copy: multiply the grey drawing by red, black stays black
+    if (rec.red) return rec.red;
+    var c = document.createElement('canvas'); c.width = rec.img.width; c.height = rec.img.height;
+    var x = c.getContext('2d'); x.drawImage(rec.img, 0, 0); x.globalCompositeOperation = 'multiply'; x.fillStyle = '#ff5a46'; x.fillRect(0, 0, c.width, c.height);
+    rec.red = c; return c;
+  };
+  // Ask for the device location on open (unless the embed pinned one); fall back to Medora quietly.
+  SkyApp.prototype.autoLocate = function () {
+    var self = this;
+    if (this.locFixed || !navigator.geolocation) return;
+    var prefs = loadPrefs();
+    if (prefs.geoDenied && Date.now() - prefs.geoDenied < 7 * 86400000) return; // asked recently and declined
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      var la = pos.coords.latitude, lo = pos.coords.longitude;
+      var nearMedora = Math.abs(la - DEFAULT_LOC.lat) < 0.3 && Math.abs(lo - DEFAULT_LOC.lon) < 0.45;
+      self.loc = nearMedora ? DEFAULT_LOC : { lat: la, lon: lo, name: 'Your location (' + la.toFixed(2) + ', ' + lo.toFixed(2) + ')' };
+      self.persist(); self.computeBodies(true); self.dirty = true;
+      self.toast(nearMedora ? 'Sky set for Medora, North Dakota' : 'Sky set for your location', 2500);
+      if (self.sheetName) self.showSheet(self.sheetName);
+    }, function (err) {
+      if (err && err.code === 1) { var p = loadPrefs(); p.geoDenied = Date.now(); savePrefs(p); }
+      self.toast('Showing the sky over ' + self.loc.name + '. Change it in Settings.', 3500);
+    }, { timeout: 10000, maximumAge: 600000 });
   };
   SkyApp.prototype.enterFullscreen = function () {
     var self = this, h = this.host;
@@ -143,7 +201,7 @@
   };
   SkyApp.prototype.close = function () {
     this.running = false;
-    this.stopSensors();
+    this.stopSensors(); this.stopCamera();
     if (this.wakeLock) { try { this.wakeLock.release(); } catch (e) { } this.wakeLock = null; }
     window.removeEventListener('resize', this.onResize);
     if (window.visualViewport) window.visualViewport.removeEventListener('resize', this.onResize);
@@ -214,6 +272,8 @@
         L.center = vnorm(cv);
       }
     }
+    this.artKeys = Object.keys(D.art || {}); this.artVec = {};
+    for (i = 0; i < this.artKeys.length; i++) { var ak = this.artKeys[i], an = D.art[ak][3]; this.artVec[ak] = [eqVec(an[0][2], an[0][3]), eqVec(an[1][2], an[1][3]), eqVec(an[2][2], an[2][3])]; }
     this.showerVec = {}; for (i = 0; i < C.showers.length; i++) this.showerVec[C.showers[i].id] = eqVec(C.showers[i].raDeg, C.showers[i].decDeg);
     this.computeBodies(true);
   };
@@ -337,10 +397,14 @@
     var sunAlt = asin(clamp(HZ[6] * this.ss.sun.vecDate[0] + HZ[7] * this.ss.sun.vecDate[1] + HZ[8] * this.ss.sun.vecDate[2], -1, 1)) * R2D;
     var daylight = clamp((sunAlt + 12) / 12, 0, 1); // 0 at astronomical-ish dark, 1 by sun 0°
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    // background
-    if (red) ctx.fillStyle = '#090000';
-    else { var bg = [4 + 20 * daylight, 13 + 45 * daylight, 27 + 70 * daylight]; ctx.fillStyle = 'rgb(' + bg.map(Math.round).join(',') + ')'; }
-    ctx.fillRect(0, 0, W, H);
+    // background (transparent over the camera feed)
+    var camOn = L.camera && this.camStream;
+    ctx.clearRect(0, 0, W, H);
+    if (!camOn) {
+      if (red) ctx.fillStyle = '#090000';
+      else { var bg = [4 + 20 * daylight, 13 + 45 * daylight, 27 + 70 * daylight]; ctx.fillStyle = 'rgb(' + bg.map(Math.round).join(',') + ')'; }
+      ctx.fillRect(0, 0, W, H);
+    }
     var hits = this.hits = [];
     var m0 = Ms[0], m1 = Ms[1], m2 = Ms[2], m3 = Ms[3], m4 = Ms[4], m5 = Ms[5], m6 = Ms[6], m7 = Ms[7], m8 = Ms[8];
     var i, x, y, z, kx, px, py;
@@ -363,8 +427,38 @@
         ctx.fill();
       }
     }
-    // constellation lines
+    // constellation figures: each illustration is pinned to three stars; an affine fit of those three
+    // screen positions places the drawing (the same method Stellarium uses)
     var focusCon = this.focusCon;
+    if (L.art && this.artKeys.length) {
+      ctx.globalCompositeOperation = 'lighter';
+      for (var ai = 0; ai < this.artKeys.length; ai++) {
+        var ak2 = this.artKeys[ai], av = this.artVec[ak2], ad = D.art[ak2], sp = [], okA = true;
+        for (var q3 = 0; q3 < 3; q3++) {
+          var vv = av[q3]; z = m6 * vv[0] + m7 * vv[1] + m8 * vv[2]; if (z < 0.2) { okA = false; break; }
+          kx = S2 / (1 + z); sp.push([cx + (m0 * vv[0] + m1 * vv[1] + m2 * vv[2]) * kx, cy - (m3 * vv[0] + m4 * vv[1] + m5 * vv[2]) * kx]);
+        }
+        if (!okA) continue;
+        var an = ad[3], x0 = an[0][0], y0 = an[0][1], x1 = an[1][0], y1 = an[1][1], x2 = an[2][0], y2 = an[2][1];
+        var det = (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0); if (abs(det) < 1e-6) continue;
+        // affine: screen = A * image + t, solved from the three anchor pairs
+        var ta = ((sp[1][0] - sp[0][0]) * (y2 - y0) - (sp[2][0] - sp[0][0]) * (y1 - y0)) / det;
+        var tc = ((sp[2][0] - sp[0][0]) * (x1 - x0) - (sp[1][0] - sp[0][0]) * (x2 - x0)) / det;
+        var tb = ((sp[1][1] - sp[0][1]) * (y2 - y0) - (sp[2][1] - sp[0][1]) * (y1 - y0)) / det;
+        var td = ((sp[2][1] - sp[0][1]) * (x1 - x0) - (sp[1][1] - sp[0][1]) * (x2 - x0)) / det;
+        var te = sp[0][0] - ta * x0 - tc * y0, tf = sp[0][1] - tb * x0 - td * y0;
+        // rough on-screen test using the image corners
+        var cxs = [te, ta * ad[1] + te, tc * ad[2] + te, ta * ad[1] + tc * ad[2] + te], cys = [tf, tb * ad[1] + tf, td * ad[2] + tf, tb * ad[1] + td * ad[2] + tf];
+        if (Math.max.apply(null, cxs) < 0 || Math.min.apply(null, cxs) > W || Math.max.apply(null, cys) < 0 || Math.min.apply(null, cys) > H) continue;
+        if (abs(ta * td - tb * tc) > 40) continue; // absurdly magnified near the projection edge
+        var rec = this.artImage(ak2); if (!rec.ok) continue;
+        ctx.globalAlpha = (ak2 === focusCon ? 0.55 : 0.32) * (1 - daylight * 0.7);
+        ctx.setTransform(dpr * ta, dpr * tb, dpr * tc, dpr * td, dpr * te, dpr * tf);
+        ctx.drawImage(red ? this.artTinted(rec) : rec.img, 0, 0);
+      }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    }
+    // constellation lines
     if (L.lines) {
       ctx.lineWidth = 1; ctx.lineJoin = 'round';
       for (var pass = 0; pass < 2; pass++) {
@@ -527,7 +621,7 @@
       } else this.drawEdgeArrow(ctx, atan2(tv[1], tv[0]));
     }
     // ground + horizon
-    this.drawGround(ctx, W, H, Cam, S2, cx, cy, red, L.grid);
+    this.drawGround(ctx, W, H, Cam, S2, cx, cy, red, L.grid, camOn);
     // labels last
     ctx.textBaseline = 'alphabetic';
     var placed = [];
@@ -558,11 +652,11 @@
     ctx.save(); ctx.translate(x, y); ctx.rotate(-ang); ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(-6, -8); ctx.lineTo(-2, 0); ctx.lineTo(-6, 8); ctx.closePath();
     ctx.fillStyle = this.red ? 'rgba(255,90,70,.9)' : 'rgba(231,128,93,.9)'; ctx.fill(); ctx.restore();
   };
-  SkyApp.prototype.drawGround = function (ctx, W, H, Cam, S2, cx, cy, red, marks) {
+  SkyApp.prototype.drawGround = function (ctx, W, H, Cam, S2, cx, cy, red, marks, camOn) {
     // project horizon points; the horizon is a circle in stereographic projection
     function projHz(az, alt) { var v = mulMat(Cam, hzVec(az, alt)); if (v[2] <= -0.995) return null; var k = S2 / (1 + v[2]); return [cx + v[0] * k, cy - v[1] * k, v[2]]; }
     var p1 = projHz(0, 0), p2 = projHz(120, 0), p3 = projHz(240, 0);
-    var groundFill = red ? 'rgba(12,2,2,.88)' : 'rgba(5,9,15,.86)';
+    var groundFill = camOn ? (red ? 'rgba(12,2,2,.35)' : 'rgba(5,9,15,.35)') : (red ? 'rgba(12,2,2,.88)' : 'rgba(5,9,15,.86)');
     if (p1 && p2 && p3) {
       var ax = p1[0], ay = p1[1], bx = p2[0], by = p2[1], qx = p3[0], qy = p3[1];
       var dd = 2 * (ax * (by - qy) + bx * (qy - ay) + qx * (ay - by));

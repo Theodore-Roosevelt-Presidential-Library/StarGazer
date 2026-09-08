@@ -2,6 +2,7 @@
 stargazer.js
 stargazer-content.js
 stargazer-data.js
+art/
 tools/.cache/
 .shots/
 .DS_Store

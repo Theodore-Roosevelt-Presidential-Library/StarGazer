@@ -23,6 +23,8 @@ extra-dimming slider, and a red-light mode that protects night vision.
 |-------|--------|
 | ~5,000 stars to magnitude 6 with proper names and Bayer designations | Hipparcos via d3-celestial |
 | All 88 constellations: lines, names, boundaries, and a short story each | d3-celestial (IAU), stories written for this widget |
+| Constellation figures (85 illustrations pinned to their stars; "Figures" chip) | Stellarium western sky culture, drawn by Johan Meuris — Free Art License; anchors CC BY-SA |
+| See-through mode: the rear camera behind the chart ("See-through" chip) | `getUserMedia`, on device; never recorded or uploaded |
 | Sun, Moon (true phase, oriented toward the Sun), Mercury–Neptune | JPL Keplerian elements; Schlyter lunar series; precessed to date |
 | Milky Way, 30 bright clusters, nebulae, and galaxies | d3-celestial |
 | Lakota, Dakota, Arikara, Hidatsa, Mandan, Ojibwe, and Pawnee star knowledge | Published sources, cited on each story (see below) |
@@ -82,6 +84,8 @@ browser allows motion access and full screen. `StarGazer.astro` exposes the ephe
   66° − 2·Kp geomagnetic latitude with glow visible a few degrees farther south. Medora is at about
   55° geomagnetic, so aurora becomes likely around Kp 5. This is an estimate, not a NOAA forecast,
   and it assumes clear, dark skies.
+- **Figures.** Each illustration carries three star anchors; every frame the three stars are projected and an affine fit places the drawing (the same method Stellarium uses). Images are additive-blended so their black backgrounds vanish, loaded lazily, and tinted red in red mode. `tools/build_data.py` copies them into `art/` at build time from a pinned commit of [stellarium-skycultures](https://github.com/Stellarium/stellarium-skycultures).
+- **See-through.** Turns on the rear camera behind a transparent chart. Phone cameras are rectilinear and the chart is stereographic, so the match is close, not exact; pinch to fit. The stream never leaves the device and stops when the sky closes.
 - **Dark sky.** The sky field is darker than the brand Night Sky; UI chrome uses Night Sky, Gray
   Sky, and Sand. Red mode swaps every color for dim reds, including the canvas. The extra-dimming
   slider overlays black. The screen stays awake while the sky is open (Wake Lock API).
@@ -152,6 +156,6 @@ Motion sensors require https, which Pages provides.
 ## Credits
 
 Star catalog, constellation lines, boundaries, and Milky Way contours: [d3-celestial](https://github.com/ofrohn/d3-celestial)
-by Olaf Frohn (BSD-3). Planetary elements: JPL Solar System Dynamics. Meteor showers: International
+by Olaf Frohn (BSD-3). Constellation illustrations: Johan Meuris for [Stellarium](https://stellarium.org), released under the [Free Art License](https://artlibre.org/licence/lal/en/), used unmodified with attribution; anchor data CC BY-SA. Planetary elements: JPL Solar System Dynamics. Meteor showers: International
 Meteor Organization. Eclipses: NASA GSFC and Fred Espenak's EclipseWise. Space weather: NOAA Space
 Weather Prediction Center.
