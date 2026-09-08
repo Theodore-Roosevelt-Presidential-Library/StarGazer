@@ -1,0 +1,49 @@
+# GitHub Actions workflow for this repo. The API integration used to scaffold the repo cannot write
+# to .github/workflows/, so this file lives here: move it to .github/workflows/deploy.yml
+# (git mv tools/deploy.yml .github/workflows/deploy.yml) and set Pages source to "GitHub Actions".
+name: Build and deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build star data (d3-celestial, pinned commit)
+        run: |
+          pip install numpy
+          python3 tools/build_data.py
+      - name: Build widget
+        run: python3 build.py
+      - name: Syntax check
+        run: node --check stargazer.js
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
