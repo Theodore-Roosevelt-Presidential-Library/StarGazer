@@ -105,8 +105,17 @@ plain JSON; `tools/build_content.py` assembles them into `stargazer-content.js` 
   deliberately left out and why, and `reviewer_checklist` is the ask for tribal partners.
 - `content/figures.json` — how each entry is drawn: `label` (short name beside the figure), `con`
   (constellations whose panel lists the story), `fig` (`ring`, `path`, `cloud`, or `none`), `body`
-  (`moon`, `sun`, `venus`, `milkyway`), and `hold: true` to keep an entry out of the app until it
-  has been reviewed. Three MHA Nation entries ship on hold.
+  (`moon`, `sun`, `venus`, `milkyway`), `hold: true` to keep an entry out of the app until it has
+  been reviewed (three MHA Nation entries ship on hold), and the figure artwork: `art` (images in
+  `art-native/`, each pinned to three stars by `[x, y, HIP]` anchors, exactly like the Western
+  figures) or `sketch` (an SVG path in a local frame, 10 units per degree). The `art-native/`
+  images were generated for this project from the published descriptions in the same style as the
+  Stellarium figures. The human figures (Seven Girls, the stretcher and mourners, the Wintermaker)
+  were prompted from period photographs and museum descriptions of 1860s–1890s Lakota and Ojibwe
+  dress (two-hide and wool dresses with beaded or dentalium yokes, braids; blanket-wrapped mourners
+  with hair cut short; point-blanket capote, sash, fur cap, bandolier bag) and avoid feathers,
+  headdresses, and face paint; faces are turned away or plain. They are interpretive placeholders,
+  labeled as such in the app, and are meant to be replaced by commissioned work from Native artists.
 - `content/showers.json` — the annual meteor showers (IMO working list).
 - `content/events.json` — dated sky events; `visibleFromMedora` may be `true`, `false`, or
   `"partial"`. Add entries as the calendar rolls forward; the panel lists everything from today on.

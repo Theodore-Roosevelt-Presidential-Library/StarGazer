@@ -33,7 +33,7 @@ def main():
             'hip': [] if fig == 'none' else (e.get('hip') or []),
             'con': f.get('con', []), 'fig': fig, 'body': f.get('body', []),
             'story': e['story'], 'sensitivity': e['sensitivity'], 'confidence': e['confidence'],
-            'sources': e['sources'], 'notes': e.get('notes', '')
+            'sources': e['sources'], 'notes': e.get('notes', ''), 'sketch': f.get('sketch'), 'art': f.get('art')
         })
     out = {
         'framing': research['framing'],

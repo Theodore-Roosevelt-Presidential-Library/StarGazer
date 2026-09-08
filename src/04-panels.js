@@ -152,6 +152,8 @@
       if (lf.length) h += '<div class="k">Native sky</div>' + this.loreBlock(lf, true);
     }
     if (this.selected) h += '<p><button class="link" data-act="clear-sel">Stop pointing</button></p>';
+    // a card that opened because you are already looking at the thing has no use for "Point me to it"
+    if (this.sheetAuto) h = h.replace(/<button class="(?:btn2|link)" data-act="show-(?:vec|lore)"[^>]*>[^<]*<\/button>/g, '');
     this.showSheet('info', title, h);
   };
   function transpose(m) { return [m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]]; }

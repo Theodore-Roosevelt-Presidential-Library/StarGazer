@@ -1,23 +1,648 @@
 {
  "_comment": "How each Indigenous entry in indigenous_star_knowledge.json is drawn on the sky. label: short name drawn beside the figure. con: constellations whose info panel lists the story. fig: ring (closed dotted loop), path (open dotted line), cloud (marked stars only), none (story only). body: Sun/Moon/planet/Milky Way stories to attach. hold: true keeps an entry out of the app until a tribal partner has reviewed it (it stays in the research file).",
- "lak-polaris":       {"label": "Wičháȟpi Owáŋžila",       "con": ["UMi"],                                   "fig": "cloud"},
- "lak-milky-way":     {"label": "Wanáǧi Tȟačháŋku",        "con": [],                                        "fig": "cloud", "body": ["milkyway"]},
- "lak-sacred-hoop":   {"label": "Čhaŋgléška Wakȟáŋ",       "con": ["Tau", "Ori", "CMa", "CMi", "Gem", "Aur"], "fig": "ring"},
- "lak-bear-lodge":    {"label": "Matȟó Thípila",           "con": ["Gem"],                                   "fig": "cloud"},
- "lak-pleiades":      {"label": "Wičhíŋčala Šakówiŋ",      "con": ["Tau"],                                   "fig": "cloud"},
- "lak-tayamni":       {"label": "Tȟayámni",                "con": ["Tau", "Ori", "CMa"],                     "fig": "path"},
- "lak-big-dipper":    {"label": "Wičhákhiyuhapi",          "con": ["UMa"],                                   "fig": "path"},
- "lak-dried-willow":  {"label": "Čhaŋšáša Ipusye",         "con": ["Tri", "Ari"],                            "fig": "path"},
- "lak-keya":          {"label": "Kéya",                    "con": ["Peg"],                                   "fig": "ring"},
- "lak-zuzeca":        {"label": "Zuzéča",                  "con": ["Col", "Pup", "CMa"],                     "fig": "path"},
- "lak-fallen-star":   {"label": "Wičháȟpi Hiŋȟpáya",       "con": [],                                        "fig": "cloud"},
- "lak-venus":         {"label": "Aŋpó Wičháȟpi Suŋkáku",   "con": ["Boo"],                                   "fig": "cloud", "body": ["venus"]},
- "ari-star-husband":  {"label": "The Girl Who Married a Star", "con": [],                                    "fig": "cloud"},
- "ari-three-stars-east": {"label": "Red-Star, Yellow-Star, and the Big Black Meteoric Star", "con": [],     "fig": "cloud", "hold": true},
- "hid-moon-grandson": {"label": "Old Woman's Grandson",    "con": [],                                        "fig": "cloud", "body": ["moon", "sun"], "hold": true},
- "man-old-woman-moon-stars": {"label": "Old Woman Who Never Dies and her star children", "con": [],        "fig": "cloud", "body": ["moon", "venus"], "hold": true},
- "oji-fisher-loon":   {"label": "Ojiig & Maang",           "con": ["UMa", "UMi"],                            "fig": "cloud"},
- "oji-wintermaker":   {"label": "Biboonkeonini",           "con": ["Ori"],                                   "fig": "cloud"},
- "oji-hole-in-the-sky": {"label": "Bagone-giizhig",        "con": ["Tau"],                                   "fig": "cloud"},
- "paw-skidi-sky":     {"label": "Skidi Pawnee sky",        "con": ["UMi", "CrB", "Sco", "Tau"],              "fig": "none"}
+ "lak-polaris": {
+  "label": "Wičháȟpi Owáŋžila",
+  "con": [
+   "UMi"
+  ],
+  "fig": "cloud"
+ },
+ "lak-milky-way": {
+  "label": "Wanáǧi Tȟačháŋku",
+  "con": [],
+  "fig": "cloud",
+  "body": [
+   "milkyway"
+  ]
+ },
+ "lak-sacred-hoop": {
+  "label": "Čhaŋgléška Wakȟáŋ",
+  "con": [
+   "Tau",
+   "Ori",
+   "CMa",
+   "CMi",
+   "Gem",
+   "Aur"
+  ],
+  "fig": "ring"
+ },
+ "lak-bear-lodge": {
+  "label": "Matȟó Thípila",
+  "con": [
+   "Gem"
+  ],
+  "fig": "cloud",
+  "sketch": {
+   "anchors": [
+    [
+     -86,
+     -78,
+     36850
+    ],
+    [
+     44,
+     77,
+     31681
+    ],
+    [
+     96,
+     16,
+     29655
+    ]
+   ],
+   "path": "M-70,-84 C-30,-92 30,-92 70,-84 L86,60 C110,74 130,84 140,96 L-140,96 C-130,84 -110,74 -86,60 Z M-52,-84 L-58,60 M-34,-88 L-38,64 M-16,-90 L-18,66 M2,-90 L2,66 M20,-90 L22,66 M38,-88 L42,64 M56,-86 L60,60 M-120,40 L-112,52 M-110,36 L-102,48 M-100,32 L-92,44 M120,40 L112,52 M110,36 L102,48 M100,32 L92,44"
+  },
+  "art": [
+   {
+    "file": "lodge.webp",
+    "size": [
+     1024,
+     1024
+    ],
+    "anchors": [
+     [
+      400,
+      150,
+      36850
+     ],
+     [
+      840,
+      800,
+      31681
+     ],
+     [
+      1065,
+      585,
+      29655
+     ]
+    ]
+   }
+  ]
+ },
+ "lak-pleiades": {
+  "label": "Wičhíŋčala Šakówiŋ",
+  "con": [
+   "Tau"
+  ],
+  "fig": "cloud",
+  "sketch": {
+   "anchors": [
+    [
+     -1.4,
+     0.7,
+     17702
+    ],
+    [
+     -5.2,
+     1.2,
+     17847
+    ],
+    [
+     3.8,
+     -3.0,
+     17531
+    ]
+   ],
+   "path": "M0,-16 C0,-19 3,-19 3,-16 M1.5,-16 L1.5,-9 L-1,-2 L4,-2 Z M12,-9 C12,-12 15,-12 15,-9 M13.5,-9 L13.5,-2 L11,5 L16,5 Z M15,6 C15,3 18,3 18,6 M16.5,6 L16.5,13 L14,20 L19,20 Z M6,15 C6,12 9,12 9,15 M7.5,15 L7.5,22 L5,29 L10,29 Z M-6,15 C-6,12 -3,12 -3,15 M-4.5,15 L-4.5,22 L-7,29 L-2,29 Z M-16,6 C-16,3 -13,3 -13,6 M-14.5,6 L-14.5,13 L-17,20 L-12,20 Z M-13,-9 C-13,-12 -10,-12 -10,-9 M-11.5,-9 L-11.5,-2 L-14,5 L-9,5 Z"
+  },
+  "art": [
+   {
+    "file": "girls.webp",
+    "size": [
+     1024,
+     1024
+    ],
+    "anchors": [
+     [
+      512,
+      560,
+      17702
+     ],
+     [
+      624,
+      558,
+      17499
+     ],
+     [
+      611,
+      490,
+      17531
+     ]
+    ]
+   }
+  ]
+ },
+ "lak-tayamni": {
+  "label": "Tȟayámni",
+  "con": [
+   "Tau",
+   "Ori",
+   "CMa"
+  ],
+  "fig": "path",
+  "sketch": {
+   "anchors": [
+    [
+     260,
+     -241,
+     17702
+    ],
+    [
+     -184,
+     167,
+     32349
+    ],
+    [
+     43,
+     82,
+     24436
+    ]
+   ],
+   "path": "M288,-252 C300,-228 272,-206 246,-216 C224,-226 232,-262 262,-262 C276,-262 284,-260 288,-252 Z M262,-262 L276,-284 M270,-258 L290,-276 M240,-224 C180,-190 120,-150 72,-100 M72,-100 C24,-122 -60,-112 -76,-60 C-98,10 -42,62 0,82 C42,102 82,62 62,0 C56,-40 80,-80 72,-100 Z M-52,-50 C-22,-20 -22,40 -42,60 M-22,-70 C14,-30 14,40 -6,70 M16,-82 C46,-40 46,40 30,76 M-70,50 C-120,90 -150,124 -184,167 M-184,167 L-198,176 M-184,167 L-180,182"
+  },
+  "art": [
+   {
+    "file": "bison.webp",
+    "size": [
+     1024,
+     1024
+    ],
+    "anchors": [
+     [
+      850,
+      270,
+      17702
+     ],
+     [
+      110,
+      860,
+      32349
+     ],
+     [
+      475,
+      752,
+      24436
+     ]
+    ]
+   }
+  ]
+ },
+ "lak-big-dipper": {
+  "label": "Wičhákhiyuhapi",
+  "con": [
+   "UMa"
+  ],
+  "fig": "path",
+  "sketch": {
+   "anchors": [
+    [
+     108,
+     -62,
+     54061
+    ],
+    [
+     37,
+     19,
+     58001
+    ],
+    [
+     -124,
+     63,
+     67301
+    ]
+   ],
+   "path": "M108,-62 L111,-8 L37,19 L7,-15 Z M118,-70 L100,-54 M118,-2 L104,-16 M28,28 L46,12 M0,-24 L14,-8 M96,-52 C80,-48 60,-30 44,-6 M84,-42 C76,-36 68,-28 60,-20 M-48,-4 C-48,-14 -40,-14 -40,-4 M-44,-4 L-44,20 M-44,6 L-54,14 M-44,6 L-34,12 M-44,20 L-52,34 M-44,20 L-36,34 M-90,7 C-90,-3 -82,-3 -82,7 M-86,7 L-86,31 M-86,17 L-96,25 M-86,17 L-76,23 M-86,31 L-94,45 M-86,31 L-78,45 M-124,63 C-124,53 -116,53 -116,63 M-120,63 L-120,87 M-120,73 L-130,81 M-120,73 L-110,79 M-120,87 L-128,101 M-120,87 L-112,101"
+  },
+  "art": [
+   {
+    "file": "mourners.webp",
+    "size": [
+     1024,
+     1024
+    ],
+    "anchors": [
+     [
+      940,
+      120,
+      54061
+     ],
+     [
+      170,
+      690,
+      67301
+     ],
+     [
+      727,
+      448,
+      58001
+     ]
+    ]
+   }
+  ]
+ },
+ "lak-dried-willow": {
+  "label": "Čhaŋšáša Ipusye",
+  "con": [
+   "Tri",
+   "Ari"
+  ],
+  "fig": "path",
+  "sketch": {
+   "anchors": [
+    [
+     20,
+     77,
+     8832
+    ],
+    [
+     21,
+     -26,
+     8796
+    ],
+    [
+     -16,
+     -80,
+     10064
+    ]
+   ],
+   "path": "M22,80 C6,52 -4,20 20,-26 C30,-46 4,-62 -16,-80 M14,60 C-4,50 -14,34 -18,20 M16,60 C34,52 44,38 46,24 M4,30 C-14,22 -22,8 -22,-6 M6,28 C24,20 34,6 34,-10 M14,0 C-2,-10 -8,-24 -6,-38 M16,-2 C32,-10 40,-24 40,-40 M4,-50 C-12,-54 -22,-64 -26,-76 M-2,-54 C4,-70 4,-84 -2,-96"
+  },
+  "art": [
+   {
+    "file": "willow.webp",
+    "size": [
+     1024,
+     1024
+    ],
+    "anchors": [
+     [
+      510,
+      860,
+      8832
+     ],
+     [
+      470,
+      120,
+      10064
+     ],
+     [
+      595,
+      394,
+      8796
+     ]
+    ]
+   }
+  ]
+ },
+ "lak-keya": {
+  "label": "Kéya",
+  "con": [
+   "Peg"
+  ],
+  "fig": "ring",
+  "sketch": {
+   "anchors": [
+    [
+     122,
+     67,
+     113963
+    ],
+    [
+     -25,
+     -72,
+     677
+    ],
+    [
+     -36,
+     67,
+     1067
+    ]
+   ],
+   "path": "M-36,67 C-50,20 -50,-30 -25,-72 C30,-90 90,-88 125,-62 C145,-20 145,30 122,67 C80,90 10,88 -36,67 Z M-36,0 C-55,-4 -70,-8 -84,-4 C-98,2 -98,14 -84,18 C-70,20 -55,12 -36,8 M122,2 L150,-4 L156,6 M-30,-60 L-58,-92 M-28,60 L-56,92 M118,-58 L146,-90 M116,60 L144,92 M10,-40 C40,-20 60,20 30,50 M50,-60 C60,-20 60,20 50,60 M-10,-20 L110,-25 M-15,30 L112,25"
+  },
+  "art": [
+   {
+    "file": "turtle.webp",
+    "size": [
+     1024,
+     1024
+    ],
+    "anchors": [
+     [
+      260,
+      260,
+      677
+     ],
+     [
+      860,
+      720,
+      113963
+     ],
+     [
+      273,
+      781,
+      1067
+     ]
+    ]
+   }
+  ]
+ },
+ "lak-zuzeca": {
+  "label": "Zuzéča",
+  "con": [
+   "Col",
+   "Pup",
+   "CMa"
+  ],
+  "fig": "path",
+  "sketch": {
+   "anchors": [
+    [
+     165,
+     48,
+     26634
+    ],
+    [
+     -29,
+     -28,
+     34444
+    ],
+    [
+     -150,
+     108,
+     39429
+    ]
+   ],
+   "path": "M165,48 C120,62 92,-8 40,-4 C0,0 -20,-38 -60,-18 C-100,2 -108,80 -140,100 M168,58 C124,74 96,4 44,8 C4,12 -12,-26 -54,-8 C-92,10 -102,88 -136,110 M-140,100 C-152,104 -158,112 -150,120 C-142,126 -130,118 -136,110 M-150,120 L-166,132 M-172,140 C-172,132 -162,130 -160,138 C-158,146 -170,150 -172,140 Z"
+  },
+  "art": [
+   {
+    "file": "snake.webp",
+    "size": [
+     1024,
+     1024
+    ],
+    "anchors": [
+     [
+      920,
+      110,
+      26634
+     ],
+     [
+      280,
+      830,
+      39429
+     ],
+     [
+      319,
+      285,
+      34444
+     ]
+    ]
+   }
+  ]
+ },
+ "lak-fallen-star": {
+  "label": "Wičháȟpi Hiŋȟpáya",
+  "con": [],
+  "fig": "cloud"
+ },
+ "lak-venus": {
+  "label": "Aŋpó Wičháȟpi Suŋkáku",
+  "con": [
+   "Boo"
+  ],
+  "fig": "cloud",
+  "body": [
+   "venus"
+  ]
+ },
+ "ari-star-husband": {
+  "label": "The Girl Who Married a Star",
+  "con": [],
+  "fig": "cloud"
+ },
+ "ari-three-stars-east": {
+  "label": "Red-Star, Yellow-Star, and the Big Black Meteoric Star",
+  "con": [],
+  "fig": "cloud",
+  "hold": true
+ },
+ "hid-moon-grandson": {
+  "label": "Old Woman's Grandson",
+  "con": [],
+  "fig": "cloud",
+  "body": [
+   "moon",
+   "sun"
+  ],
+  "hold": true
+ },
+ "man-old-woman-moon-stars": {
+  "label": "Old Woman Who Never Dies and her star children",
+  "con": [],
+  "fig": "cloud",
+  "body": [
+   "moon",
+   "venus"
+  ],
+  "hold": true
+ },
+ "oji-fisher-loon": {
+  "label": "Ojiig & Maang",
+  "con": [
+   "UMa",
+   "UMi"
+  ],
+  "fig": "cloud",
+  "sketch": {
+   "anchors": [
+    [
+     59,
+     7,
+     54061
+    ],
+    [
+     1,
+     87,
+     58001
+    ],
+    [
+     -131,
+     131,
+     67301
+    ]
+   ],
+   "path": "M70,20 C86,10 90,30 82,44 C78,52 66,54 60,48 M60,48 C44,64 20,84 0,88 C-16,90 -26,74 -22,58 C-14,34 20,20 44,10 C52,6 62,8 70,20 Z M82,30 L92,26 M80,26 L88,20 M-22,58 C-50,66 -80,72 -104,78 C-116,84 -126,110 -131,131 M-16,74 C-46,80 -78,88 -102,92 C-114,100 -122,116 -128,134 M20,80 L26,98 M4,86 L6,104 M40,60 L52,72 M-190,-90 C-206,-84 -240,-84 -250,-98 C-248,-116 -224,-124 -200,-120 C-188,-118 -184,-104 -190,-90 Z M-200,-120 C-140,-160 60,-220 300,-236 C420,-244 560,-252 651,-268 M651,-268 C662,-274 672,-270 672,-262 C670,-254 656,-256 651,-268 Z M672,-262 L688,-258 M-236,-100 L-242,-108 M-222,-98 L-226,-106 M-208,-96 L-212,-104 M-176,-102 C-180,-112 -172,-120 -166,-112 M-200,-96 L-196,-84 M-216,-92 L-214,-80"
+  },
+  "art": [
+   {
+    "file": "fisher.webp",
+    "size": [
+     1024,
+     1024
+    ],
+    "anchors": [
+     [
+      940,
+      290,
+      54061
+     ],
+     [
+      60,
+      880,
+      67301
+     ],
+     [
+      674,
+      667,
+      58001
+     ]
+    ]
+   },
+   {
+    "file": "loon.webp",
+    "size": [
+     1024,
+     1024
+    ],
+    "anchors": [
+     [
+      400,
+      640,
+      72607
+     ],
+     [
+      940,
+      160,
+      11767
+     ],
+     [
+      385,
+      672,
+      75097
+     ]
+    ]
+   }
+  ]
+ },
+ "oji-wintermaker": {
+  "label": "Biboonkeonini",
+  "con": [
+   "Ori"
+  ],
+  "fig": "cloud",
+  "sketch": {
+   "anchors": [
+    [
+     -30,
+     -58,
+     27989
+    ],
+    [
+     71,
+     98,
+     24436
+    ],
+    [
+     -291,
+     -37,
+     37279
+    ]
+   ],
+   "path": "M2,-112 C-8,-112 -8,-92 2,-92 C12,-92 12,-112 2,-112 Z M2,-92 L6,-60 M-30,-58 L45,-48 M-30,-58 C-90,-52 -180,-40 -291,-37 M45,-48 C90,-70 130,-100 168,-149 M-291,-37 L-304,-30 M-291,-37 L-300,-46 M168,-149 L178,-140 M168,-149 L176,-160 M-30,-58 C-20,-20 -10,20 0,40 M45,-48 C40,-10 34,20 26,40 M0,40 L-12,112 M26,40 L60,90 M-90,118 C-40,130 60,132 130,118 C110,140 40,150 -30,146 C-60,142 -80,132 -90,118 Z M-90,118 L-108,110 M130,118 L146,108"
+  },
+  "art": [
+   {
+    "file": "wintermaker.webp",
+    "size": [
+     1024,
+     1024
+    ],
+    "anchors": [
+     [
+      44,
+      596,
+      37279
+     ],
+     [
+      976,
+      56,
+      21421
+     ],
+     [
+      923,
+      659,
+      24436
+     ]
+    ]
+   }
+  ]
+ },
+ "oji-hole-in-the-sky": {
+  "label": "Bagone-giizhig",
+  "con": [
+   "Tau"
+  ],
+  "fig": "cloud",
+  "sketch": {
+   "anchors": [
+    [
+     -1.4,
+     0.7,
+     17702
+    ],
+    [
+     -5.2,
+     1.2,
+     17847
+    ],
+    [
+     3.8,
+     -3.0,
+     17531
+    ]
+   ],
+   "path": "M0,-12 C7,-12 12,-7 12,0 C12,7 7,12 0,12 C-7,12 -12,7 -12,0 C-12,-7 -7,-12 0,-12 Z M0,-16 L0,-24 M11,-11 L17,-17 M16,0 L24,0 M11,11 L17,17 M0,16 L0,24 M-11,11 L-17,17 M-16,0 L-24,0 M-11,-11 L-17,-17"
+  },
+  "art": [
+   {
+    "file": "hole.webp",
+    "size": [
+     1024,
+     1024
+    ],
+    "anchors": [
+     [
+      512,
+      512,
+      17702
+     ],
+     [
+      582,
+      512,
+      17499
+     ],
+     [
+      574,
+      469,
+      17531
+     ]
+    ]
+   }
+  ]
+ },
+ "paw-skidi-sky": {
+  "label": "Skidi Pawnee sky",
+  "con": [
+   "UMi",
+   "CrB",
+   "Sco",
+   "Tau"
+  ],
+  "fig": "none"
+ },
+ "_sketches": "sketch: an interpretive monoline drawing in a local frame (10 units per degree, x toward west, y toward south) pinned to three stars; anchors are [x, y, HIP]. Drawn from the published descriptions of each figure, not from any Native artist's work; intended as placeholders until commissioned art is available.",
+ "_art": "art: illustrations pinned to three stars like the Western figures; files live in art-native/ (1024px WebP on black, additive-blended). Generated for this project in the style of the Stellarium figures from the published descriptions; interpretive, awaiting tribal partner review. anchors are [image x, image y, HIP]."
 }

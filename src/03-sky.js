@@ -173,6 +173,27 @@
     img.src = BASE + 'art/' + a[0];
     return rec;
   };
+  SkyApp.prototype.loadNativeArt = function (rec) {
+    var self = this; if (rec.img || rec.loading) return; rec.loading = true;
+    var img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = function () { rec.img = img; rec.ok = true; self.dirty = true; }; img.onerror = function () { rec.ok = false; };
+    img.src = BASE + 'art-native/' + rec.file;
+  };
+  // Draw an image whose three anchor pixels [x, y] must land on three screen points; returns false if off screen.
+  SkyApp.prototype.drawPinned = function (ctx, img, w, h, ap, sp, alpha) {
+    var x0 = ap[0][0], y0 = ap[0][1], x1 = ap[1][0], y1 = ap[1][1], x2 = ap[2][0], y2 = ap[2][1];
+    var det = (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0); if (abs(det) < 1e-6) return false;
+    var ta = ((sp[1][0] - sp[0][0]) * (y2 - y0) - (sp[2][0] - sp[0][0]) * (y1 - y0)) / det;
+    var tc = ((sp[2][0] - sp[0][0]) * (x1 - x0) - (sp[1][0] - sp[0][0]) * (x2 - x0)) / det;
+    var tb = ((sp[1][1] - sp[0][1]) * (y2 - y0) - (sp[2][1] - sp[0][1]) * (y1 - y0)) / det;
+    var td = ((sp[2][1] - sp[0][1]) * (x1 - x0) - (sp[1][1] - sp[0][1]) * (x2 - x0)) / det;
+    var te = sp[0][0] - ta * x0 - tc * y0, tf = sp[0][1] - tb * x0 - td * y0;
+    var cxs = [te, ta * w + te, tc * h + te, ta * w + tc * h + te], cys = [tf, tb * w + tf, td * h + tf, tb * w + td * h + tf];
+    if (Math.max.apply(null, cxs) < 0 || Math.min.apply(null, cxs) > this.W || Math.max.apply(null, cys) < 0 || Math.min.apply(null, cys) > this.H) return false;
+    if (abs(ta * td - tb * tc) > 40) return false;
+    var dpr = this.dpr; ctx.globalAlpha = alpha; ctx.setTransform(dpr * ta, dpr * tb, dpr * tc, dpr * td, dpr * te, dpr * tf);
+    ctx.drawImage(img, 0, 0); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalAlpha = 1; return true;
+  };
   SkyApp.prototype.artTinted = function (rec) {  // red-mode copy: multiply the grey drawing by red, black stays black
     if (rec.red) return rec.red;
     var c = document.createElement('canvas'); c.width = rec.img.width; c.height = rec.img.height;
@@ -283,6 +304,8 @@
       var L = this.lore[i]; L.starIdx = [];
       for (var h = 0; h < L.hip.length; h++) { var si = this.byHip[L.hip[h]]; if (si != null) { L.starIdx.push(si); (this.loreByHip[L.hip[h]] = this.loreByHip[L.hip[h]] || []).push(L); } }
       for (var cc = 0; cc < L.con.length; cc++) (this.loreByCon[L.con[cc]] = this.loreByCon[L.con[cc]] || []).push(L);
+      if (L.art) { L.artRecs = []; for (var ai0 = 0; ai0 < L.art.length; ai0++) { var AA = L.art[ai0], recA = { file: AA.file, w: AA.size[0], h: AA.size[1], a: [], img: null, red: null, ok: false }; for (var q0 = 0; q0 < 3; q0++) { var sIdx = this.byHip[AA.anchors[q0][2]]; if (sIdx == null) { recA = null; break; } recA.a.push([AA.anchors[q0][0], AA.anchors[q0][1], sIdx]); } if (recA) L.artRecs.push(recA); } }
+      if (L.sketch) { L.sk = { path: null, a: [] }; for (var q = 0; q < 3; q++) { var sidx = this.byHip[L.sketch.anchors[q][2]]; if (sidx == null) { L.sk = null; break; } L.sk.a.push([L.sketch.anchors[q][0], L.sketch.anchors[q][1], sidx]); } }
       if (L.starIdx.length) {
         var cv = [0, 0, 0];
         for (h = 0; h < L.starIdx.length; h++) { var o = L.starIdx[h] * 3; cv[0] += this.starVec[o]; cv[1] += this.starVec[o + 1]; cv[2] += this.starVec[o + 2]; }
@@ -531,6 +554,51 @@
         ctx.drawImage(red ? this.artTinted(rec) : rec.img, 0, 0);
       }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    }
+    // Native figure sketches: interpretive monoline drawings pinned to three stars, shown while the reticle
+    // rests on one of the figure's constellations (or while pointing to it), fading like the Western art
+    if (L.native && window.Path2D) {
+      var sf = this.sketchFade = this.sketchFade || {}, dts = Math.min(0.1, (Date.now() - (this.lastDraw || Date.now())) / 1000);
+      var taken = false; // where two figures share the same stars (Big Dipper, Pleiades) show one at a time: the one being pointed to, else the first
+      for (var li2 = 0; li2 < this.lore.length; li2++) {
+        var Ls = this.lore[li2]; if (!Ls.sk && !Ls.artRecs) continue;
+        var pointed = this.selected && this.selected.vec === Ls.center;
+        var want = pointed || (!taken && !(this.selected && this.selected.vec) && focusCon && Ls.con.indexOf(focusCon) >= 0);
+        if (want) taken = true;
+        var cur = sf[Ls.id] || 0; cur += (want ? 1 : -1) * dts * 2.2; cur = clamp(cur, 0, 1);
+        if (cur > 0) sf[Ls.id] = cur; else { delete sf[Ls.id]; continue; }
+        if ((want && cur < 1) || (!want && cur > 0)) this.dirty = true;
+        if (Ls.artRecs && Ls.artRecs.length) { // painted figure(s) take the place of the sketch
+          ctx.globalCompositeOperation = 'lighter';
+          for (var ar = 0; ar < Ls.artRecs.length; ar++) {
+            var R2 = Ls.artRecs[ar]; if (!R2.img) { this.loadNativeArt(R2); continue; }
+            var spA = [], okA2 = true;
+            for (var q5 = 0; q5 < 3; q5++) { var so2 = R2.a[q5][2] * 3, X2 = this.starVec[so2], Y2 = this.starVec[so2 + 1], Z2 = this.starVec[so2 + 2]; z = m6 * X2 + m7 * Y2 + m8 * Z2; if (z < 0.2) { okA2 = false; break; } kx = S2 / (1 + z); spA.push([cx + (m0 * X2 + m1 * Y2 + m2 * Z2) * kx, cy - (m3 * X2 + m4 * Y2 + m5 * Z2) * kx]); }
+            if (!okA2) continue;
+            if (red && !R2.red) { R2.red = this.artTinted({ img: R2.img }); }
+            this.drawPinned(ctx, red ? R2.red : R2.img, R2.w, R2.h, R2.a, spA, 0.62 * cur * (1 - daylight * 0.7));
+          }
+          ctx.globalCompositeOperation = 'source-over';
+          continue;
+        }
+        if (!Ls.sk) continue;
+        var spn = [], okS = true;
+        for (var q4 = 0; q4 < 3; q4++) { var so = Ls.sk.a[q4][2] * 3, sx3 = this.starVec[so], sy3 = this.starVec[so + 1], sz3 = this.starVec[so + 2]; z = m6 * sx3 + m7 * sy3 + m8 * sz3; if (z < 0.2) { okS = false; break; } kx = S2 / (1 + z); spn.push([cx + (m0 * sx3 + m1 * sy3 + m2 * sz3) * kx, cy - (m3 * sx3 + m4 * sy3 + m5 * sz3) * kx]); }
+        if (!okS) continue;
+        var A = Ls.sk.a, ax0 = A[0][0], ay0 = A[0][1], ax1 = A[1][0], ay1 = A[1][1], ax2 = A[2][0], ay2 = A[2][1];
+        var dets = (ax1 - ax0) * (ay2 - ay0) - (ax2 - ax0) * (ay1 - ay0); if (abs(dets) < 1e-6) continue;
+        var sa = ((spn[1][0] - spn[0][0]) * (ay2 - ay0) - (spn[2][0] - spn[0][0]) * (ay1 - ay0)) / dets;
+        var sc = ((spn[2][0] - spn[0][0]) * (ax1 - ax0) - (spn[1][0] - spn[0][0]) * (ax2 - ax0)) / dets;
+        var sb = ((spn[1][1] - spn[0][1]) * (ay2 - ay0) - (spn[2][1] - spn[0][1]) * (ay1 - ay0)) / dets;
+        var sdd = ((spn[2][1] - spn[0][1]) * (ax1 - ax0) - (spn[1][1] - spn[0][1]) * (ax2 - ax0)) / dets;
+        var se = spn[0][0] - sa * ax0 - sc * ay0, sff = spn[0][1] - sb * ax0 - sdd * ay0;
+        var scale = sqrt(abs(sa * sdd - sb * sc)); if (!isFinite(scale) || scale <= 0 || scale > 60) continue;
+        if (!Ls.sk.path) Ls.sk.path = new Path2D(Ls.sketch.path);
+        ctx.save(); ctx.setTransform(dpr * sa, dpr * sb, dpr * sc, dpr * sdd, dpr * se, dpr * sff);
+        ctx.strokeStyle = red ? 'rgba(255,100,80,' + (0.85 * cur).toFixed(2) + ')' : 'rgba(231,128,93,' + (0.8 * cur).toFixed(2) + ')';
+        ctx.lineWidth = 1.6 / scale; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke(Ls.sk.path); ctx.restore();
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
     }
     // constellation lines
     if (L.lines) {
@@ -802,7 +870,7 @@
     var mvh = mulMat(this.HZ, this.moon.vec); if (angSep(mvh, f) < bdist) { bestB = 'moon'; }
     if (bestB && this.layers.planets) {
       title = bestB === 'moon' ? 'The Moon' : this.ss[bestB].name;
-      sub = (bestB === 'moon' ? this.phase.name : bestB === 'sun' ? 'Our star' : 'Planet') + ' · in ' + this.data.con[con].n;
+      sub = (bestB === 'moon' ? this.phase.name : bestB === 'sun' ? 'Our star' : 'Planet') + ' · in ' + this.data.con[con].n + ' · ';
     } else {
       title = this.data.con[con] ? this.data.con[con].n : '';
       var bestS = -1, sd = 7, Ms = this.Ms;
