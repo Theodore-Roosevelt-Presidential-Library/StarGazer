@@ -371,34 +371,49 @@
     this.onOri = null; clearTimeout(this.sensorTimer); this.mode = 'drag';
     var aa = vecToAzAlt(this.view.f); this.dragAz = aa.az; this.dragAlt = aa.alt;
   };
-  SkyApp.prototype.handleOrientation = function (e) {
-    if (e.alpha == null || e.beta == null || e.gamma == null) return;
-    if (!this.gotSensor) { this.gotSensor = true; clearTimeout(this.sensorTimer); this.roS.textContent = 'Turn slowly. Tap anything to learn more.'; }
-    var alpha = e.alpha;
-    if (e.webkitCompassHeading != null && !isNaN(e.webkitCompassHeading)) {
-      // iOS: alpha is smooth but relative; the compass heading is absolute but meaningless when the phone is
-      // flat or overhead. Keep the gyroscope's rotation and learn the heading offset only while the phone
-      // is held upright, where the compass is trustworthy. That removes the snap near the zenith.
-      var want = norm360(360 - e.webkitCompassHeading - e.alpha), upright = e.beta > 35 && e.beta < 145 && abs(e.gamma) < 60;
-      var acc = e.webkitCompassAccuracy; if (acc != null && acc >= 0 && acc > 40) upright = false;   // poor compass fix
-      if (this.iosOff == null) this.iosOff = want;
-      else if (upright) { var dd = ((want - this.iosOff + 540) % 360) - 180; this.iosOff = norm360(this.iosOff + dd * (this.iosLocked ? 0.03 : 0.2)); if (abs(dd) < 3) this.iosLocked = true; }
-      alpha = e.alpha + this.iosOff;
-    }
-    else if (this.oriEvent === 'deviceorientation' && e.absolute === false && !this.relNoted) { this.relNoted = true; this.toast('Compass not available: the sky may be turned. Drag sideways to line it up.', 4500); }
-    var x = e.beta * D2R, y = e.gamma * D2R, z = (alpha + this.calib) * D2R;
+  // Device angles -> look direction (out the back) and screen-up, both in the earth frame (E, N, U).
+  function deviceFrame(alpha, beta, gamma, screenAng) {
+    var x = beta * D2R, y = gamma * D2R, z = alpha * D2R;
     var cX = cos(x), cY = cos(y), cZ = cos(z), sX = sin(x), sY = sin(y), sZ = sin(z);
-    // W3C device -> earth (E,N,U) rotation matrix, ZXY order
+    // W3C device -> earth rotation matrix, ZXY order
     var m11 = cZ * cY - sZ * sX * sY, m12 = -cX * sZ, m13 = cY * sZ * sX + cZ * sY;
     var m21 = cY * sZ + cZ * sX * sY, m22 = cZ * cX, m23 = sZ * sY - cZ * cY * sX;
     var m31 = -cX * sY, m32 = sX, m33 = cX * cY;
+    var sa = sin(screenAng * D2R), ca = cos(screenAng * D2R);
+    return { f: [-m13, -m23, -m33], u: [m11 * sa + m12 * ca, m21 * sa + m22 * ca, m31 * sa + m32 * ca] };
+  }
+  SkyApp.prototype.handleOrientation = function (e) {
+    if (e.alpha == null || e.beta == null || e.gamma == null) return;
+    if (!this.gotSensor) { this.gotSensor = true; clearTimeout(this.sensorTimer); this.roS.textContent = 'Turn slowly. Tap anything to learn more.'; }
     var ang = (screen.orientation && typeof screen.orientation.angle === 'number') ? screen.orientation.angle : (typeof window.orientation === 'number' ? window.orientation : 0);
     if (this.lastScreenAng != null && ang !== this.lastScreenAng) this.q = null;   // the OS just rotated the page: jump, don't animate against it
     this.lastScreenAng = ang;
-    var sa = sin(ang * D2R), ca = cos(ang * D2R);
-    // look direction = device -Z ; screen-up = device (sa, ca, 0)
-    var f = [-m13, -m23, -m33];
-    var u = [m11 * sa + m12 * ca, m21 * sa + m22 * ca, m31 * sa + m32 * ca];
+    var hasCompass = e.webkitCompassHeading != null && !isNaN(e.webkitCompassHeading);
+    var off = hasCompass ? (this.iosOff || 0) : 0;
+    var fr = deviceFrame(e.alpha + off + this.calib, e.beta, e.gamma, ang);
+    if (hasCompass) {
+      // iOS: alpha is smooth but relative (gyro); the compass heading is absolute but only trustworthy when the
+      // phone is near vertical, and it reads differently at other tilts. So the heading offset is learned only
+      // within 30° of vertical, and it is learned by comparing where the *look direction* points (from the full
+      // rotation, which is stable through the Euler-angle gimbal lock at beta 90°) against the compass heading,
+      // which on a vertical iPhone is the direction the back of the phone faces. Raw alpha cannot be used for
+      // this: near beta 90° it trades off against gamma and jumps by up to 180° from one sample to the next,
+      // and chasing that was the sudden swing near the horizon. Once locked, corrections are tiny: a deadband
+      // for noise and at most 0.05° per sample, which trims gyro drift without visibly moving the sky.
+      var upright = e.beta > 60 && e.beta < 120 && abs(e.gamma) < 45;
+      var acc = e.webkitCompassAccuracy; if (acc != null && acc >= 0 && acc > 30) upright = false;   // poor compass fix
+      if (upright) {
+        var azNow = atan2(fr.f[0], fr.f[1]) * R2D, dd = ((e.webkitCompassHeading - azNow + 540) % 360) - 180;   // +dd: look direction must turn east by dd
+        var step = 0;
+        if (this.iosOff == null) { this.iosOff = 0; step = dd; }
+        else if (!this.iosLocked) { step = dd * 0.2; if (abs(dd) < 3) this.iosLocked = true; }
+        else if (abs(dd) > 1.5) step = clamp(dd * 0.01, -0.05, 0.05);
+        if (step) { this.iosOff = norm360(this.iosOff - step); fr = deviceFrame(e.alpha + this.iosOff + this.calib, e.beta, e.gamma, ang); }   // alpha turns the sky west, so subtract
+      }
+      else if (this.iosOff == null) this.iosOff = norm360(360 - e.webkitCompassHeading - e.alpha);   // not upright yet: rough start from the flat-phone relation until a proper fix
+    }
+    else if (this.oriEvent === 'deviceorientation' && e.absolute === false && !this.relNoted) { this.relNoted = true; this.toast('Compass not available: the sky may be turned. Drag sideways to line it up.', 4500); }
+    var f = fr.f, u = fr.u;
     if (this.pinned) return;   // pinned: the sky holds still so the phone can come down to reading height
     this.target.f = f; this.target.u = u; this.dirty = true;
   };

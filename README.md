@@ -81,8 +81,13 @@ browser allows motion access and full screen. `StarGazer.astro` exposes the ephe
   widget listens for `deviceorientationabsolute` where available (Android Chrome) and falls back to
   `deviceorientation` with `webkitCompassHeading` (iOS). Device angles become a rotation matrix
   (W3C ZXY convention, corrected for screen rotation); the look direction is the axis out the back
-  of the phone. A phone compass is usually off by a few degrees: dragging sideways in sensor mode
-  nudges the sky to line up with a landmark such as the Moon, and the offset is remembered.
+  of the phone. On iOS the gyro heading is relative, so a compass offset is learned, but only while
+  the phone is within 30° of vertical and by comparing the look direction's azimuth (stable through
+  the Euler gimbal lock at beta 90°) with the compass, never raw alpha, which swings by tens of
+  degrees at the horizon; once locked the offset is trimmed at most 0.05° per sample. The view is
+  smoothed as one rigid rotation (quaternion slerp). A phone compass is usually off by a few
+  degrees: dragging sideways in sensor mode nudges the sky to line up with a landmark such as the
+  Moon, and the offset is remembered.
 - **Projection.** Stereographic, centered on the look direction; pinch or scroll to zoom
   (18°–110° field of view). The horizon is a true circle in this projection, which is how the
   ground is drawn.
