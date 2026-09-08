@@ -3,6 +3,7 @@
   // Panels
   // ---------------------------------------------------------------------------------------------
   SkyApp.prototype.showSheet = function (name, title, html) {
+    if (name !== 'info') this.sheetAuto = false;
     this.sheetName = name;
     var nbs = this.el.querySelectorAll('.nb'); for (var i = 0; i < nbs.length; i++) nbs[i].classList.toggle('on', nbs[i].getAttribute('data-sheet') === name);
     if (name === 'tonight') { title = 'Tonight'; html = this.tonightHtml(); }
@@ -22,9 +23,9 @@
     if (!this.sheetBound) { this.sheetBound = true; b.addEventListener('click', function (e) {
       var t = e.target.closest ? e.target.closest('[data-act]') : null; if (!t) return;
       var act = t.getAttribute('data-act'), arg = t.getAttribute('data-arg');
-      if (act === 'show-lore') { var L = self.lore[+arg]; if (L.center) { self.selected = { vec: L.center, j2000: true, label: L.name }; self.hideSheet(); self.toast('Follow the arrow to ' + L.name.split(' (')[0], 3000); self.dirty = true; } }
-      else if (act === 'show-vec') { var p = arg.split(','); self.selected = { vec: [+p[0], +p[1], +p[2]], j2000: p[3] === '1' }; self.hideSheet(); self.toast('Follow the arrow', 2500); self.dirty = true; }
-      else if (act === 'clear-sel') { self.selected = null; self.dirty = true; self.hideSheet(); }
+      if (act === 'show-lore') { var L = self.lore[+arg]; if (L.center) { self.select(L.center, true, L.label || L.name); self.hideSheet(); self.toast('Follow the arrow. Tap the banner at the top to stop.', 3000); } }
+      else if (act === 'show-vec') { var p = arg.split(','); self.select([+p[0], +p[1], +p[2]], p[3] === '1', t.getAttribute('data-label') || ''); self.hideSheet(); self.toast('Follow the arrow. Tap the banner at the top to stop.', 3000); }
+      else if (act === 'clear-sel') { self.clearSelected(); self.hideSheet(); }
       else if (act === 'lore') { self.showInfo({ t: 'lore', i: +arg }); }
       else if (act === 'con') { self.showInfo({ t: 'con', k: arg }); }
       else if (act === 'sheet') { self.showSheet(arg); }
@@ -39,6 +40,7 @@
       if (tr) tr.addEventListener('input', function () { self.timeOffset = +tr.value; tl.textContent = self.timeLabel(); self.computeBodies(true); self.dirty = true; });
       var dr = b.querySelector('#sg-dim'); if (dr) dr.addEventListener('input', function () { self.setDim(+dr.value / 100); });
       var rs = b.querySelector('#sg-red'); if (rs) rs.addEventListener('change', function () { self.setRed(rs.checked); });
+      var sd = b.querySelector('#sg-steady'); if (sd) sd.addEventListener('change', function () { self.steady = sd.checked; self.persist(); });
       var ls = b.querySelectorAll('[data-layer]');
       for (var i = 0; i < ls.length; i++) ls[i].addEventListener('change', function (e) { self.layers[e.target.getAttribute('data-layer')] = e.target.checked; self.updateChips(); self.persist(); self.dirty = true; });
     }
@@ -80,7 +82,7 @@
     var src = ''; for (var i = 0; i < L.sources.length; i++) src += '<li>' + esc(L.sources[i]).replace(/\(fetched\)/g, '') + '</li>';
     return '<div class="item"><h4>' + esc(L.name) + '</h4><div class="d">' + esc(L.translation || '') + (L.western ? ' · ' + esc(L.western) : '') + '</div>' +
       '<div style="margin:6px 0 4px">' + badges + '</div><p class="b">' + esc(L.story) + '</p>' +
-      (L.center ? '<button class="btn2" data-act="show-lore" data-arg="' + idx + '">Show in the sky</button>' : '') +
+      (L.center ? (this.loreStatus(L).up ? '<button class="btn2" data-act="show-lore" data-arg="' + idx + '">Point me to it</button>' : '<div class="meta">' + esc(this.loreStatus(L).text) + '</div>') : '') +
       '<details><summary>Sources</summary><ul class="src">' + src + '</ul></details></div>';
   };
   SkyApp.prototype.conBlock = function (k, withLore) {
@@ -138,7 +140,7 @@
       h += '<div class="meta">Constellation · ' + this.altAzLine(mulMat(matMul(this.HZ, this.P), this.conCenter[hit.k])) + '</div>';
       h += '<p>' + esc(this.content.western[hit.k] || '') + '</p>';
       if (this.loreByCon[hit.k]) h += '<div class="k">In other skies</div>' + this.loreBlock(this.loreByCon[hit.k], true);
-      h += '<button class="btn2" data-act="show-vec" data-arg="' + this.conCenter[hit.k].join(',') + ',1">Point me to it</button>';
+      h += '<button class="btn2" data-act="show-vec" data-label="' + esc(c.n) + '" data-arg="' + this.conCenter[hit.k].join(',') + ',1">Point me to it</button>';
     } else if (hit.t === 'lore') {
       var L = this.lore[hit.i]; title = L.name.split(' (')[0].split(' /')[0];
       h += this.loreDetail(L, hit.i) + '<p class="meta" style="margin-top:10px">' + esc(this.content.framing) + '</p>';
@@ -294,18 +296,25 @@
   };
 
   // ---- Stories -----------------------------------------------------------------------------
+  // Where a figure is right now: up (with direction) or below the horizon (with its next rise), or unplaced.
+  SkyApp.prototype.loreStatus = function (L) {
+    if (!L.center) return { up: false, rank: 2, text: '' };
+    var self = this, hzP = matMul(this.HZ, this.P), hz = mulMat(hzP, L.center), aa = vecToAzAlt(hz);
+    if (aa.alt > 3) return { up: true, rank: 0, alt: aa.alt, text: 'Up now · ' + Math.round(aa.alt) + '° up in the ' + fmtAz(aa.az) };
+    var rise = scanCrossings(this.now(), 24, 20, function (t) { return altOf(L.center, self.loc.lat, lstFor(t, self.loc.lon)); }, 3).filter(function (e) { return e.type === 'rise'; })[0];
+    return { up: false, rank: 1, riseT: rise ? rise.time.getTime() : Infinity, text: rise ? 'Below the horizon · rises ' + fmtTime(rise.time) + (rise.time.getDate() !== this.now().getDate() ? ' (' + rise.time.toLocaleDateString(undefined, { weekday: 'short' }) + ')' : '') : 'Below the horizon tonight' };
+  };
   SkyApp.prototype.storiesHtml = function () {
     var h = '<p class="meta">' + esc(this.content.framing) + '</p>';
-    var groups = {}, order = [];
-    for (var i = 0; i < this.lore.length; i++) { var L = this.lore[i], g = L.culture.split(',')[0].split(' (')[0]; if (!groups[g]) { groups[g] = []; order.push(g); } groups[g].push(i); }
-    for (var o = 0; o < order.length; o++) {
-      h += '<div class="k">' + esc(order[o]) + '</div>';
-      var idxs = groups[order[o]];
-      for (var j = 0; j < idxs.length; j++) {
-        var E = this.lore[idxs[j]];
-        h += '<div class="item"><h4>' + esc(E.name.split(' (')[0]) + '</h4><div class="d">' + esc((E.translation || '').split(' /')[0]) + (E.western ? ' · ' + esc(E.western.split(' (')[0]) : '') + '</div>' +
-          '<div class="row"><button class="link" data-act="lore" data-arg="' + idxs[j] + '">Read</button>' + (E.center ? '<button class="link" data-act="show-lore" data-arg="' + idxs[j] + '">Show in the sky</button>' : '') + '</div></div>';
-      }
+    var rows = [];
+    for (var i = 0; i < this.lore.length; i++) { var L = this.lore[i], st = this.loreStatus(L); rows.push({ i: i, L: L, st: st }); }
+    rows.sort(function (a, b) { return a.st.rank - b.st.rank || (a.st.rank === 0 ? b.st.alt - a.st.alt : a.st.rank === 1 ? a.st.riseT - b.st.riseT : a.i - b.i); });
+    var heads = ['In the sky right now', 'Below the horizon', 'Stories without a fixed place'], lastRank = -1;
+    for (var j = 0; j < rows.length; j++) {
+      var E = rows[j].L, idx = rows[j].i, stt = rows[j].st;
+      if (stt.rank !== lastRank) { lastRank = stt.rank; h += '<div class="k">' + heads[stt.rank] + '</div>'; }
+      h += '<div class="item' + (stt.rank === 1 ? ' dimmed' : '') + '"><h4>' + esc(E.label || E.name.split(' (')[0]) + '</h4><div class="d">' + esc(E.culture.split(',')[0]) + ' · ' + esc((E.translation || '').split(' /')[0]) + (E.western ? ' · ' + esc(E.western.split(' (')[0]) : '') + (stt.text ? '<br>' + esc(stt.text) : '') + '</div>' +
+        '<div class="row"><button class="link" data-act="lore" data-arg="' + idx + '">Read</button>' + (stt.up ? '<button class="link" data-act="show-lore" data-arg="' + idx + '">Point me to it</button>' : '') + '</div></div>';
     }
     h += '<div class="k">Western constellations</div><p class="meta">Tap any constellation name in the sky for its Greek, Roman, or early-modern story. The 88 constellations used by astronomers today were fixed by the International Astronomical Union in 1928.</p>';
     return h;
@@ -322,8 +331,8 @@
     h += '<div class="meta" style="margin-top:8px">Extra dimming</div><input type="range" id="sg-dim" min="0" max="75" value="' + Math.round(this.dim * 100) + '">';
     h += '<div class="k">Show</div>';
     for (var i = 0; i < LAYERS.length; i++) { if (LAYERS[i][0] === 'camera') continue; h += '<label class="sw">' + LAYERS[i][1] + '<input type="checkbox" data-layer="' + LAYERS[i][0] + '"' + (this.layers[LAYERS[i][0]] ? ' checked' : '') + '></label>'; }
-    h += '<div class="meta" style="margin-top:8px">See-through uses the rear camera behind the chart; turn it on with the chip above the buttons. It stays off between sessions.</div>';
-    h += '<div class="k">Motion</div><div class="meta">' + (this.mode === 'sensor' ? 'Motion sensor active. If the sky looks turned, drag sideways to line it up with a landmark such as the Moon or the North Star.' : 'Drag to look around. Pinch or scroll to zoom. Double-tap to zoom in and out.') + (this.calib ? ' Compass offset ' + Math.round(this.calib) + '°.' : '') + '</div>' +
+    if (this.cameraPossible()) h += '<div class="meta" style="margin-top:8px">See-through uses the rear camera behind the chart; turn it on with the chip above the buttons. It stays off between sessions.</div>';
+    h += '<div class="k">Motion</div><label class="sw">Steady view overhead (damps the spin near the zenith)<input type="checkbox" id="sg-steady"' + (this.steady ? ' checked' : '') + '></label><div class="meta">' + (this.mode === 'sensor' ? 'Motion sensor active. If the sky looks turned, drag sideways to line it up with a landmark such as the Moon or the North Star.' : 'Drag to look around. Pinch or scroll to zoom. Double-tap to zoom in and out.') + (this.calib ? ' Compass offset ' + Math.round(this.calib) + '°.' : '') + '</div>' +
       (this.mode === 'sensor' ? '<div class="row"><button class="btn2" data-act="recal">Clear compass offset</button></div>' : '');
     h += '<div class="k">About</div><p class="meta">StarGazer ' + VERSION + ' · Theodore Roosevelt Presidential Library, Medora, North Dakota. Stars and constellation lines from d3-celestial (Olaf Frohn) after the Hipparcos catalog; constellation figures by Johan Meuris for Stellarium (Free Art License); planets from JPL Keplerian elements; Moon from a standard series solution; aurora from NOAA SWPC. Indigenous star knowledge from published sources credited on each story; tribal partners are invited to correct or expand it. Positions are accurate to within a fraction of a degree; a phone compass is usually the larger source of error.</p>';
     return h;

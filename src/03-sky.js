@@ -25,6 +25,7 @@
     this.red = !!prefs.red;
     this.dim = typeof prefs.dim === 'number' ? prefs.dim : 0.15;
     this.calib = typeof prefs.calib === 'number' ? prefs.calib : 0;
+    this.steady = prefs.steady !== false;
     this.fov = 70;
     this.timeOffset = 0;         // minutes
     this.mode = 'drag';          // 'drag' | 'sensor'
@@ -43,7 +44,7 @@
   }
   SkyApp.prototype.persist = function () {
     var p = loadPrefs();
-    p.layers = this.layers; p.red = this.red; p.dim = this.dim; p.calib = this.calib;
+    p.layers = this.layers; p.red = this.red; p.dim = this.dim; p.calib = this.calib; p.steady = this.steady;
     if (!this.locFixed) p.loc = this.loc;
     savePrefs(p);
   };
@@ -84,11 +85,12 @@
       '<div class="top"><button class="ib x" aria-label="Close">' + ICONS.close + '</button>' +
       '<div class="ro"><div class="c">&nbsp;</div><div class="s">Point the phone at the sky</div></div>' +
       '<button class="ib rb" aria-label="Red light mode" title="Red light mode">' + ICONS.red + '</button></div>' +
-      '<div class="cross"></div><div class="toast"></div>' +
-      '<div class="bottom"><div class="chips"></div>' +
+      '<div class="cross"></div><div class="toast"></div><button class="target" type="button"><span class="tl"></span><span class="tx">&#x2715;</span></button>' +
+      '<div class="bottom"><div class="chipsw"><div class="chips"></div><span class="hint">&#x203A;</span></div>' +
       '<div class="nav"><button class="nb" data-sheet="tonight">Tonight</button><button class="nb" data-sheet="aurora">Aurora</button><button class="nb" data-sheet="stories">Stories</button><button class="nb" data-sheet="settings">Settings</button></div></div>' +
       '<div class="sheet"><div class="sh"><div class="t"></div><button class="x" aria-label="Close panel">&#x2715;</button></div><div class="sb"></div></div>' +
-      '<div class="loading">' + WORDMARK.replace('<svg ', '<svg class="wm" ') + '<div class="lmsg">Loading the sky&hellip;</div></div>';
+      '<div class="loading">' + WORDMARK.replace('<svg ', '<svg class="wm" ') + '<div class="tips"><div>Hold up<small>raise the phone to the sky</small></div><div>Turn<small>slowly, in any direction</small></div><div>Tap<small>anything, for its story</small></div></div><div class="lmsg">Loading the sky&hellip;</div></div>';
+    this.openedAt = Date.now();
     root.appendChild(el);
     this.host = host; this.root = root; this.el = el;
     this.canvas = el.querySelector('canvas'); this.ctx = this.canvas.getContext('2d');
@@ -96,6 +98,7 @@
     this.dimEl = el.querySelector('.dim'); this.dimEl.style.opacity = this.dim;
     this.roC = el.querySelector('.ro .c'); this.roS = el.querySelector('.ro .s');
     this.toastEl = el.querySelector('.toast');
+    this.targetEl = el.querySelector('.target'); this.targetEl.addEventListener('click', function () { self.clearSelected(); });
     this.sheet = el.querySelector('.sheet'); this.sheetT = el.querySelector('.sh .t'); this.sheetB = el.querySelector('.sb');
     this.chipsEl = el.querySelector('.chips');
     el.querySelector('.ib.x').addEventListener('click', function () { self.close(); });
@@ -108,8 +111,11 @@
     });
     // chips
     var h = '';
-    for (var j = 0; j < LAYERS.length; j++) h += '<button class="chip" data-l="' + LAYERS[j][0] + '">' + LAYERS[j][1] + '</button>';
+    for (var j = 0; j < LAYERS.length; j++) { if (LAYERS[j][0] === 'camera' && !this.cameraPossible()) continue; h += '<button class="chip" data-l="' + LAYERS[j][0] + '">' + LAYERS[j][1] + '</button>'; }
     this.chipsEl.innerHTML = h;
+    this.chipsWrap = el.querySelector('.chipsw');
+    this.chipsEl.addEventListener('scroll', function () { self.updateChipEdges(); }, { passive: true });
+    setTimeout(function () { self.updateChipEdges(); }, 50);
     this.chipsEl.addEventListener('click', function (e) {
       var b = e.target.closest ? e.target.closest('.chip') : null; if (!b) return;
       var l = b.getAttribute('data-l');
@@ -130,12 +136,20 @@
     document.addEventListener('visibilitychange', this.onVis);
     this.prevOverflow = document.documentElement.style.overflow; document.documentElement.style.overflow = 'hidden';
   };
-  // ---- see-through camera --------------------------------------------------------------------
+  // ---- see-through camera (phones and tablets with a rear camera only) --------------------------
+  SkyApp.prototype.cameraPossible = function () { return IS_MOBILE && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia); };
+  SkyApp.prototype.updateChipEdges = function () {
+    var c = this.chipsEl, w = this.chipsWrap; if (!w) return;
+    w.classList.toggle('more-r', c.scrollLeft + c.clientWidth < c.scrollWidth - 4);
+    w.classList.toggle('more-l', c.scrollLeft > 4);
+  };
   SkyApp.prototype.toggleCamera = function () {
     var self = this;
     if (this.layers.camera) { this.stopCamera(); return; }
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { this.toast('This browser cannot open the camera.'); return; }
+    if (!this.cameraPossible()) { this.toast('See-through needs a phone or tablet with a rear camera.'); return; }
     navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false }).then(function (stream) {
+      var tr = stream.getVideoTracks()[0], st = tr && tr.getSettings ? tr.getSettings() : {};
+      if (st.facingMode && st.facingMode !== 'environment') { stream.getTracks().forEach(function (t) { t.stop(); }); self.toast('No rear camera found on this device.'); return; }
       self.camStream = stream; self.video.srcObject = stream; self.el.classList.add('cam');
       self.layers.camera = true; self.updateChips(); self.dirty = true;
       self.fovBeforeCam = self.fov; self.setFov(62);
@@ -213,11 +227,14 @@
     if (this.host && this.host.parentNode) this.host.parentNode.removeChild(this.host);
   };
   SkyApp.prototype.showLoading = function (msg, isError) {
-    var l = this.el.querySelector('.loading'); l.style.display = 'flex';
+    var l = this.el.querySelector('.loading'); l.style.display = 'flex'; l.classList.remove('out');
     l.querySelector('.lmsg').innerHTML = esc(msg) + (isError ? '<br><br><button class="btn2" type="button">Close</button>' : '');
     var self = this; var b = l.querySelector('.btn2'); if (b) b.addEventListener('click', function () { self.close(); });
   };
-  SkyApp.prototype.hideLoading = function () { this.el.querySelector('.loading').style.display = 'none'; };
+  SkyApp.prototype.hideLoading = function () {  // let the intro play for a moment, then fade out
+    var l = this.el.querySelector('.loading'), wait = Math.max(0, 2200 - (Date.now() - this.openedAt));
+    setTimeout(function () { l.classList.add('out'); setTimeout(function () { l.style.display = 'none'; }, 650); }, wait);
+  };
   SkyApp.prototype.toast = function (msg, ms) {
     var self = this; this.toastEl.textContent = msg; this.toastEl.classList.add('show');
     clearTimeout(this.toastT); this.toastT = setTimeout(function () { self.toastEl.classList.remove('show'); }, ms || 3200);
@@ -235,7 +252,7 @@
     var w = this.el.clientWidth || window.innerWidth, h = this.el.clientHeight || window.innerHeight;
     this.W = w; this.H = h; this.dpr = dpr;
     this.canvas.width = Math.round(w * dpr); this.canvas.height = Math.round(h * dpr);
-    this.dirty = true;
+    this.dirty = true; if (this.chipsWrap) this.updateChipEdges();
   };
 
   // ---- data preparation ---------------------------------------------------------------------
@@ -368,18 +385,61 @@
     if (!this.running) return;
     var v = this.view, t = this.target;
     // smooth toward target
-    var k = this.mode === 'sensor' ? 0.22 : 0.35;
-    var nf = vlerp(v.f, t.f, k), nu = vlerp(v.u, t.u, k);
+    var k = this.mode === 'sensor' ? 0.22 : 0.35, ku = k;
+    if (this.steady !== false && this.mode === 'sensor') { // near the zenith the compass heading swings wildly: damp the roll
+      var altNow = asin(clamp(t.f[2], -1, 1)) * R2D;
+      if (altNow > 65) ku = k * Math.max(0.05, (90 - altNow) / 25);
+    }
+    var nf = vlerp(v.f, t.f, k), nu = vlerp(v.u, t.u, ku);
     if (vdot(nf, nf) < 1e-4) nf = t.f;
     nf = vnorm(nf); nu = vnorm([nu[0] - vdot(nu, nf) * nf[0], nu[1] - vdot(nu, nf) * nf[1], nu[2] - vdot(nu, nf) * nf[2]]);
     if (!isFinite(nu[0]) || vdot(nu, nu) < 0.5) nu = vnorm([0 - vdot([0, 0, 1], nf) * nf[0], 0 - vdot([0, 0, 1], nf) * nf[1], 1 - vdot([0, 0, 1], nf) * nf[2]]);
     var moving = angSep(nf, v.f) > 0.02 || angSep(nu, v.u) > 0.02;
     v.f = nf; v.u = nu; v.r = vcross(nf, nu);
     var tick = Date.now() - (this.lastDraw || 0) > 1000;
+    this.trackDwell(nf, moving);
     if (this.dirty || moving || tick) { this.draw(); this.dirty = false; this.lastDraw = Date.now(); }
     requestAnimationFrame(function () { self.loop(); });
   };
 
+  SkyApp.prototype.select = function (vec, j2000, label) {
+    this.selected = { vec: vec, j2000: j2000, label: label || '' };
+    this.targetEl.querySelector('.tl').textContent = 'Pointing to ' + (label || 'the target');
+    this.targetEl.classList.add('show'); this.dirty = true;
+  };
+  SkyApp.prototype.clearSelected = function (msg) {
+    this.selected = null; this.targetEl.classList.remove('show'); this.dirty = true;
+    if (msg) this.toast(msg, 2500);
+  };
+  // ---- linger to read, move to dismiss ----------------------------------------------------------
+  SkyApp.prototype.trackDwell = function (f, moving) {
+    if (!this.HZ || !this.Ms) return;
+    var now = Date.now(), dw = this.dwell || (this.dwell = { anchor: f, since: now, shown: null, big: false });
+    var drift = angSep(f, dw.anchor);
+    if (drift > 4) { dw.anchor = f; dw.since = now; dw.big = drift > 12; }
+    // big movement: close a card that was opened by lingering
+    if (dw.shown && (drift > 12 || (moving && angSep(f, dw.shownAt) > 10))) { if (this.sheetName === 'info' && this.sheetAuto) this.hideSheet(); dw.shown = null; }
+    if (this.sheetName && !(this.sheetName === 'info' && this.sheetAuto)) return; // a panel the visitor opened stays put
+    if (now - dw.since < 1800 || Object.keys(this.pointers).length) return;
+    var key = this.dwellTarget(); if (!key || key === dw.shown) return;
+    dw.shown = key; dw.shownAt = f;
+    this.sheetAuto = true; this.showInfo(this.dwellHit); this.sheetAuto = true;
+  };
+  SkyApp.prototype.dwellTarget = function () {
+    var f = this.view.f, best = null, bd = 3;
+    for (var pk in this.ss) { var d = angSep(mulMat(this.HZ, this.ss[pk].vecDate), f); if (d < bd) { bd = d; best = { t: 'body', k: pk }; } }
+    if (angSep(mulMat(this.HZ, this.moon.vec), f) < bd) best = { t: 'body', k: 'moon' };
+    if (!best) {
+      var Ms = this.Ms, sd = 2.5, si = -1;
+      for (var i = 0; i < this.data.stars.length && this.data.stars[i][3] < 3.0; i++) {
+        if (!this.data.stars[i][6]) continue; var o = i * 3, z = Ms[6] * this.starVec[o] + Ms[7] * this.starVec[o + 1] + Ms[8] * this.starVec[o + 2];
+        var ang = Math.acos(clamp(z, -1, 1)) * R2D; if (ang < sd) { sd = ang; si = i; }
+      }
+      if (si >= 0) best = { t: 'star', i: si }; else if (this.focusCon && vecToAzAlt(f).alt > 0) best = { t: 'con', k: this.focusCon };
+    }
+    this.dwellHit = best;
+    return best ? best.t + ':' + (best.k || best.i) : null;
+  };
   // ---- rendering -------------------------------------------------------------------------------
   SkyApp.prototype.draw = function () {
     var ctx = this.ctx, W = this.W, H = this.H, dpr = this.dpr, red = this.red, L = this.layers, D = this.data;
@@ -432,8 +492,13 @@
     var focusCon = this.focusCon;
     if (L.art && this.artKeys.length) {
       ctx.globalCompositeOperation = 'lighter';
+      // only the constellation under the reticle shows its figure; it fades in and out
+      var fade = this.artFade = this.artFade || {}, dt = Math.min(0.1, (Date.now() - (this.lastDraw || Date.now())) / 1000);
+      for (var fk in fade) { fade[fk] += (fk === focusCon ? 1 : -1) * dt * 2.2; if (fade[fk] <= 0) delete fade[fk]; else { if (fade[fk] > 1) fade[fk] = 1; this.dirty = true; } }
+      if (focusCon && D.art[focusCon] && fade[focusCon] == null) { fade[focusCon] = 0.01; this.dirty = true; }
       for (var ai = 0; ai < this.artKeys.length; ai++) {
-        var ak2 = this.artKeys[ai], av = this.artVec[ak2], ad = D.art[ak2], sp = [], okA = true;
+        var ak2 = this.artKeys[ai]; if (!fade[ak2]) continue;
+        var av = this.artVec[ak2], ad = D.art[ak2], sp = [], okA = true;
         for (var q3 = 0; q3 < 3; q3++) {
           var vv = av[q3]; z = m6 * vv[0] + m7 * vv[1] + m8 * vv[2]; if (z < 0.2) { okA = false; break; }
           kx = S2 / (1 + z); sp.push([cx + (m0 * vv[0] + m1 * vv[1] + m2 * vv[2]) * kx, cy - (m3 * vv[0] + m4 * vv[1] + m5 * vv[2]) * kx]);
@@ -452,7 +517,7 @@
         if (Math.max.apply(null, cxs) < 0 || Math.min.apply(null, cxs) > W || Math.max.apply(null, cys) < 0 || Math.min.apply(null, cys) > H) continue;
         if (abs(ta * td - tb * tc) > 40) continue; // absurdly magnified near the projection edge
         var rec = this.artImage(ak2); if (!rec.ok) continue;
-        ctx.globalAlpha = (ak2 === focusCon ? 0.55 : 0.32) * (1 - daylight * 0.7);
+        ctx.globalAlpha = 0.6 * fade[ak2] * (1 - daylight * 0.7);
         ctx.setTransform(dpr * ta, dpr * tb, dpr * tc, dpr * td, dpr * te, dpr * tf);
         ctx.drawImage(red ? this.artTinted(rec) : rec.img, 0, 0);
       }
@@ -616,7 +681,11 @@
       ctx.strokeStyle = red ? 'rgba(255,90,70,.9)' : 'rgba(231,128,93,.9)'; ctx.lineWidth = 1.5;
       if (tv[2] > zmin) {
         kx = S2 / (1 + tv[2]); px = cx + tv[0] * kx; py = cy - tv[1] * kx;
-        if (px > 0 && px < W && py > 0 && py < H) { var pulse = 18 + 6 * sin(Date.now() / 300); ctx.beginPath(); ctx.arc(px, py, pulse * zoom, 0, 6.2832); ctx.stroke(); this.dirty = true; }
+        if (px > 0 && px < W && py > 0 && py < H) {
+          var pulse = 18 + 6 * sin(Date.now() / 300); ctx.beginPath(); ctx.arc(px, py, pulse * zoom, 0, 6.2832); ctx.stroke(); this.dirty = true;
+          if (Math.hypot(px - cx, py - cy) < Math.min(W, H) * 0.18) { this.selected.centered = (this.selected.centered || Date.now()); if (Date.now() - this.selected.centered > 2500) this.clearSelected('Found it: ' + this.selected.label); }
+          else this.selected.centered = 0;
+        }
         else this.drawEdgeArrow(ctx, atan2(-(py - cy), px - cx));
       } else this.drawEdgeArrow(ctx, atan2(tv[1], tv[0]));
     }
@@ -627,6 +696,7 @@
     var placed = [];
     for (i = 0; i < labels.length; i++) {
       var lb = labels[i], kind = lb[3];
+      if (lb[1] < 78 && lb[1] > -20) continue; // keep the readout at the top clear
       if (kind === 2 || kind === 3) { // nudge figure/constellation names off each other
         var lw = lb[2].length * (kind === 3 ? 8 : 6.5), lx0 = lb[0] - lw / 2, ly = lb[1];
         for (var tries = 0; tries < 4; tries++) {
@@ -740,6 +810,7 @@
   };
   SkyApp.prototype.tap = function (px, py) {
     if (this.sheet.classList.contains('show') && this.sheetName === 'info') { this.hideSheet(); return; }
+    this.sheetAuto = false;
     var best = null, bd = 1e9, pri = { body: 0, lore: 1, star: 2, dso: 2, shower: 2, con: 3 };
     for (var i = 0; i < this.hits.length; i++) {
       var h = this.hits[i], d = Math.hypot(h.x - px, h.y - py); if (d > h.r) continue;
