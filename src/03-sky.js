@@ -325,7 +325,16 @@
     if (e.alpha == null || e.beta == null || e.gamma == null) return;
     if (!this.gotSensor) { this.gotSensor = true; clearTimeout(this.sensorTimer); this.roS.textContent = 'Turn slowly. Tap anything to learn more.'; }
     var alpha = e.alpha;
-    if (e.webkitCompassHeading != null && !isNaN(e.webkitCompassHeading)) alpha = 360 - e.webkitCompassHeading;
+    if (e.webkitCompassHeading != null && !isNaN(e.webkitCompassHeading)) {
+      // iOS: alpha is smooth but relative; the compass heading is absolute but meaningless when the phone is
+      // flat or overhead. Keep the gyroscope's rotation and learn the heading offset only while the phone
+      // is held upright, where the compass is trustworthy. That removes the snap near the zenith.
+      var want = norm360(360 - e.webkitCompassHeading - e.alpha), upright = e.beta > 35 && e.beta < 145 && abs(e.gamma) < 60;
+      var acc = e.webkitCompassAccuracy; if (acc != null && acc >= 0 && acc > 40) upright = false;   // poor compass fix
+      if (this.iosOff == null) this.iosOff = want;
+      else if (upright) { var dd = ((want - this.iosOff + 540) % 360) - 180; this.iosOff = norm360(this.iosOff + dd * (this.iosLocked ? 0.03 : 0.2)); if (abs(dd) < 3) this.iosLocked = true; }
+      alpha = e.alpha + this.iosOff;
+    }
     else if (this.oriEvent === 'deviceorientation' && e.absolute === false && !this.relNoted) { this.relNoted = true; this.toast('Compass not available: the sky may be turned. Drag sideways to line it up.', 4500); }
     var x = e.beta * D2R, y = e.gamma * D2R, z = (alpha + this.calib) * D2R;
     var cX = cos(x), cY = cos(y), cZ = cos(z), sX = sin(x), sY = sin(y), sZ = sin(z);
@@ -388,7 +397,7 @@
     var k = this.mode === 'sensor' ? 0.22 : 0.35, ku = k;
     if (this.steady !== false && this.mode === 'sensor') { // near the zenith the compass heading swings wildly: damp the roll
       var altNow = asin(clamp(t.f[2], -1, 1)) * R2D;
-      if (altNow > 65) ku = k * Math.max(0.05, (90 - altNow) / 25);
+      if (altNow > 72) ku = k * Math.max(0.15, (90 - altNow) / 18);
     }
     var nf = vlerp(v.f, t.f, k), nu = vlerp(v.u, t.u, ku);
     if (vdot(nf, nf) < 1e-4) nf = t.f;
