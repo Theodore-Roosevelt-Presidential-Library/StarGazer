@@ -35,6 +35,7 @@
       else if (act === 'medora') { self.loc = DEFAULT_LOC; self.persist(); self.computeBodies(true); self.dirty = true; self.showSheet('settings'); self.toast('Sky set for Medora, North Dakota'); }
       else if (act === 'now') { self.timeOffset = 0; self.computeBodies(true); self.dirty = true; self.showSheet('settings'); }
       else if (act === 'recal') { self.calib = 0; self.persist(); self.toast('Compass offset cleared'); }
+      else if (act === 'leave-tour') { self.leaveTour(); self.toast('You left the tour. Rejoin any time with the code.', 3000); self.showSheet('settings'); }
       else if (act === 'aurora-refresh') { self.auroraCache = null; self.showSheet('aurora'); }
       else if (act === 'sky') { self.setSky(arg); self.showSheet('settings'); }
       else if (act === 'tab') { var panes = self.sheetB.querySelectorAll('.tabpane'); for (var pi = 0; pi < panes.length; pi++) panes[pi].hidden = panes[pi].getAttribute('data-pane') !== arg; if (arg === 'origin') self.sheetB.scrollTop = 0; }
@@ -45,6 +46,13 @@
       var dr = b.querySelector('#sg-dim'); if (dr) dr.addEventListener('input', function () { self.setDim(+dr.value / 100); });
       var rs = b.querySelector('#sg-red'); if (rs) rs.addEventListener('change', function () { self.setRed(rs.checked); });
       var sd = b.querySelector('#sg-steady'); if (sd) sd.addEventListener('change', function () { self.steady = sd.checked; self.persist(); });
+      var ci = b.querySelector('#sg-code'), cj = b.querySelector('#sg-join');
+      if (ci && cj) {
+        var goJoin = function () { var code = cleanCode(ci.value); if (!code) return; self.hideSheet(); self.joinTour(code); };
+        ci.addEventListener('input', function () { ci.value = cleanCode(ci.value); cj.disabled = ci.value.length !== 5; });
+        ci.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !cj.disabled) goJoin(); });
+        cj.addEventListener('click', goJoin);
+      }
       var ls = b.querySelectorAll('[data-layer]');
       for (var i = 0; i < ls.length; i++) ls[i].addEventListener('change', function (e) { self.layers[e.target.getAttribute('data-layer')] = e.target.checked; self.updateChips(); self.persist(); self.dirty = true; });
     }
@@ -375,6 +383,9 @@
     h += '<div class="k">Location</div><div class="meta">' + esc(this.loc.name) + ' · ' + this.loc.lat.toFixed(2) + '°, ' + this.loc.lon.toFixed(2) + '°</div>' +
       '<div class="row"><button class="btn2" data-act="geo">Use my location</button><button class="btn2" data-act="medora">Medora</button></div>';
     h += '<div class="k">Time</div><div class="meta" id="sg-timel">' + this.timeLabel() + '</div><input type="range" id="sg-time" min="-1440" max="1440" step="10" value="' + this.timeOffset + '"><div class="row"><button class="link" data-act="now">Back to now</button></div>';
+    h += '<div class="k">Guided tour</div>';
+    if (this.tour) h += '<div class="meta">' + (this.tour.status === 'on' ? 'On tour <b>' + esc(this.tour.code) + '</b>. The guide can point the arrow and open cards on this screen.' : 'Joining tour <b>' + esc(this.tour.code) + '</b>…') + '</div><div class="row"><button class="btn2" data-act="leave-tour">Leave the tour</button></div>';
+    else h += '<div class="meta">With a guide? Enter the five-letter code they gave you.</div><div class="row joinrow"><input type="text" id="sg-code" inputmode="latin" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="5" placeholder="CODE" aria-label="Tour code"><button class="btn2" id="sg-join" disabled>Join</button></div>';
     h += '<div class="k">Screen</div>';
     h += '<label class="sw">Red light mode (protects night vision)<input type="checkbox" id="sg-red"' + (this.red ? ' checked' : '') + '></label>';
     h += '<div class="meta" style="margin-top:8px">Extra dimming</div><input type="range" id="sg-dim" min="0" max="75" value="' + Math.round(this.dim * 100) + '">';

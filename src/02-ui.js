@@ -157,6 +157,8 @@
     '.also .link{font-size:13px;letter-spacing:0;text-transform:none}',
     '.src{font-family:' + FONT_C + ';font-size:11.5px;color:var(--fg);line-height:1.5;margin:6px 0 0;padding-left:16px;overflow-wrap:anywhere}',
     '.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}',
+    '.joinrow{flex-wrap:nowrap}.joinrow input{flex:1;min-width:0;font-family:' + FONT_D + ';font-weight:700;font-size:28px;line-height:1;letter-spacing:.18em;text-transform:uppercase;text-align:center;padding:9px 8px 7px;border:1px solid var(--line);border-radius:3px;background:rgba(4,13,27,.6);color:var(--fg2);outline:none}',
+    '.joinrow input:focus{border-color:var(--acc)}.joinrow .btn2:disabled{opacity:.45;cursor:default}',
     '.big{font-family:' + FONT_D + ';font-weight:700;font-size:54px;line-height:.9;color:var(--acc);letter-spacing:.02em}',
     '.kp{display:flex;align-items:flex-end;gap:3px;height:60px;margin:8px 0 2px}.kp i{flex:1;background:var(--fg);opacity:.35;border-radius:2px 2px 0 0;min-height:2px;position:relative}.kp i.now{background:var(--acc);opacity:1}',
     '.kpl{display:flex;justify-content:space-between;font-family:' + FONT_C + ';font-size:10.5px;color:var(--fg)}',
