@@ -1,0 +1,580 @@
+{
+ "_about": "Research file behind the Indigenous star knowledge in StarGazer (Theodore Roosevelt Presidential Library). Compiled 2026-09-07 from published sources only; every entry is labeled 'awaiting tribal partner review' in the app. Edit stories here; content/figures.json controls how each entry is drawn.",
+ "framing": "The star names and stories here come from published sources: books written with Lakota, Dakota, Ojibwe, Arikara, Hidatsa, and Mandan elders, tribal-college and university projects, and public broadcasting. They are offered with respect and with a caveat. Many star teachings belong to families, societies, and ceremonies, are told only in certain seasons, and were never meant for a screen. What appears here is a beginning, not the whole sky. Tribal partners are warmly invited to correct, expand, or ask that something be removed.",
+ "entries": [
+  {
+   "id": "lak-polaris",
+   "culture": "Lakota / Dakota",
+   "name": "Wičháȟpi Owáŋžila (also Wičháȟpi Wazíyata)",
+   "translation": "The Star That Stands Still / The North Star",
+   "western": "Polaris",
+   "stars": [
+    "Polaris"
+   ],
+   "hip": [
+    11767
+   ],
+   "story": "All the other stars wheel around this one through the night, and it never moves. In a story shared by Rosebud Lakota educator Victor Douville, the North Star married a woman from Earth, who lived with him in the star world but missed her home. She dug up a turnip she had been told to leave alone, found a hole beneath it, and fell through. Her son survived to become the hero Fallen Star; the grieving father froze in the same spot, where he stands to this day.",
+   "sensitivity": "public",
+   "sources": [
+    "Annette S. Lee and Jim Rock, 'Native Skywatchers and the Makoce Wicanhpi Wowapi - D(L)akota Star Map' (ASP Conference Series, 2013), Fig. 15 and Table 1; https://nativeskywatchers.com/articles/ASP_Dakota_Article12_15_13.pdf (fetched)",
+    "Dakota Wind (Standing Rock Sioux Tribe), 'Winter Solstice Is Sacred Time,' Last Real Indians, 30 Dec 2021; https://lastrealindians.com/native-news-desk/2021/12/30/winter-solstice-is-sacred-time-a-time-to-carry-one-another-by-dakota-wind (fetched)",
+    "Ronald Goodman, Lakota Star Knowledge: Studies in Lakota Stellar Theology (Sinte Gleska University, 1992; reissued 2017)"
+   ],
+   "confidence": "high",
+   "notes": "Orthography follows the Standing Rock author (Wičháȟpi Owáŋžila). Native Skywatchers gives an alternate Dakota telling (Madeline White, Sisseton) in which the mother is Wičháȟpi Čhekpá, Twin Star. Reviewer should confirm which telling is preferred for a Standing Rock audience and whether the turnip episode should be kept."
+  },
+  {
+   "id": "lak-milky-way",
+   "culture": "Lakota / Dakota",
+   "name": "Wanáǧi Tȟačháŋku",
+   "translation": "The Spirit Road (Road of the Spirits, Ghost Trail)",
+   "western": "Milky Way",
+   "stars": [],
+   "hip": [],
+   "story": "The band of light across the summer and winter sky is the road the spirits travel. In the same tradition, the four stars of the Big Dipper's bowl are a stretcher carrying someone who has passed on, and the three handle stars are the mourners walking behind; the journey continues along the Spirit Road. It is a picture of leaving well, with relatives close by.",
+   "sensitivity": "public",
+   "sources": [
+    "Lee and Rock 2013, Table 2 ('Milky Way - Wanagi Tacanku, Road of the spirits/Ghost trail') and Fig. 14 (Stretcher / Mourners) (fetched)",
+    "Lakota Language Bowl Vocabulary Packet 2015 (Lakota Nation Invitational), 'Milky Way - wanáǧi tȟačháŋku' (fetched)",
+    "Goodman 1992"
+   ],
+   "confidence": "high",
+   "notes": "Name and gloss are solid. Goodman's Black Hills map (as summarized by Paula Giese, kstrom.net) associates the start of the spirits' path with Hiŋháŋ Káǧa Pahá (Owl Maker Butte / Harney Peak area); that detail is secondary and was NOT included in the story. Reviewer should confirm the death-related imagery is appropriate for a general-audience app."
+  },
+  {
+   "id": "lak-sacred-hoop",
+   "culture": "Lakota / Dakota",
+   "name": "Čhaŋgléška Wakȟáŋ / Khiíŋyaŋka Očháŋku",
+   "translation": "The Sacred Hoop / The Race Track",
+   "western": "Winter Circle (close to, but not identical with, the Western 'Winter Hexagon')",
+   "stars": [
+    "Pleiades (Alcyone)",
+    "Rigel",
+    "Sirius",
+    "Procyon",
+    "Pollux",
+    "Castor",
+    "Beta Aurigae (Menkalinan)",
+    "Capella"
+   ],
+   "hip": [
+    17702,
+    24436,
+    32349,
+    37279,
+    37826,
+    36850,
+    28360,
+    24608
+   ],
+   "story": "A great ring of bright winter stars, traced from the Pleiades around through Rigel, Sirius, Procyon, the Twins, and Capella. On the ground it is mirrored by the red-clay valley that circles the Black Hills, called the Race Track. Long ago the four-legged and the winged ones raced around the Hills to decide the fate of the two-legged, and the red earth is said to be the trail of that race. Lakota teaching holds that what is in the stars is on the earth, and what is on the earth is in the stars.",
+   "sensitivity": "caution",
+   "sources": [
+    "Goodman 1992, Sacred Hoop star chart (p. 7 per KVNF citation) and Black Hills map",
+    "Lee and Rock 2013, Fig. 4 and Table 1 (Racetrack / Sacred Hoop / Sweat Lodge = Winter Circle) (fetched)",
+    "KVNF / Black Canyon Astronomical Society, 'Western Slope Skies - The Sacred Hoop Asterism,' 21 Feb 2020, citing Goodman p. 7; https://www.kvnf.org/short-features/2020-02-21/western-slope-skies-the-sacred-hoop-asterism (fetched)",
+    "Paula Giese, 'Lakota Star Knowledge 2' (kstrom.net, 1996), tabulating Goodman's chart; http://www.kstrom.net/isk/stars/startabs.html (fetched)"
+   ],
+   "confidence": "high",
+   "notes": "Goodman's hoop uses the Pleiades where the Western Winter Hexagon uses Aldebaran; keep the Pleiades. Native Skywatchers also calls the same circle Inípi / Initȟípi (Sweat Lodge) and the 'womb' from which Tayamni emerges. The circle frames a spring ceremonial round (see lak-dried-willow, lak-pleiades, lak-bear-lodge); that is published, but a reviewer should decide how much of the ceremonial calendar the app should say aloud. This is the entry where the 'Black Hills mirror' teaching belongs."
+  },
+  {
+   "id": "lak-bear-lodge",
+   "culture": "Lakota / Dakota",
+   "name": "Matȟó Thípila",
+   "translation": "Bear's Lodge (Lodge of the Bears)",
+   "western": "Gemini",
+   "stars": [
+    "Castor",
+    "Pollux",
+    "Alhena",
+    "Wasat",
+    "Mebsuta",
+    "Tejat",
+    "Propus"
+   ],
+   "hip": [
+    36850,
+    37826,
+    31681,
+    35550,
+    32246,
+    30343,
+    29655
+   ],
+   "story": "This constellation shares its name with the great stone tower in the northern Black Hills country that maps call Devils Tower. A group of girls playing far from camp found themselves surrounded by hungry bears. A voice from the sky, the hero Fallen Star, told them to stand on a small mound of earth and asked the mound to rise. It rose faster than the bears could climb, their claws scoring the rock, until the girls were safe high above. Then each girl named her favorite bird, and a flock of that bird carried her home.",
+   "sensitivity": "public",
+   "sources": [
+    "Craig Howe (Center for American Indian Research and Native Studies), 'Lakota Star Knowledge: Fallen Stars and Devil's Tower,' SDPB, 18 Sept 2018; https://www.sdpb.org/arts-and-culture/2018-09-18/lakota-star-knowledge-fallen-stars-and-devils-tower (fetched)",
+    "National Park Service (Devils Tower NM), 'Lakota Narrative about Mato Tipila (Bear Lodge)': 'the constellation Mato Tipila is called Gemini'; https://www.nps.gov/common/uploads/teachers/lessonplans/Lakota%20Narrative1.pdf (fetched)",
+    "Lee and Rock 2013, Fig. 3 (Bear's Lodge = Gemini; Sun Dance at the site when the constellation is overhead in daytime near summer solstice) (fetched)",
+    "Goodman 1992 (Giese table: '8 of the 12 stars in Gemini')"
+   ],
+   "confidence": "high",
+   "notes": "Goodman uses eight Gemini stars; the exact eight are not listed in the sources fetched, so the HIP list above is the seven brightest and should be checked against Goodman's chart. Native Skywatchers pairs the constellation with the earth site under the name Pté Hé Ǧí (Grey Buffalo Horn). The NPS narrative names the mother Red Cheek Woman and counts seven girls; SDPB's telling does not give a number. Summer-solstice Sun Dance association is published but ceremonial; keep it brief."
+  },
+  {
+   "id": "lak-pleiades",
+   "culture": "Lakota / Dakota",
+   "name": "Wičhíŋčala Šakówiŋ (Dakota: Wičhíŋyaŋna Šakówiŋ)",
+   "translation": "The Seven Little Girls",
+   "western": "Pleiades (M45)",
+   "stars": [
+    "Alcyone",
+    "Atlas",
+    "Electra",
+    "Maia",
+    "Merope",
+    "Taygeta",
+    "Pleione"
+   ],
+   "hip": [
+    17702,
+    17847,
+    17499,
+    17573,
+    17608,
+    17531,
+    17851
+   ],
+   "story": "The tight little cluster in the shoulder of Taurus is the Seven Little Girls. In one telling, a red eagle spirit carried girls away from camp; the people could not stop it, so they called on Fallen Star, who placed the seven girls safely in the night sky. The same cluster is also the head of Tȟayámni, the great animal figure of the winter sky, so the Seven Girls are never seen alone.",
+   "sensitivity": "public",
+   "sources": [
+    "Lee and Rock 2013, Fig. 10 and Table 1 (fetched)",
+    "KVNF 2020, citing Goodman: 'the Lakota also call the Pleiades The Seven Little Girls' (fetched)",
+    "Goodman 1992"
+   ],
+   "confidence": "high",
+   "notes": "Two Lakota stories involve seven girls and Fallen Star (the red eagle, and the bears at Bear's Lodge). Native Skywatchers attaches the red-eagle story to the Pleiades; the Bear's Lodge story is attached to Gemini. A reviewer should confirm this pairing, since popular retellings often place the Bear's Lodge girls in the Pleiades. When the Sun is 'in' the Pleiades in spring, the ceremonial round begins (Goodman); left out of the story text."
+  },
+  {
+   "id": "lak-tayamni",
+   "culture": "Lakota / Dakota",
+   "name": "Tȟayámni",
+   "translation": "Born of Three (the three-part animal; a buffalo embryo)",
+   "western": "Pleiades + Orion + Sirius",
+   "stars": [
+    "Pleiades (head)",
+    "Alnitak, Alnilam, Mintaka (backbone)",
+    "Betelgeuse and Rigel (ribs)",
+    "Sirius (tail)"
+   ],
+   "hip": [
+    17702,
+    26727,
+    26311,
+    25930,
+    27989,
+    24436,
+    32349
+   ],
+   "story": "Stretching across the whole winter sky is a great animal being born: the Pleiades are its head, Orion's Belt its backbone, Betelgeuse and Rigel its ribs, and Sirius, the brightest star of all, its tail. Goodman's elders described it as an animal emerging, perhaps a buffalo; the Native Skywatchers map calls it a buffalo embryo coming out of the Sacred Hoop, which is also the womb.",
+   "sensitivity": "public",
+   "sources": [
+    "Lee and Rock 2013, Fig. 5 and Tables 1-2 (Tayamni pa / cankahu / cutuhu / sinte) (fetched)",
+    "KVNF 2020, citing Goodman (fetched)",
+    "Giese 1996 tabulation of Goodman's chart (fetched)",
+    "Goodman 1992"
+   ],
+   "confidence": "high",
+   "notes": "Sources agree on head/backbone/ribs/tail. One secondary source (KVNF) calls Betelgeuse and Rigel 'feet'; Goodman's own labels (tȟučhúhu = ribs) are followed here. Diacritics on Tȟayámni and the part-names are reconstructed from standard Lakota orthography; verify with a speaker."
+  },
+  {
+   "id": "lak-big-dipper",
+   "culture": "Lakota / Dakota",
+   "name": "Wičhákhiyuhapi (bowl) and Wašíglapi / Wašíhdapi (handle); Tȟó Wíŋ / Tȟuŋ Wíŋ (inside the bowl); also Očhéthi Šakówiŋ, Maŋká, Čhaŋčhíŋška",
+   "translation": "The Stretcher and the Mourners; Blue Woman / Birth Woman; the Seven Council Fires; the Skunk; the Wooden Spoon (Dipper)",
+   "western": "Big Dipper (Ursa Major)",
+   "stars": [
+    "Dubhe",
+    "Merak",
+    "Phecda",
+    "Megrez",
+    "Alioth",
+    "Mizar",
+    "Alkaid"
+   ],
+   "hip": [
+    54061,
+    53910,
+    58001,
+    59774,
+    62956,
+    65378,
+    67301
+   ],
+   "story": "The seven stars of the Big Dipper carry more than one teaching. The four bowl stars are a stretcher bearing someone who has died, and the three handle stars are the mourners carrying them toward the spirit world. Inside the bowl lives Blue Woman, or Birth Woman, the doorkeeper between the star world and this one; midwives prayed to her so that newborns would arrive safely. The same seven stars stand for the Seven Council Fires of the Dakota, Lakota, and Nakota nations.",
+   "sensitivity": "public",
+   "sources": [
+    "Lee and Rock 2013, Abstract, Fig. 14 and Table 1 (fetched)",
+    "Goodman 1992, p. 22 (Blue Woman / Birth Woman, as cited in Lee et al. 2013, Int'l Journal of Science in Society)"
+   ],
+   "confidence": "high",
+   "notes": "Wašíhdapi is the Dakota form, Wašíglapi the Lakota form. The task asked for Oglála-specific names; none beyond these were found in the sources fetched. The name Wičhákhiyuhapi is also glossed 'the dipper' in Native Skywatchers' table. Diacritics on Wičhákhiyuhapi, Wašíglapi and Tȟó Wíŋ are reconstructed; verify."
+  },
+  {
+   "id": "lak-dried-willow",
+   "culture": "Lakota / Dakota",
+   "name": "Čhaŋšáša Ipusye (also Čhaŋšáša Pusyápi)",
+   "translation": "The Dried Red Willow",
+   "western": "Triangulum + Aries",
+   "stars": [
+    "Mothallah (Alpha Tri)",
+    "Beta Tri",
+    "Gamma Tri",
+    "Hamal",
+    "Sheratan",
+    "Mesarthim"
+   ],
+   "hip": [
+    8796,
+    10064,
+    10670,
+    9884,
+    8903,
+    8832
+   ],
+   "story": "This small autumn constellation is named for red willow (red-osier dogwood), whose inner bark is dried and mixed for the pipe. Each year at sunrise on the spring equinox, the Sun, the Dried Red Willow, and the Big Dipper line up along the eastern horizon, a 'pipe ceremony in the stars.' On the ground that is the signal to go to the heart of the Black Hills, offer the pipe, and welcome the thunders back for the season of renewal.",
+   "sensitivity": "caution",
+   "sources": [
+    "Lee and Rock 2013, Fig. 8 and Table 1 (Aries, Triangulum) (fetched)",
+    "NASA Goddard, Sun-Earth Day 2005, 'Lakota Parallels' (spring equinox, Harney Peak pipe ceremony, welcoming back the thunders), citing Goodman; https://science.gsfc.nasa.gov/attic/sunearthday.nasa.gov/2005/na/lakota.htm (fetched)",
+    "Giese 1996 tabulation of Goodman (Triangulum + Aries; spring equinox pipe ceremony) (fetched)",
+    "Goodman 1992"
+   ],
+   "confidence": "high",
+   "notes": "The NASA page mislabels the Dried Red Willow as 'the Big Dipper'; Goodman and Native Skywatchers both map it to Triangulum + Aries, which is what the app should use. Harney Peak was renamed Black Elk Peak in 2016. The ceremonial content is published but reviewer should confirm it is appropriate to describe."
+  },
+  {
+   "id": "lak-keya",
+   "culture": "Lakota / Dakota",
+   "name": "Kéya",
+   "translation": "The Turtle",
+   "western": "Pegasus (Great Square)",
+   "stars": [
+    "Markab",
+    "Scheat",
+    "Algenib",
+    "Alpheratz"
+   ],
+   "hip": [
+    113963,
+    113881,
+    1067,
+    677
+   ],
+   "story": "The big square of autumn stars is a turtle, an animal that carries its home on its back, lives long, and has a strong heart. When a baby girl is born, her umbilical cord is kept in a small beaded pouch shaped like a turtle. It is said that when that physical tie to the mother is cut, the child's connection to the stars is renewed.",
+   "sensitivity": "public",
+   "sources": [
+    "Lee and Rock 2013, Fig. 7 and Table 1 ('Keya - Turtle - Pegasus') (fetched)",
+    "Goodman 1992 (basis of the Native Skywatchers map)"
+   ],
+   "confidence": "medium",
+   "notes": "Only Native Skywatchers was fetched for this identification; it states the map is based on Goodman's chart (p. 65), but the exact stars of the turtle outline were not confirmed. The Great Square is given here as the likely body; verify against the printed map. Companion figure: Agléška (Salamander) = Cygnus, for boys' umbilical pouches."
+  },
+  {
+   "id": "lak-zuzeca",
+   "culture": "Lakota / Dakota",
+   "name": "Zuzéča (Dakota: Zuzúheča)",
+   "translation": "The Snake",
+   "western": "Columba, Puppis, and part of Canis Major",
+   "stars": [
+    "Phact (Alpha Col)",
+    "Wezen (Delta CMa)",
+    "Adhara (Epsilon CMa)",
+    "Naos (Zeta Pup)"
+   ],
+   "hip": [
+    26634,
+    34444,
+    33579,
+    39429
+   ],
+   "story": "Low along the southern horizon on winter nights, below the great animal Tȟayámni, winds the Snake. It is sometimes shown swallowing an egg, an image of protecting and carrying the culture forward.",
+   "sensitivity": "public",
+   "sources": [
+    "Lee and Rock 2013, Fig. 6 and Table 1 ('Zuzeca - Snake - Columba, Puppis, Canis Major') (fetched)"
+   ],
+   "confidence": "low",
+   "notes": "Single source for the star identification; the individual stars listed are a plausible reading of 'Columba, Puppis, Canis Major' and were not confirmed against the printed map. From North Dakota (about 47 N) much of Columba and Puppis sits very low or below the horizon, so the app may only be able to show the northern portion. Native Skywatchers' suggestion that the snake mirrors Serpent Mound in Ohio is speculative and was left out."
+  },
+  {
+   "id": "lak-fallen-star",
+   "culture": "Lakota / Dakota",
+   "name": "Wičháȟpi Hiŋȟpáya",
+   "translation": "Falling Star / Fallen Star (also the name of the hero, 'Star Boy')",
+   "western": "Meteor (shooting star); no fixed star",
+   "stars": [],
+   "hip": [],
+   "story": "A falling star is wičháȟpi hiŋȟpáya, and it is also the name of a beloved hero. His mother, Red Cheek Woman, had married a star man and fallen back to Earth; boys out hunting rabbits found her body and, beside it, a living newborn. An old woman raised him with the whole village helping. He grew far faster than other children and did wonderful things for the people. As a young man he went home to his father's people, the stars, promising to remember his relatives and to help them with medicines and in times of disaster. His stories are told on long winter nights.",
+   "sensitivity": "public",
+   "sources": [
+    "Craig Howe / SDPB 2018 (fetched)",
+    "NPS Devils Tower 'Lakota Narrative' (Red Cheek Woman; star man father) (fetched)",
+    "Dakota Wind 2021 (Standing Rock): term Wičháȟpi Hiŋȟphaya; parents Tȟapȟúŋ Šá Wíŋ and Wičháȟpi Owáŋžila; winter storytelling season (fetched)",
+    "Lee and Rock 2013, Table 2 (Meteor/Falling star - Wicanhpi Hinhpaya) (fetched)",
+    "Goodman 1992 (2017 ed.), p. 32, as quoted by Dakota Wind"
+   ],
+   "confidence": "high",
+   "notes": "Dakota Wind writes the hero's name Hiŋȟphaya; the Native Skywatchers vocabulary gives Hinhpaya; reviewer should choose the preferred spelling. Dakota Wind's proposal that Capella and Auriga are Fallen Star's constellation is explicitly his own suggestion and was NOT adopted. Native Skywatchers records the protocol that certain star stories are told only when there is snow on the ground; the app may wish to note that."
+  },
+  {
+   "id": "lak-venus",
+   "culture": "Lakota / Dakota",
+   "name": "Aŋpó Wičháȟpi / Aŋpétu Lúta; and Aŋpó Wičháȟpi Suŋkáku",
+   "translation": "Morning Star / Red Day Star; and Younger Brother of the Morning Star",
+   "western": "Venus (as morning star); Arcturus",
+   "stars": [
+    "Venus",
+    "Arcturus"
+   ],
+   "hip": [
+    69673
+   ],
+   "story": "Venus in the dawn sky is the Red Day Star. Red is a sacred color, and to say 'a red day' is to say 'a sacred day'; the Red Day Star is counted among the leaders of the star nation, and the single large star at the center of a Lakota star quilt honors it. Bright orange Arcturus, found by following the curve of the Big Dipper's handle in spring, is the Morning Star's Younger Brother.",
+   "sensitivity": "public",
+   "sources": [
+    "Annette S. Lee, Jim Rock, William Wilson, Carl Gawboy, 'The Red Day Star, the Women's Star and Venus,' International Journal of Science in Society 4 (2013), citing Arvol Looking Horse and Jim Rock; https://arxiv.org/pdf/2009.02127 (fetched)",
+    "Lee and Rock 2013, Fig. 13 and Table 2 (Arcturus; Venus - Anpo Wicanhpi / Anpetu D/Luta) (fetched)",
+    "Lakota Language Bowl packet 2015: 'morning star - áŋpo wičháȟpi' (fetched)"
+   ],
+   "confidence": "high",
+   "notes": "The arXiv text lost its Lakota-font words; the names are taken from the Native Skywatchers table and the Language Bowl packet. Alternate Arcturus names on the map: Itkób u ('going toward'), Ihúku Kigle ('went under it'). The paper also records that families with 'Red' in their names were traditionally keepers of star knowledge; that is a community claim best left for a reviewer to approve before use."
+  },
+  {
+   "id": "ari-star-husband",
+   "culture": "Arikara (Sahnish), MHA Nation",
+   "name": "The Girl Who Married a Star (as titled by Dorsey; Arikara title not given)",
+   "translation": "n/a",
+   "western": "A bright red star in the east (not identified); the cluster to which the star belongs is absent from the sky in late winter",
+   "stars": [],
+   "hip": [],
+   "story": "Two girls slept outside on a summer arbor in a village on the Missouri River. One looked up and said that if a certain bright red star in the east were a man, she would marry him. Next morning, chasing a porcupine for its quills, she climbed a cottonwood that kept growing until it carried her into the sky, where the porcupine became the star she had admired. She lived there and bore a son with a star on his forehead. The story goes on to the son's return to the people, and tellers pointed to a real cottonwood on the south bank of the Missouri as the tree that reached the sky.",
+   "sensitivity": "caution",
+   "sources": [
+    "George A. Dorsey, Traditions of the Arikara (Carnegie Institution of Washington, 1904), nos. 14 (told by Yellow-Bear) and 15 (told by White-Bear); Project Gutenberg #68666; https://www.gutenberg.org/files/68666/68666-h/68666-h.htm (fetched)"
+   ],
+   "confidence": "medium",
+   "notes": "Recorded in 1903 through James R. Murie (Skidi Pawnee). The landmark is placed 'close to the place known as Armstrong' on the Missouri; the reviewer should confirm the location (historic Armstrong, Emmons County area) and whether the tree/landmark should be named at all. Dorsey's second version says the star's cluster does not rise at the time of year when young animals are unborn, which hints at a seasonal cluster, but the text does not name it; do not label it the Pleiades. The turnip-and-rope episode and the killing of the mother are in the source and were kept out of the retelling. Douglas Parks, Traditional Narratives of the Arikara Indians (1991), was not consulted; it likely contains a Sahnish-language version and is the better citation for the app."
+  },
+  {
+   "id": "ari-three-stars-east",
+   "culture": "Arikara (Sahnish), MHA Nation",
+   "name": "Red-Star, Yellow-Star, and the Big Black Meteoric Star (as recorded by Dorsey)",
+   "translation": "'the three Stars that come up in the East'",
+   "western": "Not identified",
+   "stars": [],
+   "hip": [],
+   "story": "In the Sahnish origin narrative, when Mother Corn led the people out onto the earth and it came time to smoke to the powers, there was no pipe. Three Stars in the heavens saw the lack. They said, 'We are the three Stars that come up in the East,' and they brought a stone that Mother Corn had made into a pipe. The Big Black Meteoric Star later placed a cedar tree, standing on one leg of cedar and one of stone, under which the people sheltered from a great black wind.",
+   "sensitivity": "caution",
+   "sources": [
+    "Dorsey, Traditions of the Arikara (1904), no. 3 'The Origin of the Arikara' (told by Four-Horns) and no. 7; Project Gutenberg #68666 (fetched)",
+    "North Dakota Studies, 'The Sahnish (Arikara)': Chief Above (Neesaau ti naacitakUx), Mother Corn; https://www.ndstudies.gov/sahnish-arikara (fetched)"
+   ],
+   "confidence": "medium",
+   "notes": "This is an origin and sacred-bundle narrative; the Big Black Meteoric Star is also the name of a Skidi Pawnee bundle. Include only as a short, respectful pointer, not a full telling, and only with MHA Nation approval. No Western identification should be attempted in the app. Melvin Gilmore's 'The Arikara Genesis and Its Teachings' (1926) is a second published source but was not fetched."
+  },
+  {
+   "id": "hid-moon-grandson",
+   "culture": "Hidatsa, MHA Nation",
+   "name": "Old Woman's Grandson (Hidatsa title as transcribed by Lowie: Kea'ritawapi...; transcription uncertain)",
+   "translation": "n/a",
+   "western": "The Moon (and the Sun)",
+   "stars": [],
+   "hip": [],
+   "story": "Sun and Moon were friends who argued about which women were the most beautiful. Moon chose a Hidatsa woman: while gathering firewood she followed a porcupine up a tree that carried her into the sky world, where Moon brought her home to his mother's earth lodge. She was warned never to dig a certain turnip; when the rule was broken, the hole revealed the people and the buffalo on the earth below, and the long story of her son, Old Woman's Grandson, begins. It was a tale customarily told during eagle-trapping season.",
+   "sensitivity": "caution",
+   "sources": [
+    "Robert H. Lowie, 'Studies in Plains Indian Folklore,' University of California Publications in American Archaeology and Ethnology 40:1 (1942), 'A Hidatsa Myth: Old Woman's Grandson,' told by Wolf-chief, translated by Goodbird, Fort Berthold 1910-11; https://digitalassets.lib.berkeley.edu/anthpubs/ucb/text/ucp040-002.pdf (fetched)",
+    "Martha Warren Beckwith, Myths and Hunting Stories of the Mandan and Hidatsa Sioux (Vassar, 1930), p. 52; and Myths and Ceremonies of the Mandan and Hidatsa (1932), pp. 117-141 (told by Bear's Arm) - cited in Lowie; not fetched"
+   ],
+   "confidence": "medium",
+   "notes": "This is a sky story rather than a star identification, and Beckwith links it to an arrow-and-basket ceremony. In Lowie's version it is the boy, not the mother, who digs the turnip. It should not be published without MHA Nation review. The Awatixa Hidatsa origin from the sky (Charred Body and thirteen couples descending near the Missouri) is also published (ND Studies 8th-grade curriculum, fetched) but is tied to the sacred arrows and was deliberately left as a note only."
+  },
+  {
+   "id": "man-old-woman-moon-stars",
+   "culture": "Mandan (Nueta), MHA Nation",
+   "name": "Old Woman Who Never Dies and her star children (as recorded by Maximilian, 1830s)",
+   "translation": "Morning Star: 'The Woman Who Wears a Plume'; 'The Striped Gourd'; Evening Star",
+   "western": "Moon; Venus as morning star; an unnamed circumpolar star; Venus (or another planet) as evening star",
+   "stars": [],
+   "hip": [],
+   "story": "A Mandan account recorded in the 1830s says that the Old Woman Who Never Dies, the spirit of corn and growing things, lives in the Moon. She has six children who live in the stars: her eldest daughter is the Morning Star that rises in the east, called the Woman Who Wears a Plume; a second daughter, the Striped Gourd, is a star that circles the pole star; and the third is the Evening Star near the setting sun. Each spring she sends the geese, swans, and ducks north as the sign that it is time to plant.",
+   "sensitivity": "caution",
+   "sources": [
+    "J. Owen Dorsey, 'A Study of Siouan Cults,' 11th Annual Report of the Bureau of Ethnology (1894), 'Mandan Cults,' sections 323-324, summarizing Prince Maximilian of Wied, Travels in the Interior of North America (London, 1843); https://archive.org/details/studyofsiouancul00dors (fetched; OCR text)",
+    "North Dakota Studies / native-languages.org summaries of Old Woman Who Never Dies as corn spirit of the Mandan and Hidatsa (search-verified only)"
+   ],
+   "confidence": "low",
+   "notes": "This is an outsider record from the 1830s passed through a second compiler, and it touches the corn ceremonies. It is the only published Mandan star identification located. Morning and Evening Star are given here as Venus but Plains traditions sometimes distinguish the two as different planets; do not assign a HIP or planet in the app without review. Alfred Bowers' Mandan Social and Ceremonial Organization (1950) was not consulted and should be checked by the reviewer. Public Mandan star knowledge is thin; the Okipa and Lone Man material is sacred and was excluded."
+  }
+ ],
+ "secondary_entries": [
+  {
+   "id": "oji-fisher-loon",
+   "culture": "Ojibwe / Anishinaabe",
+   "name": "Ojiig (Big Dipper) and Maang (Little Dipper); Giiwedin'anung (North Star)",
+   "translation": "The Fisher; The Loon; The North Star",
+   "western": "Ursa Major (Big Dipper); Ursa Minor (Little Dipper) with Polaris",
+   "stars": [
+    "Dubhe",
+    "Merak",
+    "Phecda",
+    "Megrez",
+    "Alioth",
+    "Mizar",
+    "Alkaid",
+    "Polaris",
+    "Kochab",
+    "Pherkad"
+   ],
+   "hip": [
+    54061,
+    53910,
+    58001,
+    59774,
+    62956,
+    65378,
+    67301,
+    11767,
+    72607,
+    75097
+   ],
+   "story": "The Big Dipper is the Fisher, a tough little animal that never stays in one den and is the only creature that can kill a porcupine. When the ogres held the birds and springtime prisoner, only the Fisher was clever and brave enough to trick them and set the birds free. Beside him the Little Dipper is the Loon, a clan leader and messenger, standing at the doorway between water and land and between this world and the spirit world.",
+   "sensitivity": "public",
+   "sources": [
+    "Annette S. Lee, 'Native Skywatchers and the Ojibwe Giizhig Anung Masinaaigan - Ojibwe Sky Star Map' (ASP Conference Series, 2013), with William Wilson and Carl Gawboy; https://nativeskywatchers.com/articles/ASP_Ojibwevol473_8_22_13.pdf (fetched)",
+    "Ron Morton and Carl Gawboy, Talking Rocks (2000/2003), pp. 175-177, as cited therein"
+   ],
+   "confidence": "high",
+   "notes": "Spellings follow the Native Skywatchers map (Ojiig, Maang, Giiwedin'anung); Fiero double-vowel forms may differ. The Turtle Mountain Band of Chippewa (ND) is the relevant partner; the map was built with Minnesota and Lake Nipigon consultants."
+  },
+  {
+   "id": "oji-wintermaker",
+   "culture": "Ojibwe / Anishinaabe",
+   "name": "Biboonkeonini",
+   "translation": "The Wintermaker",
+   "western": "Orion plus Procyon and Aldebaran",
+   "stars": [
+    "Betelgeuse",
+    "Rigel",
+    "Alnitak",
+    "Alnilam",
+    "Mintaka",
+    "Procyon",
+    "Aldebaran"
+   ],
+   "hip": [
+    27989,
+    24436,
+    26727,
+    26311,
+    25930,
+    37279,
+    21421
+   ],
+   "story": "The Wintermaker is a strong canoe man whose outstretched arms rule the winter sky, reaching from Aldebaran on one side to Procyon on the other. When he stands overhead a few hours after sunset, it is deep winter.",
+   "sensitivity": "public",
+   "sources": [
+    "Lee 2013, Ojibwe Sky Star Map, Fig. 10 and Table 1 (fetched)",
+    "Carl Gawboy, 'Ojibway Stargazing,' Lake Superior Magazine 27:1 (2005), as cited therein"
+   ],
+   "confidence": "high",
+   "notes": "Gawboy connects Wintermaker, Curly Tail, and Moose to the Hegman Lake pictographs in Minnesota; that link is his interpretation and was not included."
+  },
+  {
+   "id": "oji-hole-in-the-sky",
+   "culture": "Ojibwe / Anishinaabe",
+   "name": "Bagone-giizhig (map spelling Bugonagiizhig) / Madoo'asinik",
+   "translation": "The Hole in the Sky / The Sweating Stones",
+   "western": "Pleiades (M45)",
+   "stars": [
+    "Alcyone",
+    "Atlas",
+    "Electra",
+    "Maia",
+    "Merope",
+    "Taygeta",
+    "Pleione"
+   ],
+   "hip": [
+    17702,
+    17847,
+    17499,
+    17573,
+    17608,
+    17531,
+    17851
+   ],
+   "story": "To the Ojibwe the Pleiades are a doorway, the Hole in the Sky, overhead on late-autumn evenings. The same cluster is also the Sweating Stones, the heated rocks carried into the center of the sweat lodge. The Milky Way nearby is Jiibay-miikana, the path of souls.",
+   "sensitivity": "caution",
+   "sources": [
+    "Lee 2013, Ojibwe Sky Star Map, Fig. 9 and Tables 1-2 (fetched)"
+   ],
+   "confidence": "medium",
+   "notes": "The Hole in the Sky is tied to the shaking-tent ceremony and the Sweating Stones to the sweat lodge; the map publishes the names but a reviewer should decide how much ceremony to describe. Milky Way spellings on the map (Jiibaykona, Jiibay Ziibi) differ from common Fiero forms."
+  },
+  {
+   "id": "paw-skidi-sky",
+   "culture": "Pawnee (Skidi / Skiri band), relatives of the Arikara",
+   "name": "Chief Star; Council of Chiefs; Swimming Ducks; Seven Stars; Pathway of Departed Spirits",
+   "translation": "See name",
+   "western": "Polaris; Corona Borealis; Lambda and Upsilon Scorpii; Pleiades; Milky Way",
+   "stars": [
+    "Polaris",
+    "Alphecca",
+    "Shaula",
+    "Lesath",
+    "Alcyone"
+   ],
+   "hip": [
+    11767,
+    76267,
+    85927,
+    85696,
+    17702
+   ],
+   "story": "The Skidi Pawnee, close relatives of the Arikara, kept some of the most detailed sky knowledge on the Plains. The never-moving North Star was the Chief Star; the ring of Corona Borealis was the Council of Chiefs sitting together; the two stars in the Scorpion's tail were the Swimming Ducks, whose first appearance before dawn in late winter opened the ceremonial year; the Pleiades, watched through the smoke hole of the earth lodge, set the time for spring planting; and the Milky Way was the pathway of departed spirits. A painted elk-skin star chart kept in a sacred bundle still survives.",
+   "sensitivity": "caution",
+   "sources": [
+    "Von Del Chamberlain, When Stars Came Down to Earth: Cosmology of the Skidi Pawnee Indians of North America (Ballena Press / Center for Archaeoastronomy, 1982)",
+    "University of Nebraska State Museum / Adler Planetarium, 'A Teacher's Guide to Spirits from the Sky, Thunder on the Land' (Pawnee constellation list); https://museum.unl.edu/file_download/inline/SpiritsFromtheSkyteacherguide.pdf (fetched)",
+    "Museum of Indigenous People, 'Indigenous Astronomy and the Skidi Pawnee Star Chart' (2026), citing Chamberlain and James R. Murie; https://www.museumofindigenouspeople.org/post/indigenous-astronomy-and-the-skidi-pawnee-star-chart (fetched)"
+   ],
+   "confidence": "medium",
+   "notes": "Morning Star and Evening Star are central to the Skidi creation account, and the star chart belongs to the Big Black Meteoric Star bundle (Field Museum). The Morning Star ceremony and its historical sacrifice must NOT be included in the app. Chamberlain's identifications of Morning Star and Evening Star with particular planets are debated and were left out. The Pawnee Nation (Oklahoma) is the appropriate reviewer."
+  }
+ ],
+ "excluded": [
+  "Pawnee Morning Star ceremony / sacrifice — excluded; the Skidi entry names Morning and Evening Star only.",
+  "Chamberlain's planet identifications for the Skidi Morning Star / Evening Star (Mars vs. Venus) — contested; left out.",
+  "Mandan Okipa and Lone Man material — sacred; excluded entirely.",
+  "Hidatsa Awatixa origin (Charred Body descending from the sky; 'Flaming Arrow' site) — tied to the Sacred Arrows bundle and not a star identification; mentioned only in notes.",
+  "Arikara Big Black Meteoric Star bundle details — bundle/ceremony content; only the brief pipe-and-cedar episode from Dorsey's public origin text was kept.",
+  "Dakota Wind's proposal that Capella/Auriga is Fallen Star's constellation — the author labels it his own suggestion; not adopted.",
+  "Native Skywatchers' suggestion that Zuzéča mirrors Serpent Mound (Ohio) — speculative.",
+  "Gawboy's link between Wintermaker/Curly Tail/Moose and the Hegman Lake pictographs — one scholar's interpretation.",
+  "Claim that families with 'Red' names were keepers of star knowledge (Looking Horse/Rock, pers. comm. in Lee et al.) — community-specific; left for reviewer approval.",
+  "Hiŋháŋ Káǧa (Owl Maker) butte as the start of the Spirit Road — appears only in Giese's summary of Goodman's map.",
+  "Harney Peak / Pleiades correlation and the full spring pilgrimage sequence (Pleiades → Tayamni → Bear's Lodge, Sun Dance at solstice) — published but ceremonial; referenced in notes only.",
+  "Napé (Chief's Hand, Orion/Eridanus), Heȟáka (Elk, Pisces), Agléška (Salamander, Cygnus), Oyáte/Očhéthi (Fire, Leo), Wakíŋyaŋ (Thunderbird, Draco) — verified in Native Skywatchers and available for expansion; omitted for scope.",
+  "Ojibwe Curly Tail, Crane, Exhausted Bather, Nanaboujou, Moose — verified; omitted for scope. Nanaboujou stories are told only when there is snow on the ground.",
+  "Aggregator pages (e.g. Hotcak Encyclopedia) — not used as sources.",
+  "Aldebaran as a Sacred Hoop vertex — not in Goodman; belongs to the Western Winter Hexagon only."
+ ],
+ "reviewer_checklist": [
+  "Language: a Lakota speaker (ideally Standing Rock / Sitting Bull College) confirms diacritics for Tȟayámni, Wičhákhiyuhapi, Wašíglapi/Wašíhdapi, Tȟó Wíŋ/Tȟuŋ Wíŋ, Kéya, Zuzéča, Čhaŋšáša Ipusye, and chooses Hiŋȟpáya vs. Hiŋȟphaya for Fallen Star.",
+  "Dakota vs. Lakota forms: decide which to show first for a Standing Rock (Húŋkpapȟa + Yanktonai) audience; entries carry both where sources gave both.",
+  "Star assignments to confirm against Goodman's printed chart: the exact Gemini stars for Matȟó Thípila; the outline stars of Kéya (Pegasus) and Zuzéča.",
+  "Two 'seven girls' stories: confirm the red-eagle story goes with the Pleiades and the bears story with Gemini, as Native Skywatchers pairs them.",
+  "Ceremonial content: approve or trim the published calendar references (spring-equinox pipe alignment; Sun Dance at Bear's Lodge; Sweat Lodge/Womb naming of the Winter Circle) and the 'snow on the ground' storytelling protocol.",
+  "Death imagery in lak-milky-way and lak-big-dipper (stretcher and mourners): confirm appropriate for a general-audience app.",
+  "MHA Nation: send all four MHA entries to the MHA Nation cultural office / THPO and Nueta Hidatsa Sahnish College before any use; ask whether Parks 1991, Gilmore 1926, or Bowers should replace the older citations.",
+  "Pawnee: confirm with the Pawnee Nation that the Skidi entry is acceptable and that no Morning Star ceremony content appears anywhere.",
+  "Ojibwe: Turtle Mountain Band review; spellings follow the Native Skywatchers map, not Fiero double-vowel.",
+  "Attribution: Native Skywatchers material credited to Annette S. Lee, Jim Rock, William Wilson, and Carl Gawboy; Goodman's book to Sinte Gleska University; the SDPB/NPS Bear's Lodge narrative to Craig Howe / CAIRNS.",
+  "Astronomy: from Medora (about 47°N) Columba and much of Puppis are at or below the horizon; decide whether to show Zuzéča at all.",
+  "Place names: Harney Peak is now Black Elk Peak (2016); Devils Tower / Bear Lodge naming should follow the Library's style guide."
+ ]
+}
