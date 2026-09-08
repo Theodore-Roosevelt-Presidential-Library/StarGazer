@@ -393,6 +393,8 @@
     var m21 = cY * sZ + cZ * sX * sY, m22 = cZ * cX, m23 = sZ * sY - cZ * cY * sX;
     var m31 = -cX * sY, m32 = sX, m33 = cX * cY;
     var ang = (screen.orientation && typeof screen.orientation.angle === 'number') ? screen.orientation.angle : (typeof window.orientation === 'number' ? window.orientation : 0);
+    if (this.lastScreenAng != null && ang !== this.lastScreenAng) this.q = null;   // the OS just rotated the page: jump, don't animate against it
+    this.lastScreenAng = ang;
     var sa = sin(ang * D2R), ca = cos(ang * D2R);
     // look direction = device -Z ; screen-up = device (sa, ca, 0)
     var f = [-m13, -m23, -m33];
@@ -473,16 +475,21 @@
     var self = this;
     if (!this.running) return;
     var v = this.view, t = this.target;
-    // smooth toward target
-    var k = this.mode === 'sensor' ? 0.22 : 0.35, ku = k;
-    if (this.steady !== false && this.mode === 'sensor') { // near the zenith the compass heading swings wildly: damp the roll
-      var altNow = asin(clamp(t.f[2], -1, 1)) * R2D;
-      if (altNow > 72) ku = k * Math.max(0.15, (90 - altNow) / 18);
+    // Smooth toward the target as one rigid rotation (quaternion slerp), never as separate vectors.
+    var tf = vnorm(t.f), tu = vnorm([t.u[0] - vdot(t.u, tf) * tf[0], t.u[1] - vdot(t.u, tf) * tf[1], t.u[2] - vdot(t.u, tf) * tf[2]]);
+    if (!isFinite(tu[0]) || vdot(tu, tu) < 0.5) tu = this.view.u;   // degenerate target up: keep the current roll
+    var tr = vcross(tu, tf);                                       // right-handed frame rows: (u×f, u, f)
+    var qt = matToQuat([tr[0], tr[1], tr[2], tu[0], tu[1], tu[2], tf[0], tf[1], tf[2]]);
+    if (!this.q) this.q = qt;
+    var k = this.mode === 'sensor' ? 0.22 : 0.35;
+    if (this.steady !== false && this.mode === 'sensor') {
+      // Overhead, the sensors' heading is poorly defined and a wobble of the wrist swings the whole sky
+      // around the zenith. Slow the follow rate up there so the view settles instead of spinning.
+      var altNow = asin(clamp(tf[2], -1, 1)) * R2D;
+      if (altNow > 60) k *= 1 - 0.65 * Math.min(1, (altNow - 60) / 25);   // eases from full rate at 60° to 35% at 85°+, no step to catch up from
     }
-    var nf = vlerp(v.f, t.f, k), nu = vlerp(v.u, t.u, ku);
-    if (vdot(nf, nf) < 1e-4) nf = t.f;
-    nf = vnorm(nf); nu = vnorm([nu[0] - vdot(nu, nf) * nf[0], nu[1] - vdot(nu, nf) * nf[1], nu[2] - vdot(nu, nf) * nf[2]]);
-    if (!isFinite(nu[0]) || vdot(nu, nu) < 0.5) nu = vnorm([0 - vdot([0, 0, 1], nf) * nf[0], 0 - vdot([0, 0, 1], nf) * nf[1], 1 - vdot([0, 0, 1], nf) * nf[2]]);
+    this.q = qslerp(this.q, qt, k);
+    var M = quatToMat(this.q), nf = [M[6], M[7], M[8]], nu = [M[3], M[4], M[5]];
     var moving = angSep(nf, v.f) > 0.02 || angSep(nu, v.u) > 0.02;
     v.f = nf; v.u = nu; v.r = vcross(nf, nu);
     var tick = Date.now() - (this.lastDraw || 0) > 1000;
@@ -955,6 +962,7 @@
       sub = (bestS >= 0 ? 'near ' + this.data.stars[bestS][6] + ' · ' : '');
     }
     if (aa.alt < -2) { title = 'Below the horizon'; sub = 'Raise the phone toward the sky'; }
+    else if (aa.alt > 85) sub += 'looking straight up';
     else sub += 'looking ' + fmtAz(aa.az) + ', ' + Math.round(aa.alt) + '° up';
     if (this.roC.textContent !== title) { this.roC.textContent = title; this.roC.style.fontSize = title.length > 16 ? '20px' : title.length > 12 ? '25px' : ''; }
     this.roS.textContent = this.pinned ? 'Pinned · the sky holds still until you unpin' : sub;

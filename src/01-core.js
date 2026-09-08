@@ -47,6 +47,30 @@
   // Unit vector from azimuth (from N through E) / altitude, in E,N,U frame.
   function hzVec(az, alt) { var ca = cos(alt * D2R); return [ca * sin(az * D2R), ca * cos(az * D2R), sin(alt * D2R)]; }
   function vecToAzAlt(v) { return { az: norm360(atan2(v[0], v[1]) * R2D), alt: asin(clamp(v[2], -1, 1)) * R2D }; }
+  // Rotations as quaternions [x,y,z,w] so the view can be smoothed as one rigid turn. Smoothing the look
+  // direction and the screen-up vector separately let them drift apart near the zenith, where the up
+  // vector is nearly parallel to the look vector and the tiniest lag became a sudden spin.
+  function matToQuat(m) {   // m: 9 numbers, row-major, orthonormal rows, det +1
+    var t = m[0] + m[4] + m[8], s;
+    if (t > 0) { s = sqrt(t + 1) * 2; return [(m[7] - m[5]) / s, (m[2] - m[6]) / s, (m[3] - m[1]) / s, 0.25 * s]; }
+    if (m[0] > m[4] && m[0] > m[8]) { s = sqrt(1 + m[0] - m[4] - m[8]) * 2; return [0.25 * s, (m[1] + m[3]) / s, (m[2] + m[6]) / s, (m[7] - m[5]) / s]; }
+    if (m[4] > m[8]) { s = sqrt(1 + m[4] - m[0] - m[8]) * 2; return [(m[1] + m[3]) / s, 0.25 * s, (m[5] + m[7]) / s, (m[2] - m[6]) / s]; }
+    s = sqrt(1 + m[8] - m[0] - m[4]) * 2; return [(m[2] + m[6]) / s, (m[5] + m[7]) / s, 0.25 * s, (m[3] - m[1]) / s];
+  }
+  function quatToMat(q) {
+    var x = q[0], y = q[1], z = q[2], w = q[3];
+    return [1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w), 2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w), 2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)];
+  }
+  function qslerp(a, b, t) {
+    var d = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
+    if (d < 0) { b = [-b[0], -b[1], -b[2], -b[3]]; d = -d; }
+    var wa, wb;
+    if (d > 0.9995) { wa = 1 - t; wb = t; }
+    else { var th = Math.acos(clamp(d, -1, 1)), sn = sin(th); wa = sin((1 - t) * th) / sn; wb = sin(t * th) / sn; }
+    var q = [wa * a[0] + wb * b[0], wa * a[1] + wb * b[1], wa * a[2] + wb * b[2], wa * a[3] + wb * b[3]];
+    var l = sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]) || 1; return [q[0] / l, q[1] / l, q[2] / l, q[3] / l];
+  }
+  function qangle(a, b) { var d = abs(a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3]); return 2 * Math.acos(clamp(d, -1, 1)) * R2D; }
   function angSep(a, b) { return Math.acos(clamp(vdot(a, b), -1, 1)) * R2D; }
   function fmtAz(az) {
     var names = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
