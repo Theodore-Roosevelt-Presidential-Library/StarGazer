@@ -13,7 +13,7 @@
   }
   window.StarGazer = {
     __loaded: true,
-    version: VERSION,
+    version: VERSION, build: BUILD, vurl: vurl,
     init: init,
     open: function (o) { var app = new SkyApp(o || { sensor: capability().ok }); return app.open().then(function () { return app; }); },
     capability: capability,

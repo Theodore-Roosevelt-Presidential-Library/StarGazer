@@ -194,14 +194,14 @@
     var img = new Image(); img.crossOrigin = 'anonymous';
     img.onload = function () { rec.img = img; rec.ok = true; self.dirty = true; };
     img.onerror = function () { rec.ok = false; };
-    img.src = BASE + 'art/' + a[0];
+    img.src = vurl('art/' + a[0]);
     return rec;
   };
   SkyApp.prototype.loadNativeArt = function (rec) {
     var self = this; if (rec.img || rec.loading) return; rec.loading = true;
     var img = new Image(); img.crossOrigin = 'anonymous';
     img.onload = function () { rec.img = img; rec.ok = true; self.dirty = true; }; img.onerror = function () { rec.ok = false; };
-    img.src = BASE + 'art-native/' + rec.file;
+    img.src = vurl('art-native/' + rec.file);
   };
   // Draw an image whose three anchor pixels [x, y] must land on three screen points; returns false if off screen.
   SkyApp.prototype.drawPinned = function (ctx, img, w, h, ap, sp, alpha) {

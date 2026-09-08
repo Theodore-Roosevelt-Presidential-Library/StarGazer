@@ -52,6 +52,12 @@ That is the whole embed. To place the card somewhere other than where the script
 <script src="https://stargazer.labs.trlibrary.com/stargazer.js"></script>
 ```
 
+Every build carries a stamp (the commit SHA on GitHub Actions) that `stargazer.js` appends as
+`?v=` to everything it loads, and the workflow stamps the site's own script tags the same way, so
+a deploy can never mix an old widget with new data or art. The bare `stargazer.js` URL that embeds
+use is served by GitHub Pages with a ten-minute cache, so a new build reaches every embed within
+ten minutes; Settings → About shows which build a phone is running.
+
 `stargazer.js` finds its own URL and loads `stargazer-data.js` (stars) and
 `stargazer-content.js` (stories, events) from the same folder, so cross-origin embeds on other
 sites still need only the one tag. The site root is the full-screen experience (a card that fills

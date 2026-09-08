@@ -11,7 +11,7 @@
   var state = { sky: 'both', layers: { art: true, lines: true, names: true, planets: true, mw: true, native: true, meteors: true, dso: false, grid: true }, target: null, card: null };
   var loc = SG.DEFAULT_LOC, code = null, peer = null, conns = [], catalog = { items: [] }, current = null, pointing = null, showingCard = null, preview = null, filter = 'all';
 
-  fetch(SG.BASE + 'assets/wordmark.svg').then(function (r) { return r.text(); }).then(function (svg) { $('wm').innerHTML = svg.replace('<svg ', '<svg class="wm" '); }).catch(function () { });
+  fetch(SG.vurl ? SG.vurl('assets/wordmark.svg') : SG.BASE + 'assets/wordmark.svg').then(function (r) { return r.text(); }).then(function (svg) { $('wm').innerHTML = svg.replace('<svg ', '<svg class="wm" '); }).catch(function () { });
   function toast(m) { var t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(function () { t.classList.remove('show'); }, 2600); }
   function setStatus(txt, kind) { $('status').textContent = txt; $('dot').className = 'dot' + (kind ? ' ' + kind : ''); }
   function byId(id) { for (var i = 0; i < catalog.items.length; i++) if (catalog.items[i].id === id) return catalog.items[i]; return null; }

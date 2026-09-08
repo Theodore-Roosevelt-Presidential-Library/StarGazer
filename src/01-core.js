@@ -21,7 +21,8 @@
   var FONT_B = "'ITC Clearface','Clearface',Georgia,'Times New Roman',serif";
   var FONT_C = "'Frutiger Next','Frutiger',Arial,Helvetica,sans-serif";
   var DEFAULT_LOC = { lat: 46.914, lon: -103.524, name: 'Medora, North Dakota' };
-  var VERSION = '1.0.0';
+  var VERSION = '1.0.0', BUILD = '__BUILD__';   // BUILD is filled in by build.py and rides along as ?v= on every file the widget loads
+  function vurl(path) { return BASE + path + (path.indexOf('?') >= 0 ? '&' : '?') + 'v=' + BUILD; }
   var WORDMARK = '__WORDMARK__';
 
   var scriptEl = document.currentScript;

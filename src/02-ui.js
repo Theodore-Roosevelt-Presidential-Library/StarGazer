@@ -31,7 +31,7 @@
     return loadPromises[url];
   }
   function loadBundles() {
-    return Promise.all([loadScript(BASE + 'stargazer-data.js', 'STARGAZER_DATA'), loadScript(BASE + 'stargazer-content.js', 'STARGAZER_CONTENT')]);
+    return Promise.all([loadScript(vurl('stargazer-data.js'), 'STARGAZER_DATA'), loadScript(vurl('stargazer-content.js'), 'STARGAZER_CONTENT')]);
   }
 
   // ---------------------------------------------------------------------------------------------
