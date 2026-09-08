@@ -6,7 +6,8 @@
     close: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
     red: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16" opacity=".5"/></svg>',
     loc: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>',
-    cal: '<svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 9l-4 4 1 5.5-5-2.7L7 18.5 8 13 4 9l5.5-.5z"/></svg>'
+    cal: '<svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 9l-4 4 1 5.5-5-2.7L7 18.5 8 13 4 9l5.5-.5z"/></svg>',
+    cam: '<svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'
   };
   var LAYERS = [
     ['camera', 'See-through'], ['art', 'Figures'], ['lines', 'Constellations'], ['names', 'Star names'], ['planets', 'Planets'],
@@ -91,7 +92,7 @@
       '<button class="ib rb" aria-label="Red light mode" title="Red light mode">' + ICONS.red + '</button></div>' +
       '<div class="cross"></div><div class="toast"></div><button class="target" type="button"><span class="tl"></span><span class="tx">&#x2715;</span></button>' +
       '<button class="tourpill" type="button"><span class="tp"></span><span class="tx" title="Leave the tour">&#x2715;</span></button>' +
-      '<div class="bottom"><div class="seg" role="radiogroup" aria-label="Which sky"><button data-sky="western">Greek &amp; Roman</button><button data-sky="native">Lakota &amp; Native</button><button data-sky="both">Both</button></div><div class="chipsw"><div class="chips"></div><span class="hint">&#x203A;</span></div>' +
+      '<div class="bottom"><div class="cbw"><button class="cb" type="button" aria-pressed="false">' + ICONS.cam + '<span>See-through</span></button></div><div class="seg" role="radiogroup" aria-label="Which sky"><button data-sky="western">Greek &amp; Roman</button><button data-sky="native">Lakota &amp; Native</button><button data-sky="both">Both</button></div><div class="chipsw"><div class="chips"></div><span class="hint">&#x203A;</span></div>' +
       '<div class="nav"><button class="nb" data-sheet="tonight">Tonight</button><button class="nb" data-sheet="aurora">Aurora</button><button class="nb" data-sheet="stories">Stories</button><button class="nb" data-sheet="settings">Settings</button></div></div>' +
       '<div class="sheet"><div class="sh"><div class="t"></div><button class="x" aria-label="Close panel">&#x2715;</button></div><div class="sb"></div></div>' +
       '<div class="loading">' + WORDMARK.replace('<svg ', '<svg class="wm" ') + '<div class="tips"><div>Hold up<small>raise the phone to the sky</small></div><div>Turn<small>slowly, in any direction</small></div><div>Tap<small>anything, for its story</small></div></div><div class="lmsg">Loading the sky&hellip;</div></div>';
@@ -112,6 +113,7 @@
     this.updateSeg();
     el.querySelector('.ib.x').addEventListener('click', function () { self.close(); });
     el.querySelector('.rb').addEventListener('click', function () { self.setRed(!self.red); });
+    var cb = el.querySelector('.cb'); if (this.cameraPossible() && !this.inline) { cb.classList.add('show'); cb.addEventListener('click', function () { self.toggleCamera(); }); }
     el.querySelector('.sh .x').addEventListener('click', function () { self.hideSheet(); });
     var nbs = el.querySelectorAll('.nb');
     for (var i = 0; i < nbs.length; i++) nbs[i].addEventListener('click', function (e) {
@@ -120,7 +122,7 @@
     });
     // chips
     var h = '';
-    for (var j = 0; j < LAYERS.length; j++) { if (LAYERS[j][0] === 'camera' && !this.cameraPossible()) continue; h += '<button class="chip" data-l="' + LAYERS[j][0] + '">' + LAYERS[j][1] + '</button>'; }
+    for (var j = 0; j < LAYERS.length; j++) { if (LAYERS[j][0] === 'camera') continue; h += '<button class="chip" data-l="' + LAYERS[j][0] + '">' + LAYERS[j][1] + '</button>'; }
     this.chipsEl.innerHTML = h;
     this.chipsWrap = el.querySelector('.chipsw');
     this.chipsEl.addEventListener('scroll', function () { self.updateChipEdges(); }, { passive: true });
@@ -170,7 +172,7 @@
       var tr = stream.getVideoTracks()[0], st = tr && tr.getSettings ? tr.getSettings() : {};
       if (st.facingMode && st.facingMode !== 'environment') { stream.getTracks().forEach(function (t) { t.stop(); }); self.toast('No rear camera found on this device.'); return; }
       self.camStream = stream; self.video.srcObject = stream; self.el.classList.add('cam');
-      self.layers.camera = true; self.updateChips(); self.dirty = true;
+      self.layers.camera = true; self.updateChips(); var cbOn = self.el.querySelector('.cb'); cbOn.classList.add('on'); cbOn.setAttribute('aria-pressed', 'true'); self.dirty = true;
       self.fovBeforeCam = self.fov; self.setFov(62);
       self.toast('See-through on. Pinch until the stars sit on the real ones; the phone camera and the chart are not a perfect match.', 4500);
     }).catch(function () { self.toast('Camera access was not allowed.'); });
@@ -180,6 +182,7 @@
     if (this.video) this.video.srcObject = null;
     if (this.el) this.el.classList.remove('cam');
     if (this.layers.camera) { this.layers.camera = false; if (this.fovBeforeCam) this.setFov(this.fovBeforeCam); this.updateChips(); this.dirty = true; }
+    if (this.el) { var cbtn = this.el.querySelector('.cb'); if (cbtn) { cbtn.classList.remove('on'); cbtn.setAttribute('aria-pressed', 'false'); } }
   };
   // ---- constellation figures (Stellarium western sky culture, Johan Meuris, Free Art License) --
   SkyApp.prototype.artImage = function (k) {
@@ -606,8 +609,10 @@
       for (var li2 = 0; li2 < this.lore.length; li2++) {
         var Ls = this.lore[li2]; if (!Ls.sk && !Ls.artRecs) continue;
         var pointed = this.selected && this.selected.vec === Ls.center;
-        var want = pointed || (!taken && !(this.selected && this.selected.vec) && focusCon && Ls.con.indexOf(focusCon) >= 0);
-        if (want) taken = true;
+        var focused = focusCon && Ls.con.indexOf(focusCon) >= 0;
+        var want = pointed || (this.sky === 'native' ? true : (!taken && !(this.selected && this.selected.vec) && focused));
+        if (want && (pointed || focused)) taken = true;
+        var emph = pointed || focused || this.sky !== 'native';   // in Native mode the rest sit quieter
         var cur = sf[Ls.id] || 0; cur += (want ? 1 : -1) * dts * 2.2; cur = clamp(cur, 0, 1);
         if (cur > 0) sf[Ls.id] = cur; else { delete sf[Ls.id]; continue; }
         if ((want && cur < 1) || (!want && cur > 0)) this.dirty = true;
@@ -619,7 +624,7 @@
             for (var q5 = 0; q5 < 3; q5++) { var so2 = R2.a[q5][2] * 3, X2 = this.starVec[so2], Y2 = this.starVec[so2 + 1], Z2 = this.starVec[so2 + 2]; z = m6 * X2 + m7 * Y2 + m8 * Z2; if (z < 0.2) { okA2 = false; break; } kx = S2 / (1 + z); spA.push([cx + (m0 * X2 + m1 * Y2 + m2 * Z2) * kx, cy - (m3 * X2 + m4 * Y2 + m5 * Z2) * kx]); }
             if (!okA2) continue;
             if (red && !R2.red) { R2.red = this.artTinted({ img: R2.img }); }
-            this.drawPinned(ctx, red ? R2.red : R2.img, R2.w, R2.h, R2.a, spA, 0.62 * cur * (1 - daylight * 0.7));
+            this.drawPinned(ctx, red ? R2.red : R2.img, R2.w, R2.h, R2.a, spA, (emph ? 0.62 : 0.4) * cur * (1 - daylight * 0.7));
           }
           ctx.globalCompositeOperation = 'source-over';
           continue;
@@ -638,7 +643,7 @@
         var scale = sqrt(abs(sa * sdd - sb * sc)); if (!isFinite(scale) || scale <= 0 || scale > 60) continue;
         if (!Ls.sk.path) Ls.sk.path = new Path2D(Ls.sketch.path);
         ctx.save(); ctx.setTransform(dpr * sa, dpr * sb, dpr * sc, dpr * sdd, dpr * se, dpr * sff);
-        ctx.strokeStyle = red ? 'rgba(255,100,80,' + (0.85 * cur).toFixed(2) + ')' : 'rgba(231,128,93,' + (0.8 * cur).toFixed(2) + ')';
+        ctx.strokeStyle = red ? 'rgba(255,100,80,' + ((emph ? 0.85 : 0.5) * cur).toFixed(2) + ')' : 'rgba(231,128,93,' + ((emph ? 0.8 : 0.5) * cur).toFixed(2) + ')';
         ctx.lineWidth = 1.6 / scale; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke(Ls.sk.path); ctx.restore();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
@@ -933,7 +938,7 @@
     }
     if (aa.alt < -2) { title = 'Below the horizon'; sub = 'Raise the phone toward the sky'; }
     else sub += 'looking ' + fmtAz(aa.az) + ', ' + Math.round(aa.alt) + '° up';
-    if (this.roC.textContent !== title) this.roC.textContent = title;
+    if (this.roC.textContent !== title) { this.roC.textContent = title; this.roC.style.fontSize = title.length > 16 ? '20px' : title.length > 12 ? '25px' : ''; }
     this.roS.textContent = sub;
   };
   SkyApp.prototype.tap = function (px, py) {

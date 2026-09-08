@@ -79,13 +79,10 @@
     return h;
   };
   SkyApp.prototype.loreDetail = function (L, idx) {
-    var badges = '<span class="tag">' + esc(L.culture) + '</span><span class="tag">Published source</span>' +
-      (L.sensitivity === 'caution' ? '<span class="tag acc">Shared with care</span>' : '') + '<span class="tag">Awaiting tribal partner review</span>' + ((L.art || L.sketch) ? '<span class="tag">Interpretive illustration</span>' : '');
-    var src = ''; for (var i = 0; i < L.sources.length; i++) src += '<li>' + esc(L.sources[i]).replace(/\(fetched\)/g, '') + '</li>';
+    var badges = '<span class="tag">' + esc(L.culture) + '</span>';
     return '<div class="item"><h4>' + esc(L.name) + '</h4><div class="d">' + esc(L.translation || '') + (L.western ? ' · ' + esc(L.western) : '') + '</div>' +
-      '<div style="margin:6px 0 4px">' + badges + '</div><p class="b">' + esc(L.story) + '</p>' + ((L.art || L.sketch) ? '<p class="meta">The figure drawn over these stars was made for this project from the published description, in the same style as the Western figures. It is not a Native artist\'s work and stands in until commissioned artwork can replace it.</p>' : '') +
-      (L.center ? (this.loreStatus(L).up ? '<button class="btn2" data-act="show-lore" data-arg="' + idx + '">Point me to it</button>' : '<div class="meta">' + esc(this.loreStatus(L).text) + '</div>') : '') +
-      '<details><summary>Sources</summary><ul class="src">' + src + '</ul></details></div>';
+      '<div style="margin:6px 0 4px">' + badges + '</div><p class="b">' + esc(L.story) + '</p>' +
+      (L.center ? (this.loreStatus(L).up ? '<button class="btn2" data-act="show-lore" data-arg="' + idx + '">Point me to it</button>' : '<div class="meta">' + esc(this.loreStatus(L).text) + '</div>') : '') + '</div>';
   };
   SkyApp.prototype.originBlock = function (k) {   // one line on the card; the full history sits behind a tab
     var o = this.content.origins && this.content.origins[k]; if (!o) return '';
@@ -151,7 +148,7 @@
       h += '<button class="btn2" data-act="show-vec" data-label="' + esc(c.n) + '" data-size="' + (this.conSize[hit.k] || 0) + '" data-arg="' + this.conCenter[hit.k].join(',') + ',1">Point me to it</button>';
     } else if (hit.t === 'lore') {
       var L = this.lore[hit.i]; title = L.name.split(' (')[0].split(' /')[0];
-      h += this.loreDetail(L, hit.i) + '<p class="meta" style="margin-top:10px">' + esc(this.content.framing) + '</p>';
+      h += this.loreDetail(L, hit.i);
     } else if (hit.t === 'shower') {
       var sh = this.content.showers[hit.i]; title = sh.name + ' meteors';
       h += '<div class="meta">Active ' + fmtMD(sh.start) + ' – ' + fmtMD(sh.end) + ' · peak ' + fmtMD(sh.peak) + ' · up to ' + sh.zhr + ' per hour under ideal skies · debris from ' + esc(sh.parent) + '</div>';
@@ -335,8 +332,16 @@
     var rise = scanCrossings(this.now(), 24, 20, function (t) { return altOf(L.center, self.loc.lat, lstFor(t, self.loc.lon)); }, 3).filter(function (e) { return e.type === 'rise'; })[0];
     return { up: false, rank: 1, riseT: rise ? rise.time.getTime() : Infinity, text: rise ? 'Below the horizon · rises ' + fmtTime(rise.time) + (rise.time.getDate() !== this.now().getDate() ? ' (' + rise.time.toLocaleDateString(undefined, { weekday: 'short' }) + ')' : '') : 'Below the horizon tonight' };
   };
+  SkyApp.prototype.creditsList = function () {
+    var seen = {}, out = '';
+    for (var i = 0; i < this.lore.length; i++) for (var j = 0; j < (this.lore[i].sources || []).length; j++) {
+      var src = String(this.lore[i].sources[j]).replace(/\(fetched\)/g, '').replace(/\s+/g, ' ').trim(), key = src.toLowerCase().replace(/[^a-z0-9]+/g, ' ').slice(0, 60);
+      if (!src || seen[key]) continue; seen[key] = 1; out += '<li>' + esc(src) + '</li>';
+    }
+    return out;
+  };
   SkyApp.prototype.storiesHtml = function () {
-    var h = '<p class="meta">' + esc(this.content.framing) + '</p>';
+    var h = '<p class="meta">The figures and star names of the Plains and Great Lakes peoples. Tap one to read it; the ones up right now come first.</p>';
     var rows = [];
     for (var i = 0; i < this.lore.length; i++) { var L = this.lore[i], st = this.loreStatus(L); rows.push({ i: i, L: L, st: st }); }
     rows.sort(function (a, b) { return a.st.rank - b.st.rank || (a.st.rank === 0 ? b.st.alt - a.st.alt : a.st.rank === 1 ? a.st.riseT - b.st.riseT : a.i - b.i); });
@@ -364,9 +369,10 @@
       '<div class="row"><button class="btn2' + (this.sky === 'western' ? ' solid' : '') + '" data-act="sky" data-arg="western">Greek &amp; Roman</button><button class="btn2' + (this.sky === 'native' ? ' solid' : '') + '" data-act="sky" data-arg="native">Lakota &amp; Native</button><button class="btn2' + (this.sky === 'both' ? ' solid' : '') + '" data-act="sky" data-arg="both">Both</button></div>';
     h += '<div class="k">Show</div>';
     for (var i = 0; i < LAYERS.length; i++) { if (LAYERS[i][0] === 'camera') continue; h += '<label class="sw">' + LAYERS[i][1] + '<input type="checkbox" data-layer="' + LAYERS[i][0] + '"' + (this.layers[LAYERS[i][0]] ? ' checked' : '') + '></label>'; }
-    if (this.cameraPossible()) h += '<div class="meta" style="margin-top:8px">See-through uses the rear camera behind the chart; turn it on with the chip above the buttons. It stays off between sessions.</div>';
+    if (this.cameraPossible()) h += '<div class="meta" style="margin-top:8px">See-through puts the rear camera behind the chart; the button above the sky switch turns it on. It stays off between sessions.</div>';
     h += '<div class="k">Motion</div><label class="sw">Steady view overhead (damps the spin near the zenith)<input type="checkbox" id="sg-steady"' + (this.steady ? ' checked' : '') + '></label><div class="meta">' + (this.mode === 'sensor' ? 'Motion sensor active. If the sky looks turned, drag sideways to line it up with a landmark such as the Moon or the North Star.' : 'Drag to look around. Pinch or scroll to zoom. Double-tap to zoom in and out.') + (this.calib ? ' Compass offset ' + Math.round(this.calib) + '°.' : '') + '</div>' +
       (this.mode === 'sensor' ? '<div class="row"><button class="btn2" data-act="recal">Clear compass offset</button></div>' : '');
-    h += '<div class="k">About</div><p class="meta">StarGazer ' + VERSION + ' · Theodore Roosevelt Presidential Library, Medora, North Dakota. Stars and constellation lines from d3-celestial (Olaf Frohn) after the Hipparcos catalog; constellation figures by Johan Meuris for Stellarium (Free Art License); planets from JPL Keplerian elements; Moon from a standard series solution; aurora from NOAA SWPC. Indigenous star knowledge from published sources credited on each story; tribal partners are invited to correct or expand it. Positions are accurate to within a fraction of a degree; a phone compass is usually the larger source of error.</p>';
+    h += '<div class="k">About</div><p class="meta">StarGazer ' + VERSION + ' · Theodore Roosevelt Presidential Library, Medora, North Dakota. Stars and constellation lines from d3-celestial (Olaf Frohn) after the Hipparcos catalog; constellation figures by Johan Meuris for Stellarium (Free Art License); planets from JPL Keplerian elements; Moon from a standard series solution; aurora from NOAA SWPC. Positions are accurate to within a fraction of a degree; a phone compass is usually the larger source of error.</p>';
+    h += '<details class="credits"><summary>Credits for the Native sky</summary><ul class="src">' + this.creditsList() + '</ul></details>';
     return h;
   };

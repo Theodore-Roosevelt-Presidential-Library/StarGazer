@@ -143,7 +143,7 @@ A guide opens **`/guide/`** on their own phone or tablet. The page shows a five-
 how many guests have joined, a list of everything worth pointing at right now (Moon and planets,
 Native figures, constellations, bright stars and deep-sky showpieces, active meteor showers —
 highest first, refreshed each minute), and controls for what the guests see. Guests tap
-*Joining a guided tour?* on the Stargazer card, enter the code (or open
+*Join a tour* on the Stargazer card, enter the code (or open
 `https://stargazer.labs.trlibrary.com/?tour=CODE`), and can join at any point while the code is
 open. Tapping an item on the guide's list opens an interpretive screen — the story, the sources,
 the origin, notes for the guide, and tips for telling it — with **Point everyone here** (the orange
@@ -169,7 +169,8 @@ The Native entries come only from published sources: Goodman's *Lakota Star Know
 Gleska University), the Native Skywatchers star maps (Annette S. Lee, Jim Rock, William Wilson,
 Carl Gawboy), South Dakota Public Broadcasting and National Park Service material by Craig Howe,
 and the early ethnographies of Dorsey, Lowie, and Maximilian for the Arikara, Hidatsa, and Mandan.
-Every story carries its citations and is labeled **Awaiting tribal partner review**. Items that
+Every story carries its citations (the app itself carries no review labels; review is handled
+by the team, not the reader). Items that
 are ceremonial, contested, or family-held were left out on purpose (the excluded list is in the
 research file), and the three MHA Nation entries whose own notes call for review before any use are
 held out of the app until that review happens. Before this content is promoted beyond the Labs

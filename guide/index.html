@@ -2,109 +2,130 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <title>StarGazer Tour Guide — Theodore Roosevelt Presidential Library</title>
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#092A4D">
+<meta name="theme-color" content="#061a33">
 <style>
-  :root{--night:#092A4D;--bg:#061a33;--fg:#99ADC5;--fg2:#D1CCBD;--acc:#E7805D;--line:rgba(153,173,197,.25);--panel:rgba(9,42,77,.95)}
-  *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:var(--fg2);font-family:'ITC Clearface','Clearface',Georgia,serif;-webkit-font-smoothing:antialiased}
-  body{padding:0 0 120px}
-  .wrap{max-width:720px;margin:0 auto;padding:16px 16px 0}
+  :root{--night:#092A4D;--bg:#061a33;--fg:#99ADC5;--fg2:#D1CCBD;--acc:#E7805D;--line:rgba(153,173,197,.25);--panel:rgba(9,42,77,.95);--top:56px;--tabs:64px}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg2);font-family:'ITC Clearface','Clearface',Georgia,serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
   .fd{font-family:'Dharma Gothic E','Oswald','Arial Narrow',Impact,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.03em;line-height:.9}
   .fc{font-family:'Frutiger Next','Frutiger',Arial,Helvetica,sans-serif}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 14px;border-bottom:1px solid var(--line)}
-  header .wm{width:84px;color:#fff}
-  header h1{font-size:26px;margin:0;color:#fff}
-  .code{margin:16px 0 8px;padding:16px;border:1px solid var(--line);border-radius:6px;background:rgba(4,13,27,.5);display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
-  .code .c{font-size:64px;color:var(--acc);letter-spacing:.12em;line-height:1}
-  .code .c.off{color:var(--fg);opacity:.5;font-size:30px;letter-spacing:.02em}
-  .code .n{font-size:12px;color:var(--fg);margin-top:6px}
-  .code .guests{text-align:center}
-  .code .guests b{display:block;font-size:44px;color:#fff;line-height:1}
-  .code .guests span{font-size:11px;color:var(--fg);text-transform:uppercase;letter-spacing:.06em}
-  .row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
-  .btn{font-family:'Dharma Gothic E','Oswald','Arial Narrow',Impact,sans-serif;font-weight:700;text-transform:uppercase;font-size:18px;letter-spacing:.04em;line-height:1;padding:11px 14px 9px;border:1px solid var(--acc);border-radius:3px;background:transparent;color:var(--acc);cursor:pointer}
-  .btn.solid{background:var(--acc);color:#0b1830}.btn.quiet{border-color:var(--line);color:var(--fg)}
-  .btn:disabled{opacity:.4;cursor:default}
-  .k{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--fg);margin:18px 0 6px}
-  .seg{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
-  .seg button{flex:1;font-family:'Dharma Gothic E','Oswald','Arial Narrow',Impact,sans-serif;font-weight:700;text-transform:uppercase;font-size:15px;letter-spacing:.04em;padding:11px 6px 9px;border:0;background:transparent;color:var(--fg);cursor:pointer}
-  .seg button+button{border-left:1px solid var(--line)}.seg button.on{background:var(--acc);color:#0b1830}
-  .chips{display:flex;gap:6px;flex-wrap:wrap}
-  .chip{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:12px;padding:7px 11px;border-radius:20px;border:1px solid var(--line);background:rgba(4,13,27,.5);color:var(--fg);cursor:pointer}
-  .chip.on{background:rgba(153,173,197,.18);color:var(--fg2);border-color:rgba(153,173,197,.5)}
-  .status{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:12px;color:var(--fg);display:flex;align-items:center;gap:8px}
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--fg);opacity:.5}.dot.ok{background:#8FC895;opacity:1;box-shadow:0 0 8px #8FC895}.dot.bad{background:#F36079;opacity:1}
-  .preview{position:relative;width:100%;aspect-ratio:16/10;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#040d1b}
-  .list .g{margin-top:10px}
-  .item{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
+  /* top bar: code, guests, connection — always visible */
+  .top{position:fixed;left:0;right:0;top:0;height:calc(var(--top) + env(safe-area-inset-top));padding:env(safe-area-inset-top) 12px 0;background:var(--panel);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;z-index:10}
+  .top .code{font-size:30px;color:var(--acc);letter-spacing:.14em;line-height:1;cursor:pointer}
+  .top .code.off{font-size:16px;color:var(--fg);letter-spacing:.02em}
+  .top .guests{margin-left:auto;display:flex;align-items:baseline;gap:6px;color:#fff}
+  .top .guests b{font-size:26px;line-height:1}.top .guests span{font-size:10px;color:var(--fg);text-transform:uppercase;letter-spacing:.06em}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--fg);opacity:.5;flex:none}.dot.ok{background:#8FC895;opacity:1;box-shadow:0 0 8px #8FC895}.dot.bad{background:#F36079;opacity:1}
+  /* pointing strip under the top bar */
+  .now{position:fixed;left:0;right:0;top:calc(var(--top) + env(safe-area-inset-top));z-index:9;display:none;align-items:center;gap:8px;padding:7px 12px;background:var(--acc);color:#0b1830;font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:13px}
+  .now.show{display:flex}.now b{font-family:'Dharma Gothic E','Oswald','Arial Narrow',Impact,sans-serif;font-weight:700;text-transform:uppercase;font-size:16px;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+  .now button{flex:none;font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:12px;font-weight:700;padding:6px 10px;border:1px solid rgba(11,24,48,.35);border-radius:16px;background:rgba(11,24,48,.12);color:#0b1830;cursor:pointer}
+  /* tab panes */
+  .pane{display:none;position:absolute;left:0;right:0;top:calc(var(--top) + env(safe-area-inset-top));bottom:calc(var(--tabs) + env(safe-area-inset-bottom));overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 24px}
+  .pane.on{display:block}
+  body.pointing .pane{top:calc(var(--top) + 36px + env(safe-area-inset-top))}
+  /* tab bar */
+  .tabs{position:fixed;left:0;right:0;bottom:0;height:calc(var(--tabs) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--panel);border-top:1px solid var(--line);display:flex;z-index:10}
+  .tabs button{flex:1;border:0;background:transparent;color:var(--fg);font-family:'Dharma Gothic E','Oswald','Arial Narrow',Impact,sans-serif;font-weight:700;text-transform:uppercase;font-size:15px;letter-spacing:.05em;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer}
+  .tabs button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .tabs button.on{color:var(--acc)}
+  /* filters */
+  .filters{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px 8px;padding:0 12px}.filters::-webkit-scrollbar{display:none}
+  .chip{flex:none;font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:12.5px;padding:8px 12px;border-radius:20px;border:1px solid var(--line);background:rgba(4,13,27,.5);color:var(--fg);cursor:pointer;white-space:nowrap}
+  .chip.on{background:rgba(231,128,93,.18);color:#fff;border-color:var(--acc)}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}.chips .chip.on{background:rgba(153,173,197,.18);color:var(--fg2);border-color:rgba(153,173,197,.5)}
+  /* rows with quick actions */
+  .item{display:flex;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line)}
   .item:first-child{border-top:0}
-  .item .t{flex:1;min-width:0}
-  .item h4{margin:0 0 2px;font-size:16px;color:var(--fg2);font-weight:700}
-  .item .d{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:12px;color:var(--fg)}
-  .item .tag{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:3px 6px;border:1px solid var(--line);border-radius:2px;color:var(--fg);white-space:nowrap}
-  .item.now{background:rgba(231,128,93,.08);margin:0 -16px;padding:10px 16px;border-left:3px solid var(--acc)}
-  .sheet{position:fixed;left:0;right:0;bottom:0;max-height:82%;background:var(--panel);border-top:1px solid var(--line);border-radius:10px 10px 0 0;transform:translateY(105%);transition:transform .28s ease;display:flex;flex-direction:column;z-index:5}
-  .sheet.show{transform:none}
-  .sh{display:flex;align-items:center;gap:10px;padding:12px 16px 8px}
-  .sh .t{flex:1;font-size:26px;color:var(--fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .sh .x{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer}
-  .sb{overflow-y:auto;padding:0 16px max(20px,env(safe-area-inset-bottom));font-size:16px;line-height:1.55}
-  .sb p{margin:0 0 10px}
+  .item .t{flex:1;min-width:0;cursor:pointer}
+  .item h4{margin:0 0 2px;font-size:16px;color:var(--fg2);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .item .d{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:11.5px;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .item.now{background:rgba(231,128,93,.1);margin:0 -12px;padding:9px 12px;border-left:3px solid var(--acc)}
+  .qa{flex:none;display:flex;gap:6px}
+  .qa button{width:44px;height:40px;border:1px solid var(--line);border-radius:8px;background:rgba(4,13,27,.5);color:var(--fg);cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .qa button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .qa button.on{background:var(--acc);border-color:var(--acc);color:#0b1830}
+  .k{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--fg);margin:14px 0 6px}
   .meta{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:12.5px;color:var(--fg);line-height:1.5}
-  .tips{border-left:2px solid var(--acc);padding-left:12px;margin:12px 0;font-size:14px}
+  .btn{font-family:'Dharma Gothic E','Oswald','Arial Narrow',Impact,sans-serif;font-weight:700;text-transform:uppercase;font-size:18px;letter-spacing:.04em;line-height:1;padding:12px 14px 10px;border:1px solid var(--acc);border-radius:6px;background:transparent;color:var(--acc);cursor:pointer}
+  .btn.solid{background:var(--acc);color:#0b1830}.btn.quiet{border-color:var(--line);color:var(--fg)}.btn.big{width:100%;font-size:22px;padding:16px 14px 14px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .seg button{flex:1;font-family:'Dharma Gothic E','Oswald','Arial Narrow',Impact,sans-serif;font-weight:700;text-transform:uppercase;font-size:14px;letter-spacing:.03em;padding:13px 4px 11px;border:0;background:transparent;color:var(--fg);cursor:pointer}
+  .seg button+button{border-left:1px solid var(--line)}.seg button.on{background:var(--acc);color:#0b1830}
+  .preview{position:relative;width:100%;aspect-ratio:16/10;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#040d1b;pointer-events:none}
+  /* tell pane */
+  .tell h2{font-size:30px;margin:6px 0 2px;color:#fff}
+  .tell p{font-size:17px;line-height:1.55;margin:0 0 12px}
+  .tips{border-left:2px solid var(--acc);padding-left:12px;margin:12px 0;font-size:15px;color:var(--fg2)}
   .src{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:11.5px;color:var(--fg);padding-left:16px}
-  details summary{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:12.5px;color:var(--fg);cursor:pointer}
-  .bar{position:fixed;left:0;right:0;bottom:0;padding:10px 16px max(12px,env(safe-area-inset-bottom));background:linear-gradient(rgba(6,26,51,0),rgba(6,26,51,.97) 30%);display:flex;gap:8px;justify-content:center;z-index:4}
-  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--line);padding:9px 14px;border-radius:3px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:6}
+  details summary{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:12.5px;color:var(--fg);cursor:pointer;padding:6px 0}
+  .empty{color:var(--fg);font-size:15px;padding:30px 10px;text-align:center}
+  input.say{flex:1;min-width:0;font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:15px;padding:12px;border:1px solid var(--line);border-radius:6px;background:rgba(4,13,27,.6);color:#fff}
+  .bigcode{font-size:72px;color:var(--acc);letter-spacing:.14em;line-height:1;text-align:center;margin:18px 0 4px}
+  .toast{position:fixed;left:50%;bottom:calc(var(--tabs) + 14px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--panel);border:1px solid var(--line);padding:9px 14px;border-radius:6px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:20;max-width:88%;text-align:center}
   .toast.show{opacity:1}
-  input.say{flex:1;font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:14px;padding:10px;border:1px solid var(--line);border-radius:3px;background:rgba(4,13,27,.6);color:#fff}
-  @media (max-width:420px){.code .c{font-size:52px}}
+  .wm{width:70px;color:#fff;opacity:.9}
+  @media (min-width:700px){.pane{max-width:720px;left:50%;transform:translateX(-50%);width:100%}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div id="wm"></div>
-    <h1 class="fd">Tour guide</h1>
-  </header>
+<div class="top">
+  <span class="dot" id="dot"></span>
+  <div class="code fd off" id="code" title="Tap for the join link">…</div>
+  <div class="guests"><b id="count">0</b><span class="fc">joined</span></div>
+</div>
+<div class="now" id="now"><span class="fc">Pointing to</span><b id="nowName"></b><button id="nowCard">Card</button><button id="nowStop">Stop</button></div>
 
-  <div class="code">
-    <div>
-      <div class="c fd off" id="code">Starting…</div>
-      <div class="n fc" id="codeNote">Guests tap “Joining a guided tour?” on the Stargazer card and enter this code.</div>
-    </div>
-    <div class="guests"><b id="count">0</b><span class="fc" id="countLabel">joined</span></div>
+<!-- SKY: everything visible now, one-tap point / card -->
+<div class="pane on" id="pane-sky">
+  <div class="filters" id="filters">
+    <button class="chip on" data-f="all">All</button><button class="chip" data-f="native">Native</button><button class="chip" data-f="planets">Moon &amp; planets</button><button class="chip" data-f="con">Constellations</button><button class="chip" data-f="stars">Stars &amp; deep sky</button><button class="chip" data-f="meteors">Meteors</button>
   </div>
-  <div class="row">
-    <div class="status"><span class="dot" id="dot"></span><span id="status">Connecting…</span></div>
-  </div>
-  <div class="row">
-    <button class="btn quiet" id="share">Copy join link</button>
-    <button class="btn quiet" id="newcode">New code</button>
-    <button class="btn quiet" id="endtour">End tour</button>
-  </div>
-
-  <div class="k">What they see <span class="fc" id="pvnote" style="text-transform:none;letter-spacing:0">· a preview of a guest's screen, turned toward wherever you point</span></div>
-  <div class="preview" id="preview"></div>
-
-  <div class="k">Which sky the guests see</div>
-  <div class="seg" id="seg"><button data-sky="western">Greek &amp; Roman</button><button data-sky="native">Lakota &amp; Native</button><button data-sky="both">Both</button></div>
-  <div class="k">Layers on their screens</div>
-  <div class="chips" id="chips"></div>
-
-  <div class="k">Visible now <span id="where" style="text-transform:none;letter-spacing:0"></span> <button class="btn quiet" id="geo" style="font-size:13px;padding:5px 8px 3px;margin-left:8px">Use my location</button></div>
   <div class="meta" id="darknote"></div>
-  <div class="list" id="list"><div class="meta">Loading the sky…</div></div>
+  <div id="list"><div class="empty">Loading the sky…</div></div>
 </div>
 
-<div class="bar">
-  <button class="btn quiet" id="freelook">Free look (clear arrow &amp; card)</button>
+<!-- TELL: the interpretive screen for whatever is selected -->
+<div class="pane tell" id="pane-tell"><div id="tell"><div class="empty">Pick something on the Sky tab and its story appears here, with the buttons to point everyone to it.</div></div></div>
+
+<!-- SCREEN: what guests see and the controls for it -->
+<div class="pane" id="pane-screen">
+  <div class="k">What they see</div>
+  <div class="preview" id="preview"></div>
+  <div class="k">Which sky</div>
+  <div class="seg" id="seg"><button data-sky="western">Greek &amp; Roman</button><button data-sky="native">Lakota &amp; Native</button><button data-sky="both">Both</button></div>
+  <div class="k">Layers</div>
+  <div class="chips" id="chips"></div>
+  <div class="k">Say something</div>
+  <div class="row"><input class="say" id="say" placeholder="Shows as a note on every screen"><button class="btn quiet" id="sayGo">Send</button></div>
+  <div class="row" style="margin-top:14px"><button class="btn big quiet" id="freelook">Free look — clear arrow and card</button></div>
 </div>
 
-<div class="sheet" id="sheet"><div class="sh"><div class="t fd" id="sheetT"></div><button class="x" id="sheetX">&#x2715;</button></div><div class="sb" id="sheetB"></div></div>
+<!-- TOUR: code, sharing, location -->
+<div class="pane" id="pane-tour">
+  <div style="text-align:center;margin-top:10px"><div id="wm"></div></div>
+  <div class="bigcode fd" id="bigcode">…</div>
+  <div class="meta" style="text-align:center">Guests tap “Join a tour” and enter this code, or open the join link. They can join any time while the tour is open.</div>
+  <div class="row" style="margin-top:14px"><button class="btn big solid" id="share">Share join link</button></div>
+  <div class="two"><button class="btn quiet" id="newcode">New code</button><button class="btn quiet" id="endtour">End tour</button></div>
+  <div class="k">Status</div>
+  <div class="meta" id="status">Connecting…</div>
+  <div class="k">Location <span id="where" class="fc" style="text-transform:none;letter-spacing:0"></span></div>
+  <div class="row"><button class="btn quiet" id="geo">Use my location</button></div>
+  <div class="meta" style="margin-top:20px">Theodore Roosevelt Presidential Library · StarGazer tour guide</div>
+</div>
+
+<div class="tabs">
+  <button data-tab="sky" class="on"><svg viewBox="0 0 24 24"><path d="M12 3l2.4 5 5.6.6-4.2 3.8 1.2 5.6-5-2.9-5 2.9 1.2-5.6L4 8.6l5.6-.6z"/></svg>Sky</button>
+  <button data-tab="tell"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>Tell</button>
+  <button data-tab="screen"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M10 18h4"/></svg>Screen</button>
+  <button data-tab="tour"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5M14 19c0-2 2-4 4.5-4S22 17 22 19"/></svg>Tour</button>
+</div>
 <div class="toast" id="toast"></div>
 
 <script src="../stargazer.js" data-no-auto></script>
