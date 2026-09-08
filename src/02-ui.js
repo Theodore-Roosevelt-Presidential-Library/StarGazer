@@ -41,6 +41,10 @@
     ':host{all:initial;display:block;contain:content;font-size:16px}',
     '*{box-sizing:border-box}',
     '.card{position:relative;overflow:hidden;background:#061a33;color:' + BRAND.sand + ';font-family:' + FONT_B + ';border-radius:4px;max-width:720px;width:100%;aspect-ratio:16/10;min-height:300px;-webkit-font-smoothing:antialiased;cursor:pointer}',
+    '.card.full{max-width:none;aspect-ratio:auto;height:100vh;height:100dvh;border-radius:0}',
+    '.card.full h1{font-size:72px}.card.full .lede{font-size:18px;max-width:520px}.card.full .wm{width:120px;left:28px;top:28px}.card.full .in{left:28px;right:28px;bottom:28px}',
+    '.card.full .emb{position:absolute;left:28px;bottom:6px;font-family:' + FONT_C + ';font-size:11px;color:' + BRAND.graySky + ';opacity:.8}.card.full .emb a{color:inherit}',
+    '@media (max-width:520px){.card.full h1{font-size:52px}.card.full .wm{width:84px;left:18px;top:18px}.card.full .in{left:18px;right:18px;bottom:22px}.card.full .emb{left:18px}}',
     '.sky{position:absolute;inset:0;width:100%;height:100%;display:block}',
     '.shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,26,51,.55) 0%,rgba(6,26,51,0) 35%,rgba(6,26,51,0) 55%,rgba(6,26,51,.88) 100%);pointer-events:none}',
     '.wm{position:absolute;left:22px;top:20px;width:88px;height:auto;color:#fff;opacity:.95}',
@@ -72,6 +76,11 @@
     '*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}',
     '.root{position:fixed;inset:0;z-index:2147483000;background:#040d1b;color:' + BRAND.graySky + ';font-family:' + FONT_C + ';overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-font-smoothing:antialiased;',
     '--fg:' + BRAND.graySky + ';--fg2:' + BRAND.sand + ';--acc:' + BRAND.orange + ';--panel:rgba(9,42,77,.92);--line:rgba(153,173,197,.25);--bg:#040d1b}',
+    '.root.inline{position:absolute;z-index:1}',
+    '.root.inline .nav,.root.inline .chipsw,.root.inline .seg,.root.inline .ib.x,.root.inline .rb,.root.inline .tourpill{display:none}',
+    '.root.inline .ro .c{font-size:22px}.root.inline .ro .s{font-size:11px}.root.inline .top{padding:8px 10px 6px}.root.inline .bottom{padding:0}',
+    '.root.inline .sheet{max-height:85%;left:0;right:0;bottom:0;width:auto;border-radius:8px 8px 0 0;transform:translateY(105%);opacity:1;pointer-events:auto}.root.inline .sheet.show{transform:none}',
+    '.root.inline .sb{font-size:13px}.root.inline .sh .t{font-size:18px}.root.inline .target{top:56px;font-size:11px;padding:5px 8px 5px 10px}',
     '.root.red{--fg:#c0392b;--fg2:#d9534f;--acc:#ff6b5b;--panel:rgba(30,4,4,.94);--line:rgba(192,57,43,.35);--bg:#090000;background:#090000;color:#c0392b}',
     'canvas{position:absolute;inset:0;width:100%;height:100%;display:block}',
     'video.cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;background:#000}',
@@ -233,13 +242,15 @@
     var loc = (isFinite(lat) && isFinite(lon)) ? { lat: lat, lon: lon, name: place || (lat.toFixed(2) + ', ' + lon.toFixed(2)) } : null;
     var root = container.attachShadow ? container.attachShadow({ mode: 'open' }) : container;
     var st = document.createElement('style'); st.textContent = CARD_CSS; root.appendChild(st);
-    var card = document.createElement('div'); card.className = 'card';
+    var full = container.hasAttribute('data-full');
+    var card = document.createElement('div'); card.className = 'card' + (full ? ' full' : '');
     card.innerHTML =
       '<canvas class="sky" aria-hidden="true"></canvas><div class="shade"></div>' +
       WORDMARK.replace('<svg ', '<svg class="wm" role="img" aria-label="Theodore Roosevelt Presidential Library" ') +
       '<div class="cap"><span class="dot' + (cap.ok ? '' : ' off') + '"></span>' + (cap.ok ? 'Motion sensor ready' : 'Drag to explore') + '</div>' +
       '<div class="in"><div><h1>Stargazer</h1><p class="lede">' + (cap.ok ? 'Hold your phone up to the night sky. It names what you see and tells its stories.' : 'Tonight\'s sky over the Badlands. Best on a phone, outside, after dark.') + '</p></div>' +
       '<div><button class="btn" type="button">' + (cap.ok ? 'Start' : 'Explore') + '</button><button class="join" type="button">Joining a guided tour?</button></div></div>' +
+      (full ? '<div class="emb">Theodore Roosevelt Presidential Library &middot; <a href="embed/">Put this on your site</a></div>' : '') +
       '<div class="jp" role="dialog" aria-label="Join a tour"><h2>Join a tour</h2><p>Enter the code your guide gives you. You can join any time while the tour is running.</p>' +
       '<input type="text" maxlength="6" placeholder="CODE" inputmode="text" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Tour code">' +
       '<div class="err"></div><button class="go" type="button" disabled>Join the tour</button><button class="cancel" type="button">Not now</button></div>';
@@ -262,7 +273,7 @@
     joinGo.addEventListener('click', function () { var c = cleanCode(joinIn.value); if (c.length < 5) { joinErr.textContent = 'Codes are five letters or numbers.'; joinIn.focus(); return; } closeJoin(); go(c); });
     joinIn.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !joinGo.disabled) joinGo.click(); });
     var pre = new URLSearchParams(location.search).get('tour'); if (pre) { joinIn.value = cleanCode(pre); joinGo.disabled = joinIn.value.length < 5; openJoin(); }
-    card.addEventListener('click', function () { go(); });
+    card.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('a')) return; go(); });
     // prefetch bundles when the network is not constrained
     var conn = navigator.connection || {};
     if (!conn.saveData && (window.requestIdleCallback || setTimeout)) {

@@ -51,7 +51,9 @@ That is the whole embed. To place the card somewhere other than where the script
 
 `stargazer.js` finds its own URL and loads `stargazer-data.js` (stars) and
 `stargazer-content.js` (stories, events) from the same folder, so cross-origin embeds on other
-sites still need only the one tag. `index.html` is the live preview and instruction page.
+sites still need only the one tag. The site root is the full-screen experience (a card that fills
+the viewport, `<div data-stargazer data-full>`); `/embed/` is the preview and instruction page;
+`/guide/` is the tour guide's console.
 
 ## Options
 
@@ -148,7 +150,11 @@ the origin, notes for the guide, and tips for telling it — with **Point everyo
 arrow on every guest's screen), **Show the card on their screens**, and a short message box.
 Pointing at a Native figure switches the guests' sky to *Lakota & Native* automatically; pointing at
 a Western constellation switches to *Greek & Roman*. The guide can also set the sky and layers
-directly, and *Free look* clears the arrow and card.
+directly, and *Free look* clears the arrow and card. A live preview on the guide's page shows a
+guest's screen turned toward whatever is being pointed at. Small figures zoom themselves: once a
+guest has followed the arrow and held the target near the center for a second, the view eases in
+to frame it (the Pleiades, the Turtle) and eases back out when the pointing ends; the same happens
+for "Point me to it" inside the app.
 
 It runs the same way as the Quiz project's live mode: the guide's browser holds the code as a
 PeerJS id and each guest connects to it directly over WebRTC. PeerJS's public broker only

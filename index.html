@@ -3,60 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>StarGazer — Theodore Roosevelt Presidential Library</title>
+<title>Stargazer — Theodore Roosevelt Presidential Library</title>
 <meta name="description" content="Hold your phone up to the night sky over the Badlands and it names what you are looking at: stars, constellations, planets, the Moon, and the stories people have told about them.">
 <meta name="theme-color" content="#092A4D">
-<style>
-  body{font-family:'Frutiger Next','Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#25282A;background:#faf9f6;margin:0;padding:32px 20px 80px;}
-  .page{max-width:720px;margin:0 auto;}
-  h1{font-family:'Dharma Gothic E','Oswald','Anton Narrow',sans-serif;text-transform:uppercase;letter-spacing:.02em;font-size:30px;margin:0 0 4px;}
-  h2{font-family:'Dharma Gothic E','Oswald','Anton Narrow',sans-serif;text-transform:uppercase;letter-spacing:.02em;font-size:22px;margin:32px 0 6px;}
-  p,li{font-family:'ITC Clearface','Clearface',Georgia,serif;font-size:15px;line-height:1.55;color:#4a4a44;}
-  .lede{max-width:640px;margin:0 0 20px;}
-  .embed{margin:0 0 22px;}
-  .note{font-size:12px;color:#8a887e;margin:6px 0 12px;font-family:inherit}
-  pre{background:#efece3;padding:12px 14px;border-radius:3px;font-size:12.5px;overflow:auto;line-height:1.5}
-  code{font-size:12px;background:#efece3;padding:1px 5px;border-radius:3px;}
-  table{border-collapse:collapse;font-size:13px;width:100%}td,th{text-align:left;padding:6px 8px;border-bottom:1px solid #e2ddd0;vertical-align:top}
-</style>
+<meta property="og:title" content="Stargazer — the night sky over the Badlands">
+<meta property="og:description" content="Hold your phone up to the sky. It names what you see and tells its stories. From the Theodore Roosevelt Presidential Library.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23092A4D'/%3E%3Ccircle cx='32' cy='32' r='6' fill='%23E7805D'/%3E%3Ccircle cx='14' cy='18' r='2' fill='%23D1CCBD'/%3E%3Ccircle cx='50' cy='14' r='1.5' fill='%23D1CCBD'/%3E%3Ccircle cx='48' cy='48' r='2' fill='%23D1CCBD'/%3E%3Ccircle cx='18' cy='50' r='1.5' fill='%23D1CCBD'/%3E%3C/svg%3E">
+<style>html,body{margin:0;height:100%;background:#061a33;overflow:hidden}</style>
 </head>
 <body>
-<div class="page">
-  <h1>StarGazer</h1>
-  <p class="lede">An embeddable night-sky explorer from the Theodore Roosevelt Presidential Library. On a phone or tablet it uses the motion sensors so you can hold the screen up to the sky and see what you are looking at; on a desktop you drag to look around. This page is the live preview and the embed instructions.</p>
-
-  <div class="embed">
-    <div data-stargazer></div>
-  </div>
-  <p class="note">The card above is the embed. It detects whether the device has a motion sensor and offers a full-screen Start button either way.</p>
-
-  <h2>Embed it</h2>
-  <p>One line, anywhere in a page:</p>
-<pre>&lt;script src="https://stargazer.labs.trlibrary.com/stargazer.js"&gt;&lt;/script&gt;</pre>
-  <p>The card renders where the script tag sits. To place it somewhere else, add a container and the script anywhere:</p>
-<pre>&lt;div data-stargazer&gt;&lt;/div&gt;
-&lt;script src="https://stargazer.labs.trlibrary.com/stargazer.js"&gt;&lt;/script&gt;</pre>
-  <p>Options on the container:</p>
-  <table>
-    <tr><th>Attribute</th><th>Example</th><th>Meaning</th></tr>
-    <tr><td><code>data-lat</code> / <code>data-lon</code></td><td><code>data-lat="46.914" data-lon="-103.524"</code></td><td>Fix the observer location. Default is Medora; participants can also use their own location from Settings.</td></tr>
-    <tr><td><code>data-place</code></td><td><code>data-place="Elkhorn Ranch"</code></td><td>Label shown for a fixed location.</td></tr>
-    <tr><td><code>data-no-auto</code> (on the script tag)</td><td></td><td>Do not insert a card automatically; only render into <code>[data-stargazer]</code> containers.</td></tr>
-  </table>
-  <p>From JavaScript: <code>StarGazer.open()</code> opens the full-screen sky directly (call it from a click so motion permission and full screen are allowed).</p>
-
-  <h2>What it shows</h2>
-  <ul>
-    <li>About 5,000 stars to magnitude 6, with proper names and Bayer designations, and all 88 constellations with lines, names, and a short story each.</li>
-    <li>The Sun, Moon with its true phase, and the planets Mercury through Neptune, computed on the device with no network calls.</li>
-    <li>Constellation figures drawn over their stars (illustrations by Johan Meuris for Stellarium), and a see-through mode that puts the rear camera behind the chart.</li>
-    <li>The Milky Way, bright star clusters, nebulae, and galaxies.</li>
-    <li>Lakota, Dakota, Arikara, Hidatsa, Mandan, Ojibwe, and Pawnee star knowledge from published sources, marked as awaiting tribal partner review.</li>
-    <li>Meteor showers active tonight with their radiants; a Tonight panel with sunset, darkness, moonrise, planets, and upcoming eclipses, conjunctions, and supermoons through 2028.</li>
-    <li>An Aurora panel estimating tonight's chance of northern lights from the live NOAA planetary K index.</li>
-    <li>Dark-sky design: dim palette, extra-dimming slider, and a red-light mode that protects night vision.</li>
-  </ul>
-</div>
+<div data-stargazer data-full></div>
 <script src="stargazer.js" data-no-auto></script>
 </body>
 </html>

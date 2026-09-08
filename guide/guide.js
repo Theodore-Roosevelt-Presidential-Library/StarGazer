@@ -6,7 +6,17 @@
   var SG = window.StarGazer, $ = function (id) { return document.getElementById(id); };
   var LAYERS = [['art', 'Figures'], ['lines', 'Constellations'], ['names', 'Star names'], ['planets', 'Planets'], ['mw', 'Milky Way'], ['native', 'Native sky'], ['meteors', 'Meteors'], ['dso', 'Deep sky'], ['grid', 'Horizon marks']];
   var state = { sky: 'both', layers: { art: true, lines: true, names: true, planets: true, mw: true, native: true, meteors: true, dso: false, grid: true }, target: null, card: null };
-  var loc = SG.DEFAULT_LOC, code = null, peer = null, conns = [], catalog = { items: [] }, current = null, pointing = null, showingCard = null;
+  var loc = SG.DEFAULT_LOC, code = null, peer = null, conns = [], catalog = { items: [] }, current = null, pointing = null, showingCard = null, preview = null;
+  function mirror(extra) {   // keep the on-page preview showing what a guest sees
+    if (!preview || !preview.running) return;
+    if (preview.sky !== state.sky) { preview.sky = state.sky; preview.updateSeg(); }
+    for (var k in state.layers) preview.layers[k] = state.layers[k];
+    preview.updateChips();
+    if (state.target) { preview.select(state.target.vec, state.target.j2000, state.target.label, state.target.size); preview.aimAt(state.target.vec, state.target.j2000, Math.max(22, Math.min(70, (state.target.size || 20) * 2.6 + 6))); }
+    else preview.clearSelected();
+    if (state.card) { preview.sheetAuto = true; preview.showInfo(state.card); } else preview.hideSheet();
+    preview.dirty = true;
+  }
 
   fetch(SG.BASE + 'assets/wordmark.svg').then(function (r) { return r.text(); }).then(function (svg) { $('wm').innerHTML = svg.replace('<svg ', '<svg class="wm" '); }).catch(function () { });
 
@@ -15,7 +25,7 @@
 
   // ---- hosting the tour --------------------------------------------------------------------
   function broadcast(msg) { for (var i = 0; i < conns.length; i++) { try { conns[i].send(msg); } catch (e) { } } }
-  function pushState(extra) { var m = { t: 'state', sky: state.sky, layers: state.layers, target: state.target, card: state.card }; if (extra) for (var k in extra) m[k] = extra[k]; broadcast(m); }
+  function pushState(extra) { var m = { t: 'state', sky: state.sky, layers: state.layers, target: state.target, card: state.card }; if (extra) for (var k in extra) m[k] = extra[k]; broadcast(m); mirror(); }
   function updateCount() { $('count').textContent = conns.length; $('countLabel').textContent = conns.length === 1 ? 'joined' : 'joined'; }
   function startHost(newCode) {
     if (peer) { try { peer.destroy(); } catch (e) { } peer = null; conns = []; updateCount(); }
@@ -64,6 +74,7 @@
   function refreshCatalog() {
     catalog = SG.tourCatalog(loc, new Date());
     $('where').textContent = '· ' + loc.name;
+    if (preview && preview.running) { preview.loc = loc; preview.computeBodies(true); preview.dirty = true; }
     $('darknote').textContent = catalog.dark ? '' : (catalog.sunAlt > 0 ? 'The Sun is up; positions are shown for planning.' : 'Twilight: only the brightest things are out yet.');
     renderList();
   }
@@ -120,7 +131,7 @@
     $('sheet').classList.add('show');
     $('pt').addEventListener('click', function () {
       if (pointing === it.id) { pointing = null; state.target = null; }
-      else { pointing = it.id; state.target = { vec: it.vec, j2000: it.j2000, label: it.name }; if (it.sky && state.sky !== it.sky) { state.sky = it.sky; renderSeg(); } if (it.sky === 'native' && !state.layers.native) { state.layers.native = true; renderChips(); } }
+      else { pointing = it.id; state.target = { vec: it.vec, j2000: it.j2000, label: it.name, size: it.size || 0 }; if (it.sky && state.sky !== it.sky) { state.sky = it.sky; renderSeg(); } if (it.sky === 'native' && !state.layers.native) { state.layers.native = true; renderChips(); } }
       pushState(); renderList(); renderDetail(it);
     });
     $('cd').addEventListener('click', function () {
@@ -131,11 +142,23 @@
   }
   $('sheetX').addEventListener('click', function () { $('sheet').classList.remove('show'); });
 
+  function locate(loud) {
+    if (!navigator.geolocation) { if (loud) toast('Location is not available in this browser.'); return; }
+    if (loud) toast('Finding your location…');
+    navigator.geolocation.getCurrentPosition(function (p) {
+      var la = p.coords.latitude, lo = p.coords.longitude, near = Math.abs(la - SG.DEFAULT_LOC.lat) < 0.3 && Math.abs(lo - SG.DEFAULT_LOC.lon) < 0.45;
+      loc = near ? SG.DEFAULT_LOC : { lat: la, lon: lo, name: 'Your location (' + la.toFixed(2) + ', ' + lo.toFixed(2) + ')' };
+      refreshCatalog(); toast('Sky set for ' + loc.name);
+    }, function (err) { if (loud) toast(err && err.code === 1 ? 'Location was not allowed. Showing the sky over Medora.' : 'Could not get a location. Showing the sky over Medora.'); }, { timeout: 10000, maximumAge: 300000 });
+  }
+  $('geo').addEventListener('click', function () { locate(true); });
   // ---- boot ---------------------------------------------------------------------------------------
   renderSeg(); renderChips();
   SG.load().then(function () {
     refreshCatalog(); setInterval(refreshCatalog, 60000);
-    if (navigator.geolocation) navigator.geolocation.getCurrentPosition(function (p) { var la = p.coords.latitude, lo = p.coords.longitude; var near = Math.abs(la - SG.DEFAULT_LOC.lat) < 0.3 && Math.abs(lo - SG.DEFAULT_LOC.lon) < 0.45; loc = near ? SG.DEFAULT_LOC : { lat: la, lon: lo, name: 'Your location' }; refreshCatalog(); }, function () { }, { timeout: 8000, maximumAge: 600000 });
+    locate(false);
+    preview = new SG.SkyApp({ mount: $('preview'), sensor: false, loc: loc });
+    preview.open().then(function () { preview.layers.grid = true; mirror(); });
     startHost(new URLSearchParams(location.search).get('code') ? SG.cleanCode(new URLSearchParams(location.search).get('code')) : null);
   }, function () { $('list').innerHTML = '<div class="meta">The sky data could not be loaded.</div>'; });
 })();

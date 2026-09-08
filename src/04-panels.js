@@ -23,8 +23,8 @@
     if (!this.sheetBound) { this.sheetBound = true; b.addEventListener('click', function (e) {
       var t = e.target.closest ? e.target.closest('[data-act]') : null; if (!t) return;
       var act = t.getAttribute('data-act'), arg = t.getAttribute('data-arg');
-      if (act === 'show-lore') { var L = self.lore[+arg]; if (L.center) { self.select(L.center, true, L.label || L.name); self.hideSheet(); self.toast('Follow the arrow. Tap the banner at the top to stop.', 3000); } }
-      else if (act === 'show-vec') { var p = arg.split(','); self.select([+p[0], +p[1], +p[2]], p[3] === '1', t.getAttribute('data-label') || ''); self.hideSheet(); self.toast('Follow the arrow. Tap the banner at the top to stop.', 3000); }
+      if (act === 'show-lore') { var L = self.lore[+arg]; if (L.center) { self.select(L.center, true, L.label || L.name, L.size); self.hideSheet(); self.toast('Follow the arrow. Tap the banner at the top to stop.', 3000); } }
+      else if (act === 'show-vec') { var p = arg.split(','); self.select([+p[0], +p[1], +p[2]], p[3] === '1', t.getAttribute('data-label') || '', +(t.getAttribute('data-size') || 0)); self.hideSheet(); self.toast('Follow the arrow. Tap the banner at the top to stop.', 3000); }
       else if (act === 'clear-sel') { self.clearSelected(); self.hideSheet(); }
       else if (act === 'lore') { self.showInfo({ t: 'lore', i: +arg }); }
       else if (act === 'con') { self.showInfo({ t: 'con', k: arg }); }
@@ -148,7 +148,7 @@
       h += '<div class="meta">Constellation · ' + this.altAzLine(mulMat(matMul(this.HZ, this.P), this.conCenter[hit.k])) + '</div>';
       h += '<div class="tabpane" data-pane="story"><p>' + esc(this.content.western[hit.k] || '') + '</p></div>' + this.originBlock(hit.k);
       if (this.loreByCon[hit.k]) h += '<div class="k">In other skies</div>' + this.loreBlock(this.loreByCon[hit.k], true);
-      h += '<button class="btn2" data-act="show-vec" data-label="' + esc(c.n) + '" data-arg="' + this.conCenter[hit.k].join(',') + ',1">Point me to it</button>';
+      h += '<button class="btn2" data-act="show-vec" data-label="' + esc(c.n) + '" data-size="' + (this.conSize[hit.k] || 0) + '" data-arg="' + this.conCenter[hit.k].join(',') + ',1">Point me to it</button>';
     } else if (hit.t === 'lore') {
       var L = this.lore[hit.i]; title = L.name.split(' (')[0].split(' /')[0];
       h += this.loreDetail(L, hit.i) + '<p class="meta" style="margin-top:10px">' + esc(this.content.framing) + '</p>';

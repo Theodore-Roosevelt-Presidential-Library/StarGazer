@@ -57,17 +57,17 @@
       // must be called inside the user gesture: do it before any await
       try { perm = DeviceOrientationEvent.requestPermission().catch(function () { return 'denied'; }); } catch (e) { perm = Promise.resolve('denied'); }
     }
-    if (self.sensorWanted) self.enterFullscreen();
+    if (self.sensorWanted && !self.inline) self.enterFullscreen();
     return Promise.all([loadBundles(), perm]).then(function (r) {
       self.data = r[0][0]; self.content = r[0][1];
       self.prepare();
       self.hideLoading();
       if (self.sensorWanted && r[1] === 'granted') self.startSensors();
       else if (self.sensorWanted) self.toast('Motion access was not allowed. Drag to look around instead.');
-      self.requestWakeLock();
+      if (!self.inline) self.requestWakeLock();
       self.running = true; self.loop();
       self.updateChips();
-      self.autoLocate();
+      if (!self.inline) self.autoLocate();
       if (self.opts.tour) self.joinTour(self.opts.tour);
       if (self.opts.autoOpen) self.showSheet(self.opts.autoOpen);
     }).catch(function (err) {
@@ -77,11 +77,13 @@
   };
   SkyApp.prototype.build = function () {
     var self = this;
-    var host = document.createElement('div'); host.setAttribute('data-stargazer-app', ''); host.style.cssText = 'position:fixed;inset:0;z-index:2147483000;';
-    document.body.appendChild(host);
+    var host = document.createElement('div'); host.setAttribute('data-stargazer-app', '');
+    this.inline = !!this.opts.mount;
+    if (this.inline) { host.style.cssText = 'position:absolute;inset:0;overflow:hidden;'; this.opts.mount.appendChild(host); }
+    else { host.style.cssText = 'position:fixed;inset:0;z-index:2147483000;'; document.body.appendChild(host); }
     var root = host.attachShadow({ mode: 'open' });
     var st = document.createElement('style'); st.textContent = SKY_CSS; root.appendChild(st);
-    var el = document.createElement('div'); el.className = 'root' + (this.red ? ' red' : '');
+    var el = document.createElement('div'); el.className = 'root' + (this.red ? ' red' : '') + (this.inline ? ' inline' : '');
     el.innerHTML =
       '<video class="cam" autoplay muted playsinline></video><canvas></canvas><div class="dim"></div>' +
       '<div class="top"><button class="ib x" aria-label="Close">' + ICONS.close + '</button>' +
@@ -137,11 +139,11 @@
     this.bindPointer();
     this.onFs = function () { if (!document.fullscreenElement && !document.webkitFullscreenElement && self.wasFullscreen) self.close(); };
     document.addEventListener('fullscreenchange', this.onFs); document.addEventListener('webkitfullscreenchange', this.onFs);
-    this.onKey = function (e) { if (e.key === 'Escape') { if (self.sheet.classList.contains('show')) self.hideSheet(); else self.close(); } };
+    this.onKey = function (e) { if (e.key === 'Escape' && !self.inline) { if (self.sheet.classList.contains('show')) self.hideSheet(); else self.close(); } };
     document.addEventListener('keydown', this.onKey);
     this.onVis = function () { if (document.visibilityState === 'visible') { self.requestWakeLock(); self.dirty = true; } };
     document.addEventListener('visibilitychange', this.onVis);
-    this.prevOverflow = document.documentElement.style.overflow; document.documentElement.style.overflow = 'hidden';
+    this.prevOverflow = document.documentElement.style.overflow; if (!this.inline) document.documentElement.style.overflow = 'hidden';
   };
   // ---- which sky leads: Greek & Roman, Lakota & Native, or both side by side ------------------------
   SkyApp.prototype.setSky = function (v) {
@@ -259,7 +261,7 @@
     if (window.visualViewport) window.visualViewport.removeEventListener('resize', this.onResize);
     document.removeEventListener('fullscreenchange', this.onFs); document.removeEventListener('webkitfullscreenchange', this.onFs);
     document.removeEventListener('keydown', this.onKey); document.removeEventListener('visibilitychange', this.onVis);
-    document.documentElement.style.overflow = this.prevOverflow || '';
+    if (!this.inline) document.documentElement.style.overflow = this.prevOverflow || '';
     try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) { }
     if (document.fullscreenElement || document.webkitFullscreenElement) { try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) { } }
     if (this.host && this.host.parentNode) this.host.parentNode.removeChild(this.host);
@@ -287,7 +289,7 @@
   };
   SkyApp.prototype.resize = function () {
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    var w = this.el.clientWidth || window.innerWidth, h = this.el.clientHeight || window.innerHeight;
+    var w = this.el.clientWidth || (this.inline ? 320 : window.innerWidth), h = this.el.clientHeight || (this.inline ? 200 : window.innerHeight);
     this.W = w; this.H = h; this.dpr = dpr;
     this.canvas.width = Math.round(w * dpr); this.canvas.height = Math.round(h * dpr);
     this.dirty = true; if (this.chipsWrap) this.updateChipEdges();
@@ -312,6 +314,7 @@
       var k = this.conKeys[i], c = D.con[k], segs = [];
       for (var a = 0; a < c.l.length; a++) { var line = c.l[a]; for (var b = 0; b < line.length - 1; b++) segs.push(eqVec(line[b][0], line[b][1]), eqVec(line[b + 1][0], line[b + 1][1])); }
       this.conSeg[k] = segs; this.conCenter[k] = eqVec(c.ra, c.dec);
+      var mxs = 0; for (var q1 = 0; q1 < segs.length; q1++) { var dq = angSep(segs[q1], this.conCenter[k]); if (dq > mxs) mxs = dq; } this.conSize = this.conSize || {}; this.conSize[k] = Math.max(mxs * 2, 6);
     }
     this.mwVec = []; for (i = 0; i < D.mw.length; i++) this.mwVec.push(eqVec(D.mw[i][0], D.mw[i][1]));
     this.dsoVec = []; for (i = 0; i < D.dsos.length; i++) this.dsoVec.push(eqVec(D.dsos[i][3], D.dsos[i][4]));
@@ -327,6 +330,8 @@
         var cv = [0, 0, 0];
         for (h = 0; h < L.starIdx.length; h++) { var o = L.starIdx[h] * 3; cv[0] += this.starVec[o]; cv[1] += this.starVec[o + 1]; cv[2] += this.starVec[o + 2]; }
         L.center = vnorm(cv);
+        var mx = 0; for (var p1 = 0; p1 < L.starIdx.length; p1++) for (var p2 = p1 + 1; p2 < L.starIdx.length; p2++) { var o1 = L.starIdx[p1] * 3, o2 = L.starIdx[p2] * 3; var d12 = angSep([this.starVec[o1], this.starVec[o1 + 1], this.starVec[o1 + 2]], [this.starVec[o2], this.starVec[o2 + 1], this.starVec[o2 + 2]]); if (d12 > mx) mx = d12; }
+        L.size = Math.max(mx, 1.5);
       }
     }
     this.artKeys = Object.keys(D.art || {}); this.artVec = {};
@@ -405,7 +410,7 @@
       var ids = Object.keys(self.pointers);
       if (ids.length >= 2) {
         var a = self.pointers[ids[0]], b = self.pointers[ids[1]], d = Math.hypot(a.x - b.x, a.y - b.y);
-        if (self.pinch0) self.setFov(self.fov0 * self.pinch0 / Math.max(d, 10));
+        if (self.pinch0) { self.fovAnim = 0; self.setFov(self.fov0 * self.pinch0 / Math.max(d, 10)); }
         return;
       }
       var degPerPx = self.fov / self.H;
@@ -423,10 +428,24 @@
       if (self.calibTouched) { self.calibTouched = false; self.persist(); self.toast('Compass adjusted by ' + Math.round(self.calib) + '°', 1800); }
     }
     cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
-    cv.addEventListener('wheel', function (e) { e.preventDefault(); self.setFov(self.fov * Math.pow(1.0015, e.deltaY)); }, { passive: false });
+    cv.addEventListener('wheel', function (e) { e.preventDefault(); self.fovAnim = 0; self.setFov(self.fov * Math.pow(1.0015, e.deltaY)); }, { passive: false });
     cv.addEventListener('dblclick', function () { self.setFov(self.fov > 45 ? 35 : 70); });
   };
+  // Turn the (drag-mode) view to face a sky vector — used by the guide's preview
+  SkyApp.prototype.aimAt = function (vec, j2000, fov) {
+    if (!this.HZ) return; var hz = j2000 ? mulMat(matMul(this.HZ, this.P), vec) : mulMat(this.HZ, vec), aa = vecToAzAlt(hz);
+    this.dragAz = aa.az; this.dragAlt = clamp(aa.alt, -30, 89.5); this.target.f = hzVec(this.dragAz, this.dragAlt); this.target.u = [0, 0, 1];
+    if (fov) this.animateFov(fov); this.dirty = true;
+  };
   SkyApp.prototype.setFov = function (f) { this.fov = clamp(f, 18, 110); this.dirty = true; };
+  // Smooth zoom: used when a pointed-to figure is small (the Pleiades, the Turtle) and the arrow has been followed.
+  SkyApp.prototype.animateFov = function (to) {
+    var self = this, from = this.fov, t0 = Date.now(), dur = 900; to = clamp(to, 18, 110);
+    this.fovAnim = t0;
+    (function step() { if (self.fovAnim !== t0 || !self.running) return; var k = Math.min(1, (Date.now() - t0) / dur); k = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; self.fov = from + (to - from) * k; self.dirty = true; if (k < 1) requestAnimationFrame(step); })();
+  };
+  // Field of view that frames a figure of angular size `deg` comfortably
+  function fovFor(deg) { return clamp(deg * 2.6 + 6, 22, 70); }
 
   // ---- main loop -------------------------------------------------------------------------------
   SkyApp.prototype.loop = function () {
@@ -451,18 +470,21 @@
     requestAnimationFrame(function () { self.loop(); });
   };
 
-  SkyApp.prototype.select = function (vec, j2000, label) {
-    this.selected = { vec: vec, j2000: j2000, label: label || '' };
+  SkyApp.prototype.select = function (vec, j2000, label, size) {
+    if (this.selected && this.selected.fovBefore && !this.selected.zoomed) size = size; // keep
+    var fovBefore = (this.selected && this.selected.fovBefore) || this.fov;
+    this.selected = { vec: vec, j2000: j2000, label: label || '', size: size || 0, fovBefore: fovBefore, zoomed: false };
     this.targetEl.querySelector('.tl').textContent = 'Pointing to ' + (label || 'the target');
     this.targetEl.classList.add('show'); this.dirty = true;
   };
   SkyApp.prototype.clearSelected = function (msg) {
+    if (this.selected && this.selected.zoomed && this.selected.fovBefore) this.animateFov(this.selected.fovBefore);
     this.selected = null; this.targetEl.classList.remove('show'); this.dirty = true;
     if (msg) this.toast(msg, 2500);
   };
   // ---- linger to read, move to dismiss ----------------------------------------------------------
   SkyApp.prototype.trackDwell = function (f, moving) {
-    if (!this.HZ || !this.Ms) return;
+    if (!this.HZ || !this.Ms || this.inline) return;   // the guide's preview only mirrors what is pushed
     var now = Date.now(), dw = this.dwell || (this.dwell = { anchor: f, since: now, shown: null, big: false });
     var drift = angSep(f, dw.anchor);
     if (drift > 4) { dw.anchor = f; dw.since = now; dw.big = drift > 12; }
@@ -781,7 +803,12 @@
         kx = S2 / (1 + tv[2]); px = cx + tv[0] * kx; py = cy - tv[1] * kx;
         if (px > 0 && px < W && py > 0 && py < H) {
           var pulse = 18 + 6 * sin(Date.now() / 300); ctx.beginPath(); ctx.arc(px, py, pulse * zoom, 0, 6.2832); ctx.stroke(); this.dirty = true;
-          if (Math.hypot(px - cx, py - cy) < Math.min(W, H) * 0.18) { this.selected.centered = (this.selected.centered || Date.now()); if (Date.now() - this.selected.centered > 2500 && !this.tour) this.clearSelected('Found it: ' + this.selected.label); }
+          if (Math.hypot(px - cx, py - cy) < Math.min(W, H) * 0.18) {
+            this.selected.centered = (this.selected.centered || Date.now());
+            var held = Date.now() - this.selected.centered;
+            if (held > 900 && !this.selected.zoomed && this.selected.size && fovFor(this.selected.size) < this.fov - 8) { this.selected.zoomed = true; this.animateFov(fovFor(this.selected.size)); this.toast('Zooming in on ' + this.selected.label, 1800); }
+            if (held > 2500 && !this.tour && !this.selected.size) this.clearSelected('Found it: ' + this.selected.label);
+          }
           else this.selected.centered = 0;
         }
         else this.drawEdgeArrow(ctx, atan2(-(py - cy), px - cx));
