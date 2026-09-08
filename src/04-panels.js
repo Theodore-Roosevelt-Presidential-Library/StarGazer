@@ -197,8 +197,11 @@
   SkyApp.prototype.tonightHtml = function () {
     var self = this, d = this.now(), h = '';
     h += '<div class="meta">' + esc(this.loc.name) + ' · ' + d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }) + (this.timeOffset ? ' · time shifted ' + this.timeLabel() : '') + '</div>';
+    h += this.upNowHtml();
     h += '<div class="k">Sun</div>' + (this.sunTimesHtml() || '<div class="meta">—</div>');
-    h += '<div class="k">Moon</div><div class="meta">' + this.phase.name + ', ' + Math.round(this.phase.illum * 100) + '% lit.</div>' + this.moonTimesHtml();
+    var moonHz = mulMat(this.HZ, this.moon.vec), moonAA = vecToAzAlt(moonHz);
+    h += '<div class="k">Moon</div><div class="meta">' + this.phase.name + ', ' + Math.round(this.phase.illum * 100) + '% lit.' + (moonAA.alt > 0 ? ' Up now, ' + Math.round(moonAA.alt) + '° up in the ' + fmtAz(moonAA.az) + '.' : '') + '</div>' + this.moonTimesHtml() +
+      (moonAA.alt > 0 ? '<div class="row"><button class="link" data-act="show-vec" data-label="the Moon" data-arg="' + this.moon.vec.join(',') + ',0">Point me to it</button></div>' : '');
     // planets tonight: sample the next 24h in the dark
     var sv = this.ss.sun.vecDate, rows = [];
     for (var k in this.ss) {
@@ -213,14 +216,20 @@
       if (!best) continue;
       var hzv = mulMat(eqToHzMatrix(this.loc.lat, lstFor(best.t, this.loc.lon)), b.vecDate), aa = vecToAzAlt(hzv);
       var lstNow = lstFor(d, this.loc.lon), nowAlt = altOf(b.vecDate, this.loc.lat, lstNow), darkNow = altOf(sv, this.loc.lat, lstNow) < -6;
-      rows.push({ mag: b.mag, html: '<div class="item"><h4>' + esc(b.name) + '</h4><div class="d">' + (nowAlt > 2 && darkNow ? 'Up now, ' + Math.round(nowAlt) + '° high. ' : '') + 'Best around ' + fmtTime(best.t) + ', ' + Math.round(best.alt) + '° up in the ' + fmtAz(aa.az) + ' · magnitude ' + b.mag.toFixed(1) + '</div></div>' });
+      var upNow = nowAlt > 2;
+      rows.push({ mag: b.mag, html: '<div class="item"><h4>' + esc(b.name) + '</h4><div class="d">' + (upNow ? 'Up now, ' + Math.round(nowAlt) + '° up in the ' + fmtAz(vecToAzAlt(mulMat(eqToHzMatrix(this.loc.lat, lstNow), b.vecDate)).az) + (darkNow ? '' : ' (daylight)') + '. ' : '') + 'Best around ' + fmtTime(best.t) + ', ' + Math.round(best.alt) + '° up in the ' + fmtAz(aa.az) + ' · magnitude ' + b.mag.toFixed(1) + '</div>' +
+        (upNow ? '<div class="row"><button class="link" data-act="show-vec" data-label="' + esc(b.name) + '" data-arg="' + b.vecDate.join(',') + ',0">Point me to it</button></div>' : '') + '</div>' });
     }
     rows.sort(function (a, b) { return a.mag - b.mag; });
     h += '<div class="k">Planets tonight</div>' + (rows.length ? rows.map(function (r) { return r.html; }).join('') : '<div class="meta">No planets are well placed in the dark hours tonight.</div>');
     var act = this.activeShowers(d);
     if (act.length) {
       h += '<div class="k">Meteor showers</div>';
-      for (var i = 0; i < act.length; i++) { var s = act[i].s; h += '<div class="item"><h4>' + esc(s.name) + '</h4><div class="d">' + (act[i].peakIn === 0 ? 'Peaks tonight' : act[i].peakIn > 0 ? 'Peaks in ' + act[i].peakIn + ' day' + (act[i].peakIn === 1 ? '' : 's') + ' (' + fmtMD(s.peak) + ')' : 'Peaked ' + (-act[i].peakIn) + ' day' + (act[i].peakIn === -1 ? '' : 's') + ' ago') + ' · up to ' + s.zhr + '/hour</div><div class="b">' + esc(s.note) + '</div></div>'; }
+      for (var i = 0; i < act.length; i++) {
+        var s = act[i].s, rv = this.showerVec[s.id], raa = vecToAzAlt(mulMat(matMul(this.HZ, this.P), rv));
+        h += '<div class="item"><h4>' + esc(s.name) + '</h4><div class="d">' + (act[i].peakIn === 0 ? 'Peaks tonight' : act[i].peakIn > 0 ? 'Peaks in ' + act[i].peakIn + ' day' + (act[i].peakIn === 1 ? '' : 's') + ' (' + fmtMD(s.peak) + ')' : 'Peaked ' + (-act[i].peakIn) + ' day' + (act[i].peakIn === -1 ? '' : 's') + ' ago') + ' · up to ' + s.zhr + '/hour' + (raa.alt > 0 ? ' · radiant ' + Math.round(raa.alt) + '° up in the ' + fmtAz(raa.az) : ' · radiant below the horizon right now') + '</div><div class="b">' + esc(s.note) + '</div>' +
+          (raa.alt > 0 ? '<div class="row"><button class="link" data-act="show-vec" data-label="the ' + esc(s.name) + ' radiant" data-arg="' + rv.join(',') + ',1">Point me to it</button></div>' : '') + '</div>';
+      }
     }
     h += '<div class="k">Aurora</div><div class="meta">Northern lights are possible from North Dakota during geomagnetic storms. <button class="link" data-act="sheet" data-arg="aurora">Check tonight\'s chance</button></div>';
     // seasons
@@ -238,6 +247,18 @@
       var last = new Date(up[up.length - 1][0]);
       h += '<div class="meta">Events listed through ' + last.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) + '. Sources: NASA GSFC eclipse tables, EclipseWise, IMO meteor calendar, JPL ephemerides.</div>';
     }
+    return h;
+  };
+  // A short list of the best naked-eye things above the horizon at this moment, each with a pointer.
+  SkyApp.prototype.upNowHtml = function () {
+    var M = matMul(this.HZ, this.P), items = [], D = this.data, i;
+    var picks = { 'M 45': 1, 'M 31': 1, 'M 42': 1, 'M 44': 1, 'h Per': 1, 'Mel 25': 1, 'M 7': 1, 'M 8': 1, 'GalCtr': 1 };
+    for (i = 0; i < D.dsos.length; i++) { var ds = D.dsos[i]; if (!picks[ds[1]]) continue; var aa = vecToAzAlt(mulMat(M, this.dsoVec[i])); if (aa.alt > 8) items.push({ n: ds[1] === 'GalCtr' ? 'Heart of the Milky Way' : ds[0], d: (ds[2] === 's' ? 'Galaxy' : ds[2] === 'oc' ? 'Star cluster' : ds[2] === 'pos' ? 'Toward Sagittarius' : 'Nebula') + ' · ' + Math.round(aa.alt) + '° up in the ' + fmtAz(aa.az), vec: this.dsoVec[i], j: 1, alt: aa.alt }); }
+    for (i = 0; i < D.stars.length && D.stars[i][3] < 1.3; i++) { var st = D.stars[i]; if (!st[6]) continue; var o = i * 3, v = [this.starVec[o], this.starVec[o + 1], this.starVec[o + 2]], sa = vecToAzAlt(mulMat(M, v)); if (sa.alt > 8) items.push({ n: st[6], d: 'Bright star in ' + (D.con[st[5]] ? D.con[st[5]].n : '') + ' · ' + Math.round(sa.alt) + '° up in the ' + fmtAz(sa.az), vec: v, j: 1, alt: sa.alt }); }
+    if (!items.length) return '';
+    items.sort(function (a, b) { return b.alt - a.alt; }); items = items.slice(0, 6);
+    var h = '<div class="k">Worth finding right now</div>';
+    for (i = 0; i < items.length; i++) h += '<div class="item"><h4>' + esc(items[i].n) + '</h4><div class="d">' + esc(items[i].d) + '</div><div class="row"><button class="link" data-act="show-vec" data-label="' + esc(items[i].n) + '" data-arg="' + items[i].vec.join(',') + ',' + items[i].j + '">Point me to it</button></div></div>';
     return h;
   };
   SkyApp.prototype.nextSeason = function (d) {
