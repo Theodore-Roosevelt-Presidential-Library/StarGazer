@@ -28,7 +28,7 @@
   <div class="embed">
     <div data-stargazer></div>
   </div>
-  <p class="note">The card above is the embed. It detects whether the device has a motion sensor and offers a full-screen Start button either way.</p>
+  <p class="note">The card above is the embed. It fills whatever space its container gives it: the full width, and the full height when the container has one (otherwise it keeps a 16:10 shape, 4:5 on phones). It detects whether the device has a motion sensor and offers a full-screen Start button either way.</p>
 
   <h2>Embed it</h2>
   <p>One line, anywhere in a page:</p>
@@ -36,6 +36,8 @@
   <p>The card renders where the script tag sits. To place it somewhere else, add a container and the script anywhere:</p>
 <pre>&lt;div data-stargazer&gt;&lt;/div&gt;
 &lt;script src="https://stargazer.labs.trlibrary.com/stargazer.js"&gt;&lt;/script&gt;</pre>
+  <p>Size it with the container. Width is always 100%; give the container a height and the card fills it:</p>
+<pre>&lt;div data-stargazer style="height:70vh"&gt;&lt;/div&gt;</pre>
   <p>Options on the container:</p>
   <table>
     <tr><th>Attribute</th><th>Example</th><th>Meaning</th></tr>

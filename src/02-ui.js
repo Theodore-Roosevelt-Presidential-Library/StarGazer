@@ -38,10 +38,11 @@
   // Styles
   // ---------------------------------------------------------------------------------------------
   var CARD_CSS = [
-    ':host{all:initial;display:block;contain:content;font-size:16px}',
+    ':host{all:initial;display:block;contain:content;font-size:16px;width:100%;height:100%;min-width:0;min-height:0;max-width:100%}',
     '*{box-sizing:border-box}',
-    '.card{position:relative;overflow:hidden;background:#061a33;color:' + BRAND.sand + ';font-family:' + FONT_B + ';border-radius:4px;max-width:720px;width:100%;aspect-ratio:16/10;min-height:300px;-webkit-font-smoothing:antialiased;cursor:pointer}',
-    '.card.full{max-width:none;aspect-ratio:auto;height:100vh;height:100dvh;border-radius:0}',
+    '.card{position:relative;overflow:hidden;background:#061a33;color:' + BRAND.sand + ';font-family:' + FONT_B + ';border-radius:4px;width:100%;height:100%;max-width:100%;min-height:300px;-webkit-font-smoothing:antialiased;cursor:pointer}',
+    '.card::before{content:"";display:block;float:left;width:0;padding-top:62.5%}',   // 16:10 floor when the container has no height of its own; a height on the container wins
+    '.card.full{max-width:none;height:100vh;height:100dvh;border-radius:0}.card.full::before{display:none}',
     '.card.full h1{font-size:72px}.card.full .lede{font-size:18px;max-width:520px}.card.full .wm{width:120px;left:28px;top:28px}.card.full .in{left:28px;right:28px;bottom:28px}',
     '.card.full .emb{position:absolute;left:28px;bottom:6px;font-family:' + FONT_C + ';font-size:11px;color:' + BRAND.graySky + ';opacity:.8}.card.full .emb a{color:inherit}',
     '@media (max-width:520px){.card.full h1{font-size:52px}.card.full .wm{width:84px;left:18px;top:18px}.card.full .in{left:18px;right:18px;bottom:22px}.card.full .emb{left:18px}}',
@@ -70,7 +71,7 @@
     '.jp .cancel{display:block;margin:14px auto 0;font-family:' + FONT_C + ';font-size:13px;color:' + BRAND.graySky + ';background:none;border:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}',
     '.jp .err{font-family:' + FONT_C + ';font-size:12px;color:#F36079;min-height:16px;margin:0 0 6px;text-align:center}',
     '@media (max-width:520px){.jp{padding:22px 18px}.jp h2{font-size:34px}.jp input{font-size:38px}}',
-    '@media (max-width:520px){.card{aspect-ratio:4/5;min-height:360px}.in{flex-direction:column;align-items:stretch}h1{font-size:46px}.lede{font-size:15px}.btn{width:100%;font-size:22px}.join{font-size:22px;padding:13px 18px 11px}.wm{width:76px;left:18px;top:16px}.cap{right:16px;top:18px}.in{left:18px;right:18px;bottom:18px}}'
+    '@media (max-width:520px){.card{min-height:360px}.card::before{padding-top:125%}.in{flex-direction:column;align-items:stretch}h1{font-size:46px}.lede{font-size:15px}.btn{width:100%;font-size:22px}.join{font-size:22px;padding:13px 18px 11px}.wm{width:76px;left:18px;top:16px}.cap{right:16px;top:18px}.in{left:18px;right:18px;bottom:18px}}'
   ].join('');
 
   var SKY_CSS = [
