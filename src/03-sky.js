@@ -26,6 +26,7 @@
     this.dim = typeof prefs.dim === 'number' ? prefs.dim : 0.15;
     this.calib = typeof prefs.calib === 'number' ? prefs.calib : 0;
     this.steady = prefs.steady !== false;
+    this.sky = prefs.sky === 'western' || prefs.sky === 'native' ? prefs.sky : 'both';   // which sky culture leads
     this.fov = 70;
     this.timeOffset = 0;         // minutes
     this.mode = 'drag';          // 'drag' | 'sensor'
@@ -44,7 +45,7 @@
   }
   SkyApp.prototype.persist = function () {
     var p = loadPrefs();
-    p.layers = this.layers; p.red = this.red; p.dim = this.dim; p.calib = this.calib; p.steady = this.steady;
+    p.layers = this.layers; p.red = this.red; p.dim = this.dim; p.calib = this.calib; p.steady = this.steady; p.sky = this.sky;
     if (!this.locFixed) p.loc = this.loc;
     savePrefs(p);
   };
@@ -86,7 +87,7 @@
       '<div class="ro"><div class="c">&nbsp;</div><div class="s">Point the phone at the sky</div></div>' +
       '<button class="ib rb" aria-label="Red light mode" title="Red light mode">' + ICONS.red + '</button></div>' +
       '<div class="cross"></div><div class="toast"></div><button class="target" type="button"><span class="tl"></span><span class="tx">&#x2715;</span></button>' +
-      '<div class="bottom"><div class="chipsw"><div class="chips"></div><span class="hint">&#x203A;</span></div>' +
+      '<div class="bottom"><div class="seg" role="radiogroup" aria-label="Which sky"><button data-sky="western">Greek &amp; Roman</button><button data-sky="native">Lakota &amp; Native</button><button data-sky="both">Both</button></div><div class="chipsw"><div class="chips"></div><span class="hint">&#x203A;</span></div>' +
       '<div class="nav"><button class="nb" data-sheet="tonight">Tonight</button><button class="nb" data-sheet="aurora">Aurora</button><button class="nb" data-sheet="stories">Stories</button><button class="nb" data-sheet="settings">Settings</button></div></div>' +
       '<div class="sheet"><div class="sh"><div class="t"></div><button class="x" aria-label="Close panel">&#x2715;</button></div><div class="sb"></div></div>' +
       '<div class="loading">' + WORDMARK.replace('<svg ', '<svg class="wm" ') + '<div class="tips"><div>Hold up<small>raise the phone to the sky</small></div><div>Turn<small>slowly, in any direction</small></div><div>Tap<small>anything, for its story</small></div></div><div class="lmsg">Loading the sky&hellip;</div></div>';
@@ -101,6 +102,9 @@
     this.targetEl = el.querySelector('.target'); this.targetEl.addEventListener('click', function () { self.clearSelected(); });
     this.sheet = el.querySelector('.sheet'); this.sheetT = el.querySelector('.sh .t'); this.sheetB = el.querySelector('.sb');
     this.chipsEl = el.querySelector('.chips');
+    this.segEl = el.querySelector('.seg');
+    this.segEl.addEventListener('click', function (e) { var b = e.target.closest ? e.target.closest('[data-sky]') : null; if (b) self.setSky(b.getAttribute('data-sky')); });
+    this.updateSeg();
     el.querySelector('.ib.x').addEventListener('click', function () { self.close(); });
     el.querySelector('.rb').addEventListener('click', function () { self.setRed(!self.red); });
     el.querySelector('.sh .x').addEventListener('click', function () { self.hideSheet(); });
@@ -136,6 +140,16 @@
     document.addEventListener('visibilitychange', this.onVis);
     this.prevOverflow = document.documentElement.style.overflow; document.documentElement.style.overflow = 'hidden';
   };
+  // ---- which sky leads: Greek & Roman, Lakota & Native, or both side by side ------------------------
+  SkyApp.prototype.setSky = function (v) {
+    this.sky = v; this.persist(); this.updateSeg(); this.dirty = true;
+    this.toast(v === 'native' ? 'Lakota and Native sky: figures and names from the Plains and Great Lakes.' : v === 'western' ? 'Greek and Roman sky: the 88 constellations astronomers use.' : 'Both skies. Where a Native figure exists it is shown first.', 3000);
+  };
+  SkyApp.prototype.updateSeg = function () { var bs = this.segEl.querySelectorAll('[data-sky]'); for (var i = 0; i < bs.length; i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-sky') === this.sky); };
+  SkyApp.prototype.showWest = function () { return this.sky !== 'native'; };
+  SkyApp.prototype.showNative = function () { return this.sky !== 'western' && this.layers.native; };
+  // The Native figure that belongs to a constellation (first in list), if any
+  SkyApp.prototype.nativeFor = function (con) { if (!con) return null; for (var i = 0; i < this.lore.length; i++) { var L = this.lore[i]; if ((L.artRecs || L.sk) && L.con.indexOf(con) >= 0) return L; } return null; };
   // ---- see-through camera (phones and tablets with a rear camera only) --------------------------
   SkyApp.prototype.cameraPossible = function () { return IS_MOBILE && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia); };
   SkyApp.prototype.updateChipEdges = function () {
@@ -467,7 +481,9 @@
         if (!this.data.stars[i][6]) continue; var o = i * 3, z = Ms[6] * this.starVec[o] + Ms[7] * this.starVec[o + 1] + Ms[8] * this.starVec[o + 2];
         var ang = Math.acos(clamp(z, -1, 1)) * R2D; if (ang < sd) { sd = ang; si = i; }
       }
-      if (si >= 0) best = { t: 'star', i: si }; else if (this.focusCon && vecToAzAlt(f).alt > 0) best = { t: 'con', k: this.focusCon };
+      var natL = this.showNative() ? this.nativeFor(this.focusCon) : null;
+      if (natL && (this.sky === 'native' || si < 0)) best = { t: 'lore', i: C_idx(this.lore, natL) };
+      else if (si >= 0) best = { t: 'star', i: si }; else if (this.focusCon && vecToAzAlt(f).alt > 0) best = { t: 'con', k: this.focusCon };
     }
     this.dwellHit = best;
     return best ? best.t + ':' + (best.k || best.i) : null;
@@ -522,12 +538,14 @@
     // constellation figures: each illustration is pinned to three stars; an affine fit of those three
     // screen positions places the drawing (the same method Stellarium uses)
     var focusCon = this.focusCon;
-    if (L.art && this.artKeys.length) {
+    var west = this.showWest(), nativeOn = this.showNative();
+    var nativeHere = nativeOn && this.nativeFor(focusCon);   // in Both mode the Native figure takes the spot
+    if (L.art && west && this.artKeys.length) {
       ctx.globalCompositeOperation = 'lighter';
       // only the constellation under the reticle shows its figure; it fades in and out
       var fade = this.artFade = this.artFade || {}, dt = Math.min(0.1, (Date.now() - (this.lastDraw || Date.now())) / 1000);
-      for (var fk in fade) { fade[fk] += (fk === focusCon ? 1 : -1) * dt * 2.2; if (fade[fk] <= 0) delete fade[fk]; else { if (fade[fk] > 1) fade[fk] = 1; this.dirty = true; } }
-      if (focusCon && D.art[focusCon] && fade[focusCon] == null) { fade[focusCon] = 0.01; this.dirty = true; }
+      for (var fk in fade) { fade[fk] += (fk === focusCon && !nativeHere ? 1 : -1) * dt * 2.2; if (fade[fk] <= 0) delete fade[fk]; else { if (fade[fk] > 1) fade[fk] = 1; this.dirty = true; } }
+      if (focusCon && !nativeHere && D.art[focusCon] && fade[focusCon] == null) { fade[focusCon] = 0.01; this.dirty = true; }
       for (var ai = 0; ai < this.artKeys.length; ai++) {
         var ak2 = this.artKeys[ai]; if (!fade[ak2]) continue;
         var av = this.artVec[ak2], ad = D.art[ak2], sp = [], okA = true;
@@ -557,7 +575,7 @@
     }
     // Native figure sketches: interpretive monoline drawings pinned to three stars, shown while the reticle
     // rests on one of the figure's constellations (or while pointing to it), fading like the Western art
-    if (L.native && window.Path2D) {
+    if (nativeOn && window.Path2D) {
       var sf = this.sketchFade = this.sketchFade || {}, dts = Math.min(0.1, (Date.now() - (this.lastDraw || Date.now())) / 1000);
       var taken = false; // where two figures share the same stars (Big Dipper, Pleiades) show one at a time: the one being pointed to, else the first
       for (var li2 = 0; li2 < this.lore.length; li2++) {
@@ -601,7 +619,7 @@
       }
     }
     // constellation lines
-    if (L.lines) {
+    if (L.lines && west) {
       ctx.lineWidth = 1; ctx.lineJoin = 'round';
       for (var pass = 0; pass < 2; pass++) {
         ctx.strokeStyle = red ? (pass ? 'rgba(220,60,40,.7)' : 'rgba(170,40,30,.4)') : (pass ? 'rgba(180,196,220,.7)' : 'rgba(153,173,197,.3)');
@@ -658,7 +676,7 @@
       }
     }
     // Indigenous figures
-    if (L.native) {
+    if (nativeOn) {
       ctx.lineWidth = 1.2; var accent = red ? 'rgba(255,90,70,' : 'rgba(231,128,93,';
       for (i = 0; i < this.lore.length; i++) {
         var Lr = this.lore[i]; if (!Lr.starIdx.length) continue;
@@ -684,7 +702,7 @@
       }
     }
     // constellation names
-    if (L.lines) for (var c2 = 0; c2 < this.conKeys.length; c2++) {
+    if (L.lines && west) for (var c2 = 0; c2 < this.conKeys.length; c2++) {
       var cvec = this.conCenter[this.conKeys[c2]]; z = m6 * cvec[0] + m7 * cvec[1] + m8 * cvec[2]; if (z < 0.25) continue;
       if (u0 * cvec[0] + u1 * cvec[1] + u2 * cvec[2] < 0.02) continue;
       kx = S2 / (1 + z); px = cx + (m0 * cvec[0] + m1 * cvec[1] + m2 * cvec[2]) * kx; py = cy - (m3 * cvec[0] + m4 * cvec[1] + m5 * cvec[2]) * kx;
@@ -868,11 +886,14 @@
     var bestB = null, bdist = 4;
     for (var pk in this.ss) { var hv = mulMat(this.HZ, this.ss[pk].vecDate); var s = angSep(hv, f); if (s < bdist) { bdist = s; bestB = pk; } }
     var mvh = mulMat(this.HZ, this.moon.vec); if (angSep(mvh, f) < bdist) { bestB = 'moon'; }
+    var nat = this.showNative() ? this.nativeFor(con) : null, conName = this.data.con[con] ? this.data.con[con].n : '';
     if (bestB && this.layers.planets) {
       title = bestB === 'moon' ? 'The Moon' : this.ss[bestB].name;
-      sub = (bestB === 'moon' ? this.phase.name : bestB === 'sun' ? 'Our star' : 'Planet') + ' · in ' + this.data.con[con].n + ' · ';
+      sub = (bestB === 'moon' ? this.phase.name : bestB === 'sun' ? 'Our star' : 'Planet') + ' · in ' + conName + ' · ';
+    } else if (nat) {
+      title = nat.label || nat.name; sub = (nat.translation || '').split(' /')[0] + ' · ' + nat.culture.split(',')[0] + (this.sky === 'both' ? ' · ' + conName : '') + ' · ';
     } else {
-      title = this.data.con[con] ? this.data.con[con].n : '';
+      title = conName;
       var bestS = -1, sd = 7, Ms = this.Ms;
       for (var i = 0; i < this.data.stars.length && this.data.stars[i][3] < 4.2; i++) {
         if (!this.data.stars[i][6]) continue; var o = i * 3, z = Ms[6] * this.starVec[o] + Ms[7] * this.starVec[o + 1] + Ms[8] * this.starVec[o + 2];
@@ -893,7 +914,7 @@
       var h = this.hits[i], d = Math.hypot(h.x - px, h.y - py); if (d > h.r) continue;
       var score = d + pri[h.t] * 10; if (score < bd) { bd = score; best = h; }
     }
-    if (!best) { var vj = this.inverseView(px, py); if (vecToAzAlt(mulMat(matMul(this.HZ, this.P), vj)).alt < 0) return; best = { t: 'con', k: this.constellationAt(vj) }; }
+    if (!best) { var vj = this.inverseView(px, py); if (vecToAzAlt(mulMat(matMul(this.HZ, this.P), vj)).alt < 0) return; var ck = this.constellationAt(vj), nl = this.showNative() ? this.nativeFor(ck) : null; best = (nl && this.sky === 'native') ? { t: 'lore', i: C_idx(this.lore, nl) } : { t: 'con', k: ck }; }
     this.showInfo(best);
   };
   SkyApp.prototype.activeShowers = function (d) {

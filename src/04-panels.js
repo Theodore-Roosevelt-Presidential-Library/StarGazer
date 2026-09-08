@@ -34,6 +34,7 @@
       else if (act === 'now') { self.timeOffset = 0; self.computeBodies(true); self.dirty = true; self.showSheet('settings'); }
       else if (act === 'recal') { self.calib = 0; self.persist(); self.toast('Compass offset cleared'); }
       else if (act === 'aurora-refresh') { self.auroraCache = null; self.showSheet('aurora'); }
+      else if (act === 'sky') { self.setSky(arg); self.showSheet('settings'); }
     }); }
     if (name === 'settings') {
       var tr = b.querySelector('#sg-time'), tl = b.querySelector('#sg-timel');
@@ -78,17 +79,21 @@
   };
   SkyApp.prototype.loreDetail = function (L, idx) {
     var badges = '<span class="tag">' + esc(L.culture) + '</span><span class="tag">Published source</span>' +
-      (L.sensitivity === 'caution' ? '<span class="tag acc">Shared with care</span>' : '') + '<span class="tag">Awaiting tribal partner review</span>';
+      (L.sensitivity === 'caution' ? '<span class="tag acc">Shared with care</span>' : '') + '<span class="tag">Awaiting tribal partner review</span>' + ((L.art || L.sketch) ? '<span class="tag">Interpretive illustration</span>' : '');
     var src = ''; for (var i = 0; i < L.sources.length; i++) src += '<li>' + esc(L.sources[i]).replace(/\(fetched\)/g, '') + '</li>';
     return '<div class="item"><h4>' + esc(L.name) + '</h4><div class="d">' + esc(L.translation || '') + (L.western ? ' · ' + esc(L.western) : '') + '</div>' +
-      '<div style="margin:6px 0 4px">' + badges + '</div><p class="b">' + esc(L.story) + '</p>' +
+      '<div style="margin:6px 0 4px">' + badges + '</div><p class="b">' + esc(L.story) + '</p>' + ((L.art || L.sketch) ? '<p class="meta">The figure drawn over these stars was made for this project from the published description, in the same style as the Western figures. It is not a Native artist\'s work and stands in until commissioned artwork can replace it.</p>' : '') +
       (L.center ? (this.loreStatus(L).up ? '<button class="btn2" data-act="show-lore" data-arg="' + idx + '">Point me to it</button>' : '<div class="meta">' + esc(this.loreStatus(L).text) + '</div>') : '') +
       '<details><summary>Sources</summary><ul class="src">' + src + '</ul></details></div>';
+  };
+  SkyApp.prototype.originBlock = function (k) {
+    var o = this.content.origins && this.content.origins[k]; if (!o) return '';
+    return '<div class="k">Where it came from</div><div class="meta"><span class="tag">' + esc(o.era) + '</span></div><p class="b">' + esc(o.text) + '</p>';
   };
   SkyApp.prototype.conBlock = function (k, withLore) {
     var c = this.data.con[k]; if (!c) return '';
     var story = this.content.western[k] || '';
-    var h = '<div class="k">About ' + esc(c.n) + '</div><p>' + esc(story) + '</p>';
+    var h = '<div class="k">About ' + esc(c.n) + '</div><p>' + esc(story) + '</p>' + this.originBlock(k);
     if (withLore && this.loreByCon[k]) { h += '<div class="k">In other skies</div>' + this.loreBlock(this.loreByCon[k], true); }
     return h;
   };
@@ -138,7 +143,7 @@
     } else if (hit.t === 'con') {
       var c = D.con[hit.k]; if (!c) return; title = c.n;
       h += '<div class="meta">Constellation · ' + this.altAzLine(mulMat(matMul(this.HZ, this.P), this.conCenter[hit.k])) + '</div>';
-      h += '<p>' + esc(this.content.western[hit.k] || '') + '</p>';
+      h += '<p>' + esc(this.content.western[hit.k] || '') + '</p>' + this.originBlock(hit.k);
       if (this.loreByCon[hit.k]) h += '<div class="k">In other skies</div>' + this.loreBlock(this.loreByCon[hit.k], true);
       h += '<button class="btn2" data-act="show-vec" data-label="' + esc(c.n) + '" data-arg="' + this.conCenter[hit.k].join(',') + ',1">Point me to it</button>';
     } else if (hit.t === 'lore') {
@@ -352,6 +357,8 @@
     h += '<div class="k">Screen</div>';
     h += '<label class="sw">Red light mode (protects night vision)<input type="checkbox" id="sg-red"' + (this.red ? ' checked' : '') + '></label>';
     h += '<div class="meta" style="margin-top:8px">Extra dimming</div><input type="range" id="sg-dim" min="0" max="75" value="' + Math.round(this.dim * 100) + '">';
+    h += '<div class="k">Which sky</div><div class="meta">Greek &amp; Roman shows the 88 constellations astronomers use. Lakota &amp; Native shows the figures and names of the Plains and Great Lakes peoples on their own. Both keeps the Western lines for finding your way and gives the Native figure the spot wherever one exists.</div>' +
+      '<div class="row"><button class="btn2' + (this.sky === 'western' ? ' solid' : '') + '" data-act="sky" data-arg="western">Greek &amp; Roman</button><button class="btn2' + (this.sky === 'native' ? ' solid' : '') + '" data-act="sky" data-arg="native">Lakota &amp; Native</button><button class="btn2' + (this.sky === 'both' ? ' solid' : '') + '" data-act="sky" data-arg="both">Both</button></div>';
     h += '<div class="k">Show</div>';
     for (var i = 0; i < LAYERS.length; i++) { if (LAYERS[i][0] === 'camera') continue; h += '<label class="sw">' + LAYERS[i][1] + '<input type="checkbox" data-layer="' + LAYERS[i][0] + '"' + (this.layers[LAYERS[i][0]] ? ' checked' : '') + '></label>'; }
     if (this.cameraPossible()) h += '<div class="meta" style="margin-top:8px">See-through uses the rear camera behind the chart; turn it on with the chip above the buttons. It stays off between sessions.</div>';

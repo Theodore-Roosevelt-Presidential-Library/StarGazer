@@ -3,6 +3,7 @@
 Assemble stargazer-content.js from the readable sources in content/ and indigenous_star_knowledge.json.
 
   content/western.json   — one paragraph per constellation (IAU abbreviation -> text)
+  content/origins.json   — where each constellation came from (era + a short history)
   content/showers.json   — annual meteor showers (IMO working list)
   content/events.json    — dated sky events (eclipses, oppositions, conjunctions, supermoons)
   content/figures.json   — how each Indigenous entry is drawn (label, constellations, figure type, bodies)
@@ -39,6 +40,7 @@ def main():
         'framing': research['framing'],
         'indigenous': entries,
         'western': load('content', 'western.json'),
+        'origins': load('content', 'origins.json'),
         'showers': load('content', 'showers.json'),
         'events': load('content', 'events.json'),
     }
