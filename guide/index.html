@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>StarGazer Tour Guide — Theodore Roosevelt Presidential Library</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#092A4D">
+<style>
+  :root{--night:#092A4D;--bg:#061a33;--fg:#99ADC5;--fg2:#D1CCBD;--acc:#E7805D;--line:rgba(153,173,197,.25);--panel:rgba(9,42,77,.95)}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--fg2);font-family:'ITC Clearface','Clearface',Georgia,serif;-webkit-font-smoothing:antialiased}
+  body{padding:0 0 120px}
+  .wrap{max-width:720px;margin:0 auto;padding:16px 16px 0}
+  .fd{font-family:'Dharma Gothic E','Oswald','Arial Narrow',Impact,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.03em;line-height:.9}
+  .fc{font-family:'Frutiger Next','Frutiger',Arial,Helvetica,sans-serif}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 14px;border-bottom:1px solid var(--line)}
+  header .wm{width:84px;color:#fff}
+  header h1{font-size:26px;margin:0;color:#fff}
+  .code{margin:16px 0 8px;padding:16px;border:1px solid var(--line);border-radius:6px;background:rgba(4,13,27,.5);display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+  .code .c{font-size:64px;color:var(--acc);letter-spacing:.12em;line-height:1}
+  .code .c.off{color:var(--fg);opacity:.5;font-size:30px;letter-spacing:.02em}
+  .code .n{font-size:12px;color:var(--fg);margin-top:6px}
+  .code .guests{text-align:center}
+  .code .guests b{display:block;font-size:44px;color:#fff;line-height:1}
+  .code .guests span{font-size:11px;color:var(--fg);text-transform:uppercase;letter-spacing:.06em}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .btn{font-family:'Dharma Gothic E','Oswald','Arial Narrow',Impact,sans-serif;font-weight:700;text-transform:uppercase;font-size:18px;letter-spacing:.04em;line-height:1;padding:11px 14px 9px;border:1px solid var(--acc);border-radius:3px;background:transparent;color:var(--acc);cursor:pointer}
+  .btn.solid{background:var(--acc);color:#0b1830}.btn.quiet{border-color:var(--line);color:var(--fg)}
+  .btn:disabled{opacity:.4;cursor:default}
+  .k{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--fg);margin:18px 0 6px}
+  .seg{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+  .seg button{flex:1;font-family:'Dharma Gothic E','Oswald','Arial Narrow',Impact,sans-serif;font-weight:700;text-transform:uppercase;font-size:15px;letter-spacing:.04em;padding:11px 6px 9px;border:0;background:transparent;color:var(--fg);cursor:pointer}
+  .seg button+button{border-left:1px solid var(--line)}.seg button.on{background:var(--acc);color:#0b1830}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:12px;padding:7px 11px;border-radius:20px;border:1px solid var(--line);background:rgba(4,13,27,.5);color:var(--fg);cursor:pointer}
+  .chip.on{background:rgba(153,173,197,.18);color:var(--fg2);border-color:rgba(153,173,197,.5)}
+  .status{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:12px;color:var(--fg);display:flex;align-items:center;gap:8px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--fg);opacity:.5}.dot.ok{background:#8FC895;opacity:1;box-shadow:0 0 8px #8FC895}.dot.bad{background:#F36079;opacity:1}
+  .list .g{margin-top:10px}
+  .item{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
+  .item:first-child{border-top:0}
+  .item .t{flex:1;min-width:0}
+  .item h4{margin:0 0 2px;font-size:16px;color:var(--fg2);font-weight:700}
+  .item .d{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:12px;color:var(--fg)}
+  .item .tag{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:3px 6px;border:1px solid var(--line);border-radius:2px;color:var(--fg);white-space:nowrap}
+  .item.now{background:rgba(231,128,93,.08);margin:0 -16px;padding:10px 16px;border-left:3px solid var(--acc)}
+  .sheet{position:fixed;left:0;right:0;bottom:0;max-height:82%;background:var(--panel);border-top:1px solid var(--line);border-radius:10px 10px 0 0;transform:translateY(105%);transition:transform .28s ease;display:flex;flex-direction:column;z-index:5}
+  .sheet.show{transform:none}
+  .sh{display:flex;align-items:center;gap:10px;padding:12px 16px 8px}
+  .sh .t{flex:1;font-size:26px;color:var(--fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sh .x{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer}
+  .sb{overflow-y:auto;padding:0 16px max(20px,env(safe-area-inset-bottom));font-size:16px;line-height:1.55}
+  .sb p{margin:0 0 10px}
+  .meta{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:12.5px;color:var(--fg);line-height:1.5}
+  .tips{border-left:2px solid var(--acc);padding-left:12px;margin:12px 0;font-size:14px}
+  .src{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:11.5px;color:var(--fg);padding-left:16px}
+  details summary{font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:12.5px;color:var(--fg);cursor:pointer}
+  .bar{position:fixed;left:0;right:0;bottom:0;padding:10px 16px max(12px,env(safe-area-inset-bottom));background:linear-gradient(rgba(6,26,51,0),rgba(6,26,51,.97) 30%);display:flex;gap:8px;justify-content:center;z-index:4}
+  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--line);padding:9px 14px;border-radius:3px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:6}
+  .toast.show{opacity:1}
+  input.say{flex:1;font-family:'Frutiger Next','Frutiger',Arial,sans-serif;font-size:14px;padding:10px;border:1px solid var(--line);border-radius:3px;background:rgba(4,13,27,.6);color:#fff}
+  @media (max-width:420px){.code .c{font-size:52px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div id="wm"></div>
+    <h1 class="fd">Tour guide</h1>
+  </header>
+
+  <div class="code">
+    <div>
+      <div class="c fd off" id="code">Starting…</div>
+      <div class="n fc" id="codeNote">Guests tap “Joining a guided tour?” on the Stargazer card and enter this code.</div>
+    </div>
+    <div class="guests"><b id="count">0</b><span class="fc" id="countLabel">joined</span></div>
+  </div>
+  <div class="row">
+    <div class="status"><span class="dot" id="dot"></span><span id="status">Connecting…</span></div>
+  </div>
+  <div class="row">
+    <button class="btn quiet" id="share">Copy join link</button>
+    <button class="btn quiet" id="newcode">New code</button>
+    <button class="btn quiet" id="endtour">End tour</button>
+  </div>
+
+  <div class="k">Which sky the guests see</div>
+  <div class="seg" id="seg"><button data-sky="western">Greek &amp; Roman</button><button data-sky="native">Lakota &amp; Native</button><button data-sky="both">Both</button></div>
+  <div class="k">Layers on their screens</div>
+  <div class="chips" id="chips"></div>
+
+  <div class="k">Visible now <span id="where" style="text-transform:none;letter-spacing:0"></span></div>
+  <div class="meta" id="darknote"></div>
+  <div class="list" id="list"><div class="meta">Loading the sky…</div></div>
+</div>
+
+<div class="bar">
+  <button class="btn quiet" id="freelook">Free look (clear arrow &amp; card)</button>
+</div>
+
+<div class="sheet" id="sheet"><div class="sh"><div class="t fd" id="sheetT"></div><button class="x" id="sheetX">&#x2715;</button></div><div class="sb" id="sheetB"></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="../stargazer.js" data-no-auto></script>
+<script src="guide.js"></script>
+</body>
+</html>

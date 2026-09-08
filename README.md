@@ -31,6 +31,7 @@ extra-dimming slider, and a red-light mode that protects night vision.
 | Meteor showers active tonight, with radiants | IMO 2026 calendar |
 | Tonight panel: sunset, full dark, moonrise, planets, next equinox/solstice, upcoming events through 2028 | Computed on device; NASA GSFC and EclipseWise for eclipses |
 | Aurora panel: estimated chance of northern lights tonight | NOAA SWPC planetary K index, live |
+| Guided tours: a guide at `/guide/` points every guest's arrow, sets their sky and layers, and pushes cards | PeerJS / WebRTC, no server |
 
 Tap any star, planet, figure, or constellation name for its details. The reticle at the center of
 the screen always reports the constellation you are pointing at and the nearest bright star.
@@ -133,6 +134,28 @@ pip install numpy
 python3 tools/build_data.py && python3 build.py
 python3 -m http.server 8000     # then open http://localhost:8000/
 ```
+
+## Guided tours
+
+A guide opens **`/guide/`** on their own phone or tablet. The page shows a five-letter tour code,
+how many guests have joined, a list of everything worth pointing at right now (Moon and planets,
+Native figures, constellations, bright stars and deep-sky showpieces, active meteor showers —
+highest first, refreshed each minute), and controls for what the guests see. Guests tap
+*Joining a guided tour?* on the Stargazer card, enter the code (or open
+`https://stargazer.labs.trlibrary.com/?tour=CODE`), and can join at any point while the code is
+open. Tapping an item on the guide's list opens an interpretive screen — the story, the sources,
+the origin, notes for the guide, and tips for telling it — with **Point everyone here** (the orange
+arrow on every guest's screen), **Show the card on their screens**, and a short message box.
+Pointing at a Native figure switches the guests' sky to *Lakota & Native* automatically; pointing at
+a Western constellation switches to *Greek & Roman*. The guide can also set the sky and layers
+directly, and *Free look* clears the arrow and card.
+
+It runs the same way as the Quiz project's live mode: the guide's browser holds the code as a
+PeerJS id and each guest connects to it directly over WebRTC. PeerJS's public broker only
+introduces the browsers; nothing about the tour passes through a server, and the ~100 KB library
+loads only when a tour is started or joined. If the broker is unreachable, guests see a plain
+message and the sky still works on its own. A guide's phone can comfortably hold a group of
+twenty or thirty; for larger events, self-host `peerjs-server` and point both ends at it.
 
 ## A note on Indigenous star knowledge
 

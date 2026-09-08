@@ -17,7 +17,9 @@
     init: init,
     open: function (o) { var app = new SkyApp(o || { sensor: capability().ok }); return app.open().then(function () { return app; }); },
     capability: capability,
-    astro: { solarSystem: solarSystem, moonPos: moonPos, moonPhase: moonPhase, lstFor: lstFor, julianDay: julianDay, auroraChance: auroraChance, geomagLat: geomagLat }
+    astro: { solarSystem: solarSystem, moonPos: moonPos, moonPhase: moonPhase, lstFor: lstFor, julianDay: julianDay, auroraChance: auroraChance, geomagLat: geomagLat, eqVec: eqVec, eqToHzMatrix: eqToHzMatrix, precessionMatrix: precessionMatrix, matMul: matMul, mulMat: mulMat, vecToAzAlt: vecToAzAlt, fmtAz: fmtAz, fmtTime: fmtTime },
+    // for the guide app at /guide/
+    load: loadBundles, tourCatalog: tourCatalog, tourCode: tourCode, cleanCode: cleanCode, loadPeerJS: loadPeerJS, PEER_PREFIX: PEER_PREFIX, DEFAULT_LOC: DEFAULT_LOC, esc: esc, BASE: BASE
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

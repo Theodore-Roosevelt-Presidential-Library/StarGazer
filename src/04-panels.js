@@ -35,6 +35,7 @@
       else if (act === 'recal') { self.calib = 0; self.persist(); self.toast('Compass offset cleared'); }
       else if (act === 'aurora-refresh') { self.auroraCache = null; self.showSheet('aurora'); }
       else if (act === 'sky') { self.setSky(arg); self.showSheet('settings'); }
+      else if (act === 'tab') { var panes = self.sheetB.querySelectorAll('.tabpane'); for (var pi = 0; pi < panes.length; pi++) panes[pi].hidden = panes[pi].getAttribute('data-pane') !== arg; if (arg === 'origin') self.sheetB.scrollTop = 0; }
     }); }
     if (name === 'settings') {
       var tr = b.querySelector('#sg-time'), tl = b.querySelector('#sg-timel');
@@ -86,14 +87,16 @@
       (L.center ? (this.loreStatus(L).up ? '<button class="btn2" data-act="show-lore" data-arg="' + idx + '">Point me to it</button>' : '<div class="meta">' + esc(this.loreStatus(L).text) + '</div>') : '') +
       '<details><summary>Sources</summary><ul class="src">' + src + '</ul></details></div>';
   };
-  SkyApp.prototype.originBlock = function (k) {
+  SkyApp.prototype.originBlock = function (k) {   // one line on the card; the full history sits behind a tab
     var o = this.content.origins && this.content.origins[k]; if (!o) return '';
-    return '<div class="k">Where it came from</div><div class="meta"><span class="tag">' + esc(o.era) + '</span></div><p class="b">' + esc(o.text) + '</p>';
+    var first = o.text.split('. ')[0] + '.';
+    return '<div class="meta" style="margin-top:6px"><span class="tag">' + esc(o.era) + '</span>' + esc(first) + ' <button class="link" data-act="tab" data-arg="origin">Full history</button></div>' +
+      '<div class="tabpane" data-pane="origin" hidden><div class="k">Where it came from</div><p class="b">' + esc(o.text) + '</p><button class="link" data-act="tab" data-arg="story">Back to the story</button></div>';
   };
   SkyApp.prototype.conBlock = function (k, withLore) {
     var c = this.data.con[k]; if (!c) return '';
     var story = this.content.western[k] || '';
-    var h = '<div class="k">About ' + esc(c.n) + '</div><p>' + esc(story) + '</p>' + this.originBlock(k);
+    var h = '<div class="k">About ' + esc(c.n) + '</div><div class="tabpane" data-pane="story"><p>' + esc(story) + '</p></div>' + this.originBlock(k);
     if (withLore && this.loreByCon[k]) { h += '<div class="k">In other skies</div>' + this.loreBlock(this.loreByCon[k], true); }
     return h;
   };
@@ -143,7 +146,7 @@
     } else if (hit.t === 'con') {
       var c = D.con[hit.k]; if (!c) return; title = c.n;
       h += '<div class="meta">Constellation · ' + this.altAzLine(mulMat(matMul(this.HZ, this.P), this.conCenter[hit.k])) + '</div>';
-      h += '<p>' + esc(this.content.western[hit.k] || '') + '</p>' + this.originBlock(hit.k);
+      h += '<div class="tabpane" data-pane="story"><p>' + esc(this.content.western[hit.k] || '') + '</p></div>' + this.originBlock(hit.k);
       if (this.loreByCon[hit.k]) h += '<div class="k">In other skies</div>' + this.loreBlock(this.loreByCon[hit.k], true);
       h += '<button class="btn2" data-act="show-vec" data-label="' + esc(c.n) + '" data-arg="' + this.conCenter[hit.k].join(',') + ',1">Point me to it</button>';
     } else if (hit.t === 'lore') {

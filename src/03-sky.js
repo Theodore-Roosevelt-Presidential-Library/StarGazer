@@ -68,6 +68,7 @@
       self.running = true; self.loop();
       self.updateChips();
       self.autoLocate();
+      if (self.opts.tour) self.joinTour(self.opts.tour);
       if (self.opts.autoOpen) self.showSheet(self.opts.autoOpen);
     }).catch(function (err) {
       if (window.console) console.error('StarGazer', err);
@@ -87,6 +88,7 @@
       '<div class="ro"><div class="c">&nbsp;</div><div class="s">Point the phone at the sky</div></div>' +
       '<button class="ib rb" aria-label="Red light mode" title="Red light mode">' + ICONS.red + '</button></div>' +
       '<div class="cross"></div><div class="toast"></div><button class="target" type="button"><span class="tl"></span><span class="tx">&#x2715;</span></button>' +
+      '<button class="tourpill" type="button"><span class="tp"></span><span class="tx" title="Leave the tour">&#x2715;</span></button>' +
       '<div class="bottom"><div class="seg" role="radiogroup" aria-label="Which sky"><button data-sky="western">Greek &amp; Roman</button><button data-sky="native">Lakota &amp; Native</button><button data-sky="both">Both</button></div><div class="chipsw"><div class="chips"></div><span class="hint">&#x203A;</span></div>' +
       '<div class="nav"><button class="nb" data-sheet="tonight">Tonight</button><button class="nb" data-sheet="aurora">Aurora</button><button class="nb" data-sheet="stories">Stories</button><button class="nb" data-sheet="settings">Settings</button></div></div>' +
       '<div class="sheet"><div class="sh"><div class="t"></div><button class="x" aria-label="Close panel">&#x2715;</button></div><div class="sb"></div></div>' +
@@ -100,6 +102,7 @@
     this.roC = el.querySelector('.ro .c'); this.roS = el.querySelector('.ro .s');
     this.toastEl = el.querySelector('.toast');
     this.targetEl = el.querySelector('.target'); this.targetEl.addEventListener('click', function () { self.clearSelected(); });
+    el.querySelector('.tourpill').addEventListener('click', function () { if (self.tour && confirm('Leave the tour?')) { self.leaveTour(); self.toast('You left the tour. Rejoin any time with the code.', 3000); } });
     this.sheet = el.querySelector('.sheet'); this.sheetT = el.querySelector('.sh .t'); this.sheetB = el.querySelector('.sb');
     this.chipsEl = el.querySelector('.chips');
     this.segEl = el.querySelector('.seg');
@@ -250,7 +253,7 @@
   };
   SkyApp.prototype.close = function () {
     this.running = false;
-    this.stopSensors(); this.stopCamera();
+    this.stopSensors(); this.stopCamera(); if (this.tour) this.leaveTour();
     if (this.wakeLock) { try { this.wakeLock.release(); } catch (e) { } this.wakeLock = null; }
     window.removeEventListener('resize', this.onResize);
     if (window.visualViewport) window.visualViewport.removeEventListener('resize', this.onResize);
@@ -778,7 +781,7 @@
         kx = S2 / (1 + tv[2]); px = cx + tv[0] * kx; py = cy - tv[1] * kx;
         if (px > 0 && px < W && py > 0 && py < H) {
           var pulse = 18 + 6 * sin(Date.now() / 300); ctx.beginPath(); ctx.arc(px, py, pulse * zoom, 0, 6.2832); ctx.stroke(); this.dirty = true;
-          if (Math.hypot(px - cx, py - cy) < Math.min(W, H) * 0.18) { this.selected.centered = (this.selected.centered || Date.now()); if (Date.now() - this.selected.centered > 2500) this.clearSelected('Found it: ' + this.selected.label); }
+          if (Math.hypot(px - cx, py - cy) < Math.min(W, H) * 0.18) { this.selected.centered = (this.selected.centered || Date.now()); if (Date.now() - this.selected.centered > 2500 && !this.tour) this.clearSelected('Found it: ' + this.selected.label); }
           else this.selected.centered = 0;
         }
         else this.drawEdgeArrow(ctx, atan2(-(py - cy), px - cx));

@@ -81,6 +81,9 @@
     '.target{position:absolute;left:50%;top:calc(max(10px,env(safe-area-inset-top)) + 64px);transform:translateX(-50%);display:none;align-items:center;gap:10px;background:var(--acc);color:#0b1830;border:0;border-radius:20px;padding:8px 10px 8px 14px;font-family:' + FONT_C + ';font-size:13px;cursor:pointer;max-width:86%}',
     '.target.show{display:flex}.target .tx{width:22px;height:22px;border-radius:50%;background:rgba(11,24,48,.25);display:flex;align-items:center;justify-content:center;font-size:12px}',
     '.item.dimmed{opacity:.6}',
+    '.tourpill{position:absolute;left:12px;top:calc(max(10px,env(safe-area-inset-top)) + 52px);display:none;align-items:center;gap:8px;background:rgba(9,42,77,.9);border:1px solid var(--acc);color:var(--fg2);border-radius:20px;padding:6px 8px 6px 12px;font-family:' + FONT_C + ';font-size:12px;cursor:pointer}',
+    '.tourpill.show{display:flex}.tourpill .tx{width:18px;height:18px;border-radius:50%;background:rgba(153,173,197,.2);display:flex;align-items:center;justify-content:center;font-size:10px}',
+    '.root.red .tourpill{background:rgba(30,4,4,.9)}',
     '.bottom{position:absolute;left:0;right:0;bottom:0;padding:26px 0 max(10px,env(safe-area-inset-bottom));pointer-events:none;display:flex;flex-direction:column;gap:8px;background:linear-gradient(rgba(4,13,27,0),rgba(4,13,27,.85) 45%)}',
     '.root.red .bottom{background:linear-gradient(rgba(9,0,0,0),rgba(9,0,0,.9) 45%)}',
     '.seg{display:flex;gap:0;margin:0 12px 2px;border:1px solid var(--line);border-radius:4px;overflow:hidden;pointer-events:auto;background:rgba(4,13,27,.6)}',
@@ -224,17 +227,24 @@
       WORDMARK.replace('<svg ', '<svg class="wm" role="img" aria-label="Theodore Roosevelt Presidential Library" ') +
       '<div class="cap"><span class="dot' + (cap.ok ? '' : ' off') + '"></span>' + (cap.ok ? 'Motion sensor ready' : 'Drag to explore') + '</div>' +
       '<div class="in"><div><h1>Stargazer</h1><p class="lede">' + (cap.ok ? 'Hold your phone up to the night sky. It names what you see and tells its stories.' : 'Tonight\'s sky over the Badlands. Best on a phone, outside, after dark.') + '</p></div>' +
-      '<button class="btn" type="button">' + (cap.ok ? 'Start' : 'Explore') + '</button></div>';
+      '<div><button class="btn" type="button">' + (cap.ok ? 'Start' : 'Explore') + '</button><br><button class="join" type="button">Joining a guided tour? Enter the code</button>' +
+      '<div class="joinbox"><input type="text" maxlength="6" placeholder="CODE" autocapitalize="characters" autocomplete="off" spellcheck="false" aria-label="Tour code"><button type="button">Join</button></div></div></div>';
     root.appendChild(card);
     var sky = new CardSky(card.querySelector('.sky'), loc || loadPrefs().loc || DEFAULT_LOC);
     var btn = card.querySelector('.btn'), busy = false;
-    function go() {
+    var joinBtn = card.querySelector('.join'), joinBox = card.querySelector('.joinbox'), joinIn = joinBox.querySelector('input'), joinGo = joinBox.querySelector('button');
+    function go(tour) {
       if (busy) return; busy = true; btn.textContent = 'Opening…';
-      var app = new SkyApp({ loc: loc, sensor: cap.ok, container: container });
+      var app = new SkyApp({ loc: loc, sensor: cap.ok, container: container, tour: tour || null });
       app.open().then(function () { busy = false; btn.textContent = cap.ok ? 'Start' : 'Explore'; });
     }
     btn.addEventListener('click', function (e) { e.stopPropagation(); go(); });
-    card.addEventListener('click', go);
+    joinBtn.addEventListener('click', function (e) { e.stopPropagation(); joinBox.classList.toggle('show'); if (joinBox.classList.contains('show')) joinIn.focus(); });
+    joinBox.addEventListener('click', function (e) { e.stopPropagation(); });
+    joinGo.addEventListener('click', function () { var c = cleanCode(joinIn.value); if (c.length >= 4) go(c); else joinIn.focus(); });
+    joinIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') joinGo.click(); });
+    var pre = new URLSearchParams(location.search).get('tour'); if (pre) { joinIn.value = cleanCode(pre); joinBox.classList.add('show'); }
+    card.addEventListener('click', function () { go(); });
     // prefetch bundles when the network is not constrained
     var conn = navigator.connection || {};
     if (!conn.saveData && (window.requestIdleCallback || setTimeout)) {
