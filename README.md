@@ -35,6 +35,9 @@ extra-dimming slider, and a red-light mode that protects night vision.
 
 Tap any star, planet, figure, or constellation name for its details. The reticle at the center of
 the screen always reports the constellation you are pointing at and the nearest bright star.
+Cards stay under half the screen so the sky remains visible; anything else at that spot is one
+tap away in an "Also here" row. **Pin** on a card freezes the view so the phone can come down
+to reading height; unpin (or close the card) hands control back to the sensors.
 
 ## Quick start
 

@@ -7,7 +7,8 @@
     red: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16" opacity=".5"/></svg>',
     loc: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>',
     cal: '<svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 9l-4 4 1 5.5-5-2.7L7 18.5 8 13 4 9l5.5-.5z"/></svg>',
-    cam: '<svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'
+    cam: '<svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+    pin: '<svg viewBox="0 0 24 24"><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3zM12 14v7"/></svg>'
   };
   var LAYERS = [
     ['camera', 'See-through'], ['art', 'Figures'], ['lines', 'Constellations'], ['names', 'Star names'], ['planets', 'Planets'],
@@ -94,7 +95,7 @@
       '<button class="tourpill" type="button"><span class="tp"></span><span class="tx" title="Leave the tour">&#x2715;</span></button>' +
       '<div class="bottom"><div class="cbw"><button class="cb" type="button" aria-pressed="false">' + ICONS.cam + '<span>See-through</span></button></div><div class="seg" role="radiogroup" aria-label="Which sky"><button data-sky="western">Greek &amp; Roman</button><button data-sky="native">Lakota &amp; Native</button><button data-sky="both">Both</button></div><div class="chipsw"><div class="chips"></div><span class="hint">&#x203A;</span></div>' +
       '<div class="nav"><button class="nb" data-sheet="tonight">Tonight</button><button class="nb" data-sheet="aurora">Aurora</button><button class="nb" data-sheet="stories">Stories</button><button class="nb" data-sheet="settings">Settings</button></div></div>' +
-      '<div class="sheet"><div class="sh"><div class="t"></div><button class="x" aria-label="Close panel">&#x2715;</button></div><div class="sb"></div></div>' +
+      '<div class="sheet"><div class="sh"><div class="t"></div><button class="pin" type="button" aria-pressed="false" aria-label="Pin the view so you can lower the phone" title="Pin the view">' + ICONS.pin + '<span>Pin</span></button><button class="x" aria-label="Close panel">&#x2715;</button></div><div class="sb"></div></div>' +
       '<div class="loading">' + WORDMARK.replace('<svg ', '<svg class="wm" ') + '<div class="tips"><div>Hold up<small>raise the phone to the sky</small></div><div>Turn<small>slowly, in any direction</small></div><div>Tap<small>anything, for its story</small></div></div><div class="lmsg">Loading the sky&hellip;</div></div>';
     this.openedAt = Date.now();
     root.appendChild(el);
@@ -115,6 +116,7 @@
     el.querySelector('.rb').addEventListener('click', function () { self.setRed(!self.red); });
     var cb = el.querySelector('.cb'); if (this.cameraPossible() && !this.inline) { cb.classList.add('show'); cb.addEventListener('click', function () { self.toggleCamera(); }); }
     el.querySelector('.sh .x').addEventListener('click', function () { self.hideSheet(); });
+    this.pinBtn = el.querySelector('.sh .pin'); this.pinBtn.addEventListener('click', function () { self.setPinned(!self.pinned); });
     var nbs = el.querySelectorAll('.nb');
     for (var i = 0; i < nbs.length; i++) nbs[i].addEventListener('click', function (e) {
       var s = e.currentTarget.getAttribute('data-sheet');
@@ -395,7 +397,23 @@
     // look direction = device -Z ; screen-up = device (sa, ca, 0)
     var f = [-m13, -m23, -m33];
     var u = [m11 * sa + m12 * ca, m21 * sa + m22 * ca, m31 * sa + m32 * ca];
+    if (this.pinned) return;   // pinned: the sky holds still so the phone can come down to reading height
     this.target.f = f; this.target.u = u; this.dirty = true;
+  };
+  // ---- pin: freeze the view under an open card; unpin hands control back to the sensors ---------
+  SkyApp.prototype.setPinned = function (on) {
+    on = !!on && this.mode === 'sensor' && !this.inline;
+    if (on === !!this.pinned) return;
+    this.pinned = on;
+    this.el.classList.toggle('pinned', on);
+    if (this.pinBtn) { this.pinBtn.classList.toggle('on', on); this.pinBtn.setAttribute('aria-pressed', on ? 'true' : 'false'); this.pinBtn.querySelector('span').textContent = on ? 'Pinned' : 'Pin'; }
+    if (on) { this.roS.textContent = 'Pinned · the sky holds still until you unpin'; this.toast('Pinned. Lower the phone and read; the sky stays where it was.', 3200); }
+    else { this.dwell = null; this.toast('Unpinned. Following the phone again.', 2000); }
+    this.dirty = true;
+  };
+  SkyApp.prototype.updatePinBtn = function () {
+    if (!this.pinBtn) return;
+    this.pinBtn.style.display = (this.mode === 'sensor' && !this.inline && this.sheetName === 'info') ? '' : 'none';
   };
 
   // ---- pointer handling ----------------------------------------------------------------------
@@ -487,7 +505,7 @@
   };
   // ---- linger to read, move to dismiss ----------------------------------------------------------
   SkyApp.prototype.trackDwell = function (f, moving) {
-    if (!this.HZ || !this.Ms || this.inline) return;   // the guide's preview only mirrors what is pushed
+    if (!this.HZ || !this.Ms || this.inline || this.pinned) return;   // the guide's preview only mirrors what is pushed; a pinned card stays
     var now = Date.now(), dw = this.dwell || (this.dwell = { anchor: f, since: now, shown: null, big: false });
     var drift = angSep(f, dw.anchor);
     if (drift > 4) { dw.anchor = f; dw.since = now; dw.big = drift > 12; }
@@ -939,7 +957,7 @@
     if (aa.alt < -2) { title = 'Below the horizon'; sub = 'Raise the phone toward the sky'; }
     else sub += 'looking ' + fmtAz(aa.az) + ', ' + Math.round(aa.alt) + '° up';
     if (this.roC.textContent !== title) { this.roC.textContent = title; this.roC.style.fontSize = title.length > 16 ? '20px' : title.length > 12 ? '25px' : ''; }
-    this.roS.textContent = sub;
+    this.roS.textContent = this.pinned ? 'Pinned · the sky holds still until you unpin' : sub;
   };
   SkyApp.prototype.tap = function (px, py) {
     if (this.sheet.classList.contains('show') && this.sheetName === 'info') { this.hideSheet(); return; }

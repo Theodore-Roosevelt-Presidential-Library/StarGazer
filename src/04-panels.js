@@ -12,10 +12,12 @@
     else if (name === 'settings') { title = 'Settings'; html = this.settingsHtml(); }
     this.sheetT.textContent = title; this.sheetB.innerHTML = html; this.sheetB.scrollTop = 0;
     this.sheet.classList.add('show');
+    this.updatePinBtn();
     this.bindSheet(name);
   };
   SkyApp.prototype.hideSheet = function () {
     this.sheet.classList.remove('show'); this.sheetName = null;
+    if (this.pinned) this.setPinned(false);
     var nbs = this.el.querySelectorAll('.nb'); for (var i = 0; i < nbs.length; i++) nbs[i].classList.remove('on');
   };
   SkyApp.prototype.bindSheet = function (name) {
@@ -90,6 +92,18 @@
     return '<div class="meta" style="margin-top:6px"><span class="tag">' + esc(o.era) + '</span>' + esc(first) + ' <button class="link" data-act="tab" data-arg="origin">Full history</button></div>' +
       '<div class="tabpane" data-pane="origin" hidden><div class="k">Where it came from</div><p class="b">' + esc(o.text) + '</p><button class="link" data-act="tab" data-arg="story">Back to the story</button></div>';
   };
+  // One short row of links instead of stacking whole cards: keeps the sheet small so the sky stays visible.
+  SkyApp.prototype.alsoRow = function (parts) {
+    var links = [];
+    for (var i = 0; i < parts.length; i++) { var p = parts[i]; if (!p) continue; links.push('<button class="link" data-act="' + p.act + '" data-arg="' + esc(String(p.arg)) + '">' + esc(p.label) + '</button>'); }
+    return links.length ? '<div class="also"><span>Also here</span>' + links.join('') + '</div>' : '';
+  };
+  SkyApp.prototype.loreLinks = function (entries) {
+    var out = []; if (!entries) return out;
+    for (var i = 0; i < entries.length; i++) { var L = entries[i]; out.push({ act: 'lore', arg: C_idx(this.lore, L), label: (L.label || L.name.split(' (')[0]) + ' · ' + L.culture.split(',')[0].split(' /')[0] }); }
+    return out;
+  };
+  SkyApp.prototype.conLink = function (k) { var c = this.data.con[k]; return c ? { act: 'con', arg: k, label: c.n } : null; };
   SkyApp.prototype.conBlock = function (k, withLore) {
     var c = this.data.con[k]; if (!c) return '';
     var story = this.content.western[k] || '';
@@ -105,9 +119,7 @@
       var hz = mulMat(matMul(this.HZ, this.P), [this.starVec[hit.i * 3], this.starVec[hit.i * 3 + 1], this.starVec[hit.i * 3 + 2]]);
       h += '<div class="meta">Star' + (con ? ' in ' + esc(con.n) : '') + ' · magnitude ' + s[3].toFixed(1) + ' · ' + bvWord(s[4]) + (s[7] && s[6] ? ' · ' + esc(s[7]) + ' ' + esc(con.g) : '') + '<br>' + this.altAzLine(hz) + '</div>';
       if (s[3] < 0.5) h += '<p>One of the brightest stars in the sky.</p>';
-      var lore = this.loreByHip[s[0]];
-      if (lore) h += '<div class="k">Native sky</div>' + this.loreBlock(lore, false);
-      if (con) h += this.conBlock(s[5], !lore);
+      h += this.alsoRow(this.loreLinks(this.loreByHip[s[0]]).concat(con ? [this.conLink(s[5])] : []));
     } else if (hit.t === 'body') {
       var k = hit.k;
       if (k === 'moon') {
@@ -117,7 +129,7 @@
         h += '<p>' + (ph.dl < 180 ? 'The Moon is waxing: a little more of it is lit each night, on its way to full.' : 'The Moon is waning: it rises later each night and grows thinner toward new.') + ' Moonlight washes out faint stars and the Milky Way, so the darkest skies come in the week around new Moon.</p>';
         h += this.moonTimesHtml();
         var lm = []; for (var li = 0; li < this.lore.length; li++) if (this.lore[li].body.indexOf('moon') >= 0) lm.push(this.lore[li]);
-        if (lm.length) h += '<div class="k">Native sky</div>' + this.loreBlock(lm, true);
+        h += this.alsoRow(this.loreLinks(lm));
       } else {
         var b = this.ss[k]; title = b.name;
         var conB = this.constellationAt(b.vec);
@@ -130,7 +142,7 @@
           if (k === 'venus' || k === 'mercury') h += '<p>' + (b.elong < 12 ? 'Right now it is too close to the Sun to see.' : 'Currently ' + Math.round(b.elong) + '° from the Sun, so look for it in ' + (this.isMorningStar(b) ? 'the morning sky before sunrise.' : 'the evening sky after sunset.')) + '</p>';
           h += this.bodyTimesHtml(b.vecDate, b.name);
           var lb = []; for (var lj = 0; lj < this.lore.length; lj++) if (this.lore[lj].body.indexOf(k) >= 0) lb.push(this.lore[lj]);
-          if (lb.length) h += '<div class="k">Native sky</div>' + this.loreBlock(lb, true);
+          h += this.alsoRow(this.loreLinks(lb));
         }
       }
     } else if (hit.t === 'dso') {
@@ -138,23 +150,24 @@
       title = ds[0]; var conD = this.constellationAt(this.dsoVec[hit.i]);
       h += '<div class="meta">' + (words[ds[2]] || 'Deep-sky object') + (ds[1] !== ds[0] ? ' · ' + esc(ds[1]) : '') + ' · magnitude ' + ds[5] + (D.con[conD] ? ' · in ' + esc(D.con[conD].n) : '') + '<br>' + this.altAzLine(mulMat(matMul(this.HZ, this.P), this.dsoVec[hit.i])) + '</div>';
       h += '<p>' + (ds[5] < 4 ? 'Visible to the naked eye from a dark site as a soft patch of light. ' : 'Best with binoculars. ') + (ds[2] === 's' ? 'The light arriving tonight left this galaxy long before there were people to see it.' : ds[2] === 'oc' ? 'A family of young stars born together from one cloud of gas.' : ds[2] === 'gc' ? 'A ball of hundreds of thousands of ancient stars orbiting the Milky Way.' : 'A glowing cloud of gas where new stars are forming.') + '</p>';
-      if (ds[1] === 'M 45') { var lp = this.loreByHip[17702]; if (lp) h += '<div class="k">Native sky</div>' + this.loreBlock(lp, true); }
-      h += this.conBlock(conD, true);
+      h += this.alsoRow(this.loreLinks(ds[1] === 'M 45' ? this.loreByHip[17702] : null).concat([this.conLink(conD)]));
     } else if (hit.t === 'con') {
       var c = D.con[hit.k]; if (!c) return; title = c.n;
       h += '<div class="meta">Constellation · ' + this.altAzLine(mulMat(matMul(this.HZ, this.P), this.conCenter[hit.k])) + '</div>';
       h += '<div class="tabpane" data-pane="story"><p>' + esc(this.content.western[hit.k] || '') + '</p></div>' + this.originBlock(hit.k);
-      if (this.loreByCon[hit.k]) h += '<div class="k">In other skies</div>' + this.loreBlock(this.loreByCon[hit.k], true);
+      h += this.alsoRow(this.loreLinks(this.loreByCon[hit.k]));
       h += '<button class="btn2" data-act="show-vec" data-label="' + esc(c.n) + '" data-size="' + (this.conSize[hit.k] || 0) + '" data-arg="' + this.conCenter[hit.k].join(',') + ',1">Point me to it</button>';
     } else if (hit.t === 'lore') {
       var L = this.lore[hit.i]; title = L.name.split(' (')[0].split(' /')[0];
       h += this.loreDetail(L, hit.i);
+      var back = []; for (var ci = 0; ci < (L.con || []).length; ci++) back.push(this.conLink(L.con[ci]));
+      h += this.alsoRow(back);
     } else if (hit.t === 'shower') {
       var sh = this.content.showers[hit.i]; title = sh.name + ' meteors';
       h += '<div class="meta">Active ' + fmtMD(sh.start) + ' – ' + fmtMD(sh.end) + ' · peak ' + fmtMD(sh.peak) + ' · up to ' + sh.zhr + ' per hour under ideal skies · debris from ' + esc(sh.parent) + '</div>';
       h += '<p>' + esc(sh.note) + '</p><p>Meteors can appear anywhere in the sky; their trails point back to this radiant. Lie back, let your eyes adjust for 20 minutes, and look about halfway up.</p>';
       var lf = []; for (var lk = 0; lk < this.lore.length; lk++) if (this.lore[lk].id === 'lak-fallen-star') lf.push(this.lore[lk]);
-      if (lf.length) h += '<div class="k">Native sky</div>' + this.loreBlock(lf, true);
+      h += this.alsoRow(this.loreLinks(lf));
     }
     if (this.selected) h += '<p><button class="link" data-act="clear-sel">Stop pointing</button></p>';
     // a card that opened because you are already looking at the thing has no use for "Point me to it"
