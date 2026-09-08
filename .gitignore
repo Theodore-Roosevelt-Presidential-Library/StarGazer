@@ -1,5 +1,6 @@
 # built in CI by build.py and tools/build_data.py
 stargazer.js
+stargazer-content.js
 stargazer-data.js
 tools/.cache/
 .shots/
