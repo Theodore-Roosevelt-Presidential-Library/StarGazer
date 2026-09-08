@@ -52,6 +52,18 @@
     '.lede{font-size:16px;line-height:1.45;color:' + BRAND.sand + ';margin:0;max-width:420px}',
     '.btn{flex:none;font-family:' + FONT_D + ';font-weight:700;text-transform:uppercase;font-size:24px;line-height:1;letter-spacing:.04em;background:' + BRAND.orange + ';color:' + BRAND.night + ';border:0;border-radius:2px;padding:14px 26px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s,background .15s}',
     '.card:hover .btn{background:#f08e6b;transform:translateY(-1px)}.btn:active{transform:translateY(1px)}',
+    '.join{display:block;width:100%;font-family:' + FONT_C + ';font-size:12px;color:' + BRAND.graySky + ';background:none;border:0;padding:8px 0 0;margin:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-align:center}',
+    '.jp{position:absolute;inset:0;background:#071c38;display:none;flex-direction:column;justify-content:center;padding:28px 24px;cursor:default}',
+    '.jp.show{display:flex}',
+    '.jp h2{font-family:' + FONT_D + ';font-weight:700;text-transform:uppercase;font-size:40px;line-height:.9;letter-spacing:.02em;color:#fff;margin:0 0 6px}',
+    '.jp p{font-family:' + FONT_B + ';font-size:15px;line-height:1.45;color:' + BRAND.sand + ';margin:0 0 18px}',
+    '.jp input{display:block;width:100%;font-family:' + FONT_D + ';font-weight:700;font-size:44px;line-height:1;letter-spacing:.22em;text-align:center;text-transform:uppercase;padding:14px 8px 12px;border:1px solid rgba(153,173,197,.55);border-radius:3px;background:rgba(4,13,27,.7);color:#fff;outline:none;margin:0 0 12px}',
+    '.jp input:focus{border-color:' + BRAND.orange + '}',
+    '.jp .go{display:block;width:100%;font-family:' + FONT_D + ';font-weight:700;text-transform:uppercase;font-size:24px;line-height:1;letter-spacing:.04em;background:' + BRAND.orange + ';color:' + BRAND.night + ';border:0;border-radius:2px;padding:14px 20px 12px;cursor:pointer}',
+    '.jp .go:disabled{opacity:.45;cursor:default}',
+    '.jp .cancel{display:block;margin:14px auto 0;font-family:' + FONT_C + ';font-size:13px;color:' + BRAND.graySky + ';background:none;border:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}',
+    '.jp .err{font-family:' + FONT_C + ';font-size:12px;color:#F36079;min-height:16px;margin:0 0 6px;text-align:center}',
+    '@media (max-width:520px){.jp{padding:22px 18px}.jp h2{font-size:34px}.jp input{font-size:38px}}',
     '@media (max-width:520px){.card{aspect-ratio:4/5;min-height:360px}.in{flex-direction:column;align-items:stretch}h1{font-size:46px}.lede{font-size:15px}.btn{width:100%;font-size:22px}.wm{width:76px;left:18px;top:16px}.cap{right:16px;top:18px}.in{left:18px;right:18px;bottom:18px}}'
   ].join('');
 
@@ -227,23 +239,29 @@
       WORDMARK.replace('<svg ', '<svg class="wm" role="img" aria-label="Theodore Roosevelt Presidential Library" ') +
       '<div class="cap"><span class="dot' + (cap.ok ? '' : ' off') + '"></span>' + (cap.ok ? 'Motion sensor ready' : 'Drag to explore') + '</div>' +
       '<div class="in"><div><h1>Stargazer</h1><p class="lede">' + (cap.ok ? 'Hold your phone up to the night sky. It names what you see and tells its stories.' : 'Tonight\'s sky over the Badlands. Best on a phone, outside, after dark.') + '</p></div>' +
-      '<div><button class="btn" type="button">' + (cap.ok ? 'Start' : 'Explore') + '</button><br><button class="join" type="button">Joining a guided tour? Enter the code</button>' +
-      '<div class="joinbox"><input type="text" maxlength="6" placeholder="CODE" autocapitalize="characters" autocomplete="off" spellcheck="false" aria-label="Tour code"><button type="button">Join</button></div></div></div>';
+      '<div><button class="btn" type="button">' + (cap.ok ? 'Start' : 'Explore') + '</button><button class="join" type="button">Joining a guided tour?</button></div></div>' +
+      '<div class="jp" role="dialog" aria-label="Join a tour"><h2>Join a tour</h2><p>Enter the code your guide gives you. You can join any time while the tour is running.</p>' +
+      '<input type="text" maxlength="6" placeholder="CODE" inputmode="text" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Tour code">' +
+      '<div class="err"></div><button class="go" type="button" disabled>Join the tour</button><button class="cancel" type="button">Not now</button></div>';
     root.appendChild(card);
     var sky = new CardSky(card.querySelector('.sky'), loc || loadPrefs().loc || DEFAULT_LOC);
     var btn = card.querySelector('.btn'), busy = false;
-    var joinBtn = card.querySelector('.join'), joinBox = card.querySelector('.joinbox'), joinIn = joinBox.querySelector('input'), joinGo = joinBox.querySelector('button');
+    var joinBtn = card.querySelector('.join'), joinBox = card.querySelector('.jp'), joinIn = joinBox.querySelector('input'), joinGo = joinBox.querySelector('.go'), joinErr = joinBox.querySelector('.err'), joinCancel = joinBox.querySelector('.cancel');
     function go(tour) {
       if (busy) return; busy = true; btn.textContent = 'Opening…';
       var app = new SkyApp({ loc: loc, sensor: cap.ok, container: container, tour: tour || null });
       app.open().then(function () { busy = false; btn.textContent = cap.ok ? 'Start' : 'Explore'; });
     }
     btn.addEventListener('click', function (e) { e.stopPropagation(); go(); });
-    joinBtn.addEventListener('click', function (e) { e.stopPropagation(); joinBox.classList.toggle('show'); if (joinBox.classList.contains('show')) joinIn.focus(); });
+    function openJoin() { joinBox.classList.add('show'); sky.visible = false; setTimeout(function () { joinIn.focus(); }, 50); }
+    function closeJoin() { joinBox.classList.remove('show'); sky.visible = true; sky.start(); }
+    joinBtn.addEventListener('click', function (e) { e.stopPropagation(); openJoin(); });
     joinBox.addEventListener('click', function (e) { e.stopPropagation(); });
-    joinGo.addEventListener('click', function () { var c = cleanCode(joinIn.value); if (c.length >= 4) go(c); else joinIn.focus(); });
-    joinIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') joinGo.click(); });
-    var pre = new URLSearchParams(location.search).get('tour'); if (pre) { joinIn.value = cleanCode(pre); joinBox.classList.add('show'); }
+    joinCancel.addEventListener('click', closeJoin);
+    joinIn.addEventListener('input', function () { joinIn.value = cleanCode(joinIn.value); joinGo.disabled = joinIn.value.length < 5; joinErr.textContent = ''; });
+    joinGo.addEventListener('click', function () { var c = cleanCode(joinIn.value); if (c.length < 5) { joinErr.textContent = 'Codes are five letters or numbers.'; joinIn.focus(); return; } closeJoin(); go(c); });
+    joinIn.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !joinGo.disabled) joinGo.click(); });
+    var pre = new URLSearchParams(location.search).get('tour'); if (pre) { joinIn.value = cleanCode(pre); joinGo.disabled = joinIn.value.length < 5; openJoin(); }
     card.addEventListener('click', function () { go(); });
     // prefetch bundles when the network is not constrained
     var conn = navigator.connection || {};
