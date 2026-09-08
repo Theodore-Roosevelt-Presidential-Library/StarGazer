@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Concatenate src/*.js into stargazer.js and inline the wordmark SVG. No dependencies."""
-import glob, os, re
+"""Build stargazer-content.js from content/*.json, then concatenate src/*.js into stargazer.js with the wordmark inlined. No dependencies."""
+import glob, os, runpy
 here = os.path.dirname(os.path.abspath(__file__))
+runpy.run_path(os.path.join(here, 'tools', 'build_content.py'), run_name='__main__')
 parts = sorted(glob.glob(os.path.join(here, 'src', '*.js')))
 src = ''.join(open(p, encoding='utf-8').read() for p in parts)
 wm = open(os.path.join(here, 'assets', 'wordmark.svg'), encoding='utf-8').read().strip().replace("'", "\\'")
