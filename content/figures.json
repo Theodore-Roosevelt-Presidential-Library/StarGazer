@@ -1,0 +1,23 @@
+{
+ "_comment": "How each Indigenous entry in indigenous_star_knowledge.json is drawn on the sky. label: short name drawn beside the figure. con: constellations whose info panel lists the story. fig: ring (closed dotted loop), path (open dotted line), cloud (marked stars only), none (story only). body: Sun/Moon/planet/Milky Way stories to attach. hold: true keeps an entry out of the app until a tribal partner has reviewed it (it stays in the research file).",
+ "lak-polaris":       {"label": "Wičháȟpi Owáŋžila",       "con": ["UMi"],                                   "fig": "cloud"},
+ "lak-milky-way":     {"label": "Wanáǧi Tȟačháŋku",        "con": [],                                        "fig": "cloud", "body": ["milkyway"]},
+ "lak-sacred-hoop":   {"label": "Čhaŋgléška Wakȟáŋ",       "con": ["Tau", "Ori", "CMa", "CMi", "Gem", "Aur"], "fig": "ring"},
+ "lak-bear-lodge":    {"label": "Matȟó Thípila",           "con": ["Gem"],                                   "fig": "cloud"},
+ "lak-pleiades":      {"label": "Wičhíŋčala Šakówiŋ",      "con": ["Tau"],                                   "fig": "cloud"},
+ "lak-tayamni":       {"label": "Tȟayámni",                "con": ["Tau", "Ori", "CMa"],                     "fig": "path"},
+ "lak-big-dipper":    {"label": "Wičhákhiyuhapi",          "con": ["UMa"],                                   "fig": "path"},
+ "lak-dried-willow":  {"label": "Čhaŋšáša Ipusye",         "con": ["Tri", "Ari"],                            "fig": "path"},
+ "lak-keya":          {"label": "Kéya",                    "con": ["Peg"],                                   "fig": "ring"},
+ "lak-zuzeca":        {"label": "Zuzéča",                  "con": ["Col", "Pup", "CMa"],                     "fig": "path"},
+ "lak-fallen-star":   {"label": "Wičháȟpi Hiŋȟpáya",       "con": [],                                        "fig": "cloud"},
+ "lak-venus":         {"label": "Aŋpó Wičháȟpi Suŋkáku",   "con": ["Boo"],                                   "fig": "cloud", "body": ["venus"]},
+ "ari-star-husband":  {"label": "The Girl Who Married a Star", "con": [],                                    "fig": "cloud"},
+ "ari-three-stars-east": {"label": "Red-Star, Yellow-Star, and the Big Black Meteoric Star", "con": [],     "fig": "cloud", "hold": true},
+ "hid-moon-grandson": {"label": "Old Woman's Grandson",    "con": [],                                        "fig": "cloud", "body": ["moon", "sun"], "hold": true},
+ "man-old-woman-moon-stars": {"label": "Old Woman Who Never Dies and her star children", "con": [],        "fig": "cloud", "body": ["moon", "venus"], "hold": true},
+ "oji-fisher-loon":   {"label": "Ojiig & Maang",           "con": ["UMa", "UMi"],                            "fig": "cloud"},
+ "oji-wintermaker":   {"label": "Biboonkeonini",           "con": ["Ori"],                                   "fig": "cloud"},
+ "oji-hole-in-the-sky": {"label": "Bagone-giizhig",        "con": ["Tau"],                                   "fig": "cloud"},
+ "paw-skidi-sky":     {"label": "Skidi Pawnee sky",        "con": ["UMi", "CrB", "Sco", "Tau"],              "fig": "none"}
+}
